@@ -1,19 +1,13 @@
 source 'https://rubygems.org'
 
-gem 'sinatra'
-gem 'uglifier'
-gem 'slim'
+gem 'sinatra', require: false
+gem 'unicorn', require: false
 
 group :development, :test do
-  gem 'faker'
-  gem 'shoulda-matchers'
-  gem 'capybara', require: false
-  gem 'poltergeist', require: false
-  gem 'phantomjs', require: 'phantomjs/poltergeist'
+  gem 'rspec'
+  gem 'rack-test'
 
   gem 'pry', require: false
-  gem 'byebug'
-  gem 'web-console'
 
   gem 'simplecov', require: false
 
