@@ -3,9 +3,15 @@ source 'https://rubygems.org'
 gem 'sinatra', require: false
 gem 'unicorn', require: false
 
+gem 'slim'
+
 group :development, :test do
   gem 'rspec'
   gem 'rack-test'
+
+  gem 'capybara', require: false
+  gem 'poltergeist', require: false
+  gem 'phantomjs', require: 'phantomjs/poltergeist'
 
   gem 'pry', require: false
 

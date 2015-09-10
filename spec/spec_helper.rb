@@ -1,11 +1,12 @@
 require 'bundler/setup'
 require 'simplecov'
+require 'capybara/rspec'
 
 ENV['RACK_ENV'] = 'test'
 
 Bundler.require(:test)
 
 require_relative '../init.rb'
+require 'discovery_service/application'
 
-RSpec.configure do |_config|
-end
+Capybara.app = DiscoveryService::Application
