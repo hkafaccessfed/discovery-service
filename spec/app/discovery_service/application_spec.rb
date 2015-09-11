@@ -5,9 +5,9 @@ RSpec.describe DiscoveryService::Application do
   let(:app) { DiscoveryService::Application }
 
   context 'get /' do
-    it 'returns the placeholder text' do
+    it 'returns http status code 200' do
       get '/'
-      expect(last_response.body).to eq('Discovery Service Home!')
+      expect(last_response.status).to eq(200)
     end
   end
 end

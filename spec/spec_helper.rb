@@ -1,11 +1,24 @@
 require 'bundler/setup'
 require 'simplecov'
+require 'capybara/rspec'
 
 ENV['RACK_ENV'] = 'test'
 
 Bundler.require(:test)
 
 require_relative '../init.rb'
+require 'discovery_service/application'
 
-RSpec.configure do |_config|
+Capybara.app = DiscoveryService::Application
+
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.disable_monkey_patching!
 end
