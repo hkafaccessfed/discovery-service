@@ -1,4 +1,4 @@
-describe 'the IdP selection process', type: :feature do
+RSpec.describe 'the IdP selection process', type: :feature do
   it 'shows the page title' do
     visit '/'
     expect(page).to have_title 'AAF Discovery Service'
