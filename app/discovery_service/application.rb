@@ -1,13 +1,17 @@
 require 'sinatra/base'
+require 'lib/metadata/saml_service'
 
 module DiscoveryService
   # Web application to allow users to select their IdP
   class Application < Sinatra::Base
-    configure do
+    configure :development, :test do
       enable :logging
-      file = File.new("log/#{settings.environment}.log", 'a')
-      file.sync = true
-      use Rack::CommonLogger, file
+      set :logging, Logger::DEBUG
+    end
+
+    configure :production do
+      enable :logging
+      set :logging, Logger::INFO
     end
 
     get '/' do
