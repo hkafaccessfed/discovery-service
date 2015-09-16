@@ -1,4 +1,5 @@
 require 'logger'
+require 'json'
 
 module DiscoveryService
   # For interaction with SAML Service
@@ -19,13 +20,15 @@ module DiscoveryService
     end
 
     def self.parse_response(response)
-      @logger.info "Parsing response (#{response.body})"
-      JSON.parse(response.body, symbolize_names: true)
+      @logger.debug "Parsing response (#{response.body})"
+      json_response = JSON.parse(response.body, symbolize_names: true)
+      @logger.debug "Built JSON: #{json_response}"
+      json_response
     end
 
     def self.with_saml_service_client(uri)
       client = Net::HTTP.new(uri.host, uri.port)
-      @logger.info "Invoking SAML Service (#{uri})"
+      @logger.debug "Invoking SAML Service (#{uri})"
       client.start { |http| yield http }
     end
 
