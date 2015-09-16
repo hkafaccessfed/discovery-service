@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+Dir.chdir File.expand_path('..', File.dirname(__FILE__))
+
+puts '== Installing dependencies =='
+system 'gem install bundler --conservative'
+system 'bundle check || bundle install'
+
+require 'bundler/setup'
+require 'gumboot/strap'
+
+include Gumboot::Strap
+
+puts "\n== Creating log directory =="
+Dir.mkdir 'log' unless File.exist?('log')
+
+puts "\n== Cleaning logs =="
+clean_logs

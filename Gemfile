@@ -24,4 +24,9 @@ group :development, :test do
   gem 'guard-bundler', require: false
   gem 'guard-unicorn', require: false
   gem 'terminal-notifier-guard', require: false
+
+  gem 'aaf-gumboot', git: 'https://github.com/ausaccessfed/aaf-gumboot',
+                     branch: 'develop'
+  # Have to drag in this dependency for gumboot
+  gem 'activesupport', require: false
 end
