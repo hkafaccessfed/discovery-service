@@ -1,5 +1,4 @@
 require 'sinatra/base'
-require 'lib/metadata/saml_service'
 
 module DiscoveryService
   # Web application to allow users to select their IdP

@@ -1,27 +1,17 @@
-require 'lib/metadata/saml_service'
+require 'lib/saml_service_client'
 
-RSpec.describe Metadata::SAMLService do
-  let(:klass) do
-    Class.new do
-      include Metadata::SAMLService
-      def logger
-        Logger.new('log/rspec.log')
-      end
-    end
-  end
-
-  let(:instance) { klass.new }
-
-  context '#idp_sp_data' do
+RSpec.describe DiscoveryService::SAMLServiceClient do
+  context '#retrieve_entity_data' do
     let(:url) { 'http://saml-service.example.com:443/entities' }
 
     before do
       stub_request(:get, url).to_return(response)
     end
 
+    subject { DiscoveryService::SAMLServiceClient.retrieve_entity_data(url) }
+
     context 'with a SAML Service response' do
       context 'that is valid' do
-        subject { instance.idp_sp_data(url) }
         let(:response_body) do
           {
             entities: [
@@ -51,7 +41,7 @@ RSpec.describe Metadata::SAMLService do
 
       context 'that is not valid' do
         def run
-          instance.idp_sp_data(url)
+          DiscoveryService::SAMLServiceClient.retrieve_entity_data(url)
         end
 
         let(:response) do
