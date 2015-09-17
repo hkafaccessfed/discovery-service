@@ -7,6 +7,7 @@ gem 'slim'
 
 group :development, :test do
   gem 'rspec'
+  gem 'faker'
   gem 'rack-test'
   gem 'webmock'
 

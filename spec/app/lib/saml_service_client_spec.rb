@@ -2,6 +2,8 @@ require 'lib/saml_service_client'
 
 RSpec.describe DiscoveryService::SAMLServiceClient do
   context '#retrieve_entity_data' do
+    include_context 'build_entity_data'
+
     let(:url) { 'http://saml-service.example.com/entities' }
 
     before do
@@ -15,17 +17,8 @@ RSpec.describe DiscoveryService::SAMLServiceClient do
         let(:response_body) do
           {
             entities: [
-              {
-                entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-                sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-                name: 'AAF Virtual Home',
-                tags: %w(discovery idp aaf vho)
-              },
-              {
-                entity_id: 'https://vho.test.aaf.edu.au/shibboleth',
-                name: 'AAF Virtual Home',
-                tags: %w(aaf sp)
-              }
+              build_entity_data(%w(discovery idp aaf vho)),
+              build_entity_data(%w(aaf sp))
             ]
           }
         end

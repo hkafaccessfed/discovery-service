@@ -2,6 +2,8 @@ require 'lib/entity_data_filter'
 
 RSpec.describe DiscoveryService::EntityDataFilter do
   context '#filter' do
+    include_context 'build_entity_data'
+
     subject do
       DiscoveryService::EntityDataFilter.filter(entity_data, tag_config)
     end
@@ -16,16 +18,7 @@ RSpec.describe DiscoveryService::EntityDataFilter do
     end
 
     context 'with an empty tag config' do
-      let(:entity_data) do
-        [
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp aaf vho)
-          }
-        ]
-      end
+      let(:entity_data) { build_entity_data(%w(discovery idp aaf vho)) }
       let(:tag_config) { {} }
 
       it 'filters everything out' do
@@ -36,14 +29,7 @@ RSpec.describe DiscoveryService::EntityDataFilter do
     context 'with one tag' do
       let(:tag_config) { { aaf: [%w(discovery aaf)] } }
       context 'and one matching entity' do
-        let(:matching_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp aaf vho)
-          }
-        end
+        let(:matching_entity) { build_entity_data(%w(discovery idp aaf vho)) }
         let(:entity_data) { [matching_entity] }
         it 'returns the matching entity' do
           expect(subject).to eq(aaf: [matching_entity])
@@ -51,22 +37,8 @@ RSpec.describe DiscoveryService::EntityDataFilter do
       end
 
       context 'and one matching entity amongst many' do
-        let(:matching_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp aaf vho)
-          }
-        end
-        let(:other_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(random idp aaf vho)
-          }
-        end
+        let(:matching_entity) { build_entity_data(%w(discovery idp aaf vho)) }
+        let(:other_entity) { build_entity_data(%w(random idp aaf vho)) }
         let(:entity_data) { [matching_entity, other_entity] }
 
         it 'returns the matching entity only' do
@@ -75,22 +47,8 @@ RSpec.describe DiscoveryService::EntityDataFilter do
       end
 
       context 'and no matching entities amongst many' do
-        let(:first_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp tuakiri vho)
-          }
-        end
-        let(:second_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(random idp aaf vho)
-          }
-        end
+        let(:first_entity) { build_entity_data(%w(discovery idp tuakiri vho)) }
+        let(:second_entity) { build_entity_data(%w(random idp tuakiri vho)) }
         let(:entity_data) { [first_entity, second_entity] }
 
         it 'returns an empty hash' do
@@ -99,30 +57,9 @@ RSpec.describe DiscoveryService::EntityDataFilter do
       end
 
       context 'and multiple matching entities' do
-        let(:first_match) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp aaf vho)
-          }
-        end
-        let(:second_match) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp aaf vho)
-          }
-        end
-        let(:other_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp taukiri vho)
-          }
-        end
+        let(:first_match)  { build_entity_data(%w(discovery idp aaf vho)) }
+        let(:second_match) { build_entity_data(%w(discovery idp aaf vho)) }
+        let(:other_entity) { build_entity_data(%w(discovery idp taukiri vho)) }
         let(:entity_data) do
           [first_match, second_match, other_entity]
         end
@@ -142,12 +79,7 @@ RSpec.describe DiscoveryService::EntityDataFilter do
       end
       context 'and one matching entity' do
         let(:matching_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp edugain vho)
-          }
+          build_entity_data(%w(discovery idp edugain vho))
         end
         let(:entity_data) { [matching_entity] }
         it 'returns the matching entity' do
@@ -156,22 +88,8 @@ RSpec.describe DiscoveryService::EntityDataFilter do
       end
 
       context 'and one matching entity amongst many' do
-        let(:matching_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp aaf vho)
-          }
-        end
-        let(:other_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(random idp aaf vho)
-          }
-        end
+        let(:matching_entity) { build_entity_data(%w(discovery idp aaf vho)) }
+        let(:other_entity) { build_entity_data(%w(random idp aaf vho)) }
         let(:entity_data) { [matching_entity, other_entity] }
 
         it 'returns the matching entity only' do
@@ -181,22 +99,8 @@ RSpec.describe DiscoveryService::EntityDataFilter do
       end
 
       context 'and no matching entities amongst many' do
-        let(:first_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp tuakiri vho)
-          }
-        end
-        let(:second_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(random idp aaf vho)
-          }
-        end
+        let(:first_entity) { build_entity_data(%w(discovery idp tuakiri vho)) }
+        let(:second_entity) { build_entity_data(%w(random idp aaf vho)) }
         let(:entity_data) { [first_entity, second_entity] }
 
         it 'returns an empty hash' do
@@ -205,38 +109,10 @@ RSpec.describe DiscoveryService::EntityDataFilter do
       end
 
       context 'and multiple matching entities' do
-        let(:first_match) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp aaf vho)
-          }
-        end
-        let(:second_match) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp aaf vho)
-          }
-        end
-        let(:third_match) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp edugain vho)
-          }
-        end
-        let(:other_entity) do
-          {
-            entity_id: 'https://vho.test.aaf.edu.au/idp/shibboleth',
-            sso_endpoint: 'https://vho.test.aaf.edu.au/idp/profile/Shibboleth/SSO',
-            name: 'AAF Virtual Home',
-            tags: %w(discovery idp taukiri vho)
-          }
-        end
+        let(:first_match) { build_entity_data(%w(discovery idp aaf vho)) }
+        let(:second_match) { build_entity_data(%w(discovery idp aaf vho)) }
+        let(:third_match) { build_entity_data(%w(discovery idp edugain vho)) }
+        let(:other_entity) { build_entity_data(%w(discovery idp taukiri vho)) }
         let(:entity_data) do
           [first_match, second_match, third_match, other_entity]
         end

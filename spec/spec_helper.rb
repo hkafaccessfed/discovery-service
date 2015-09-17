@@ -3,6 +3,8 @@ require 'simplecov'
 require 'capybara/rspec'
 require 'webmock/rspec'
 
+Dir['./spec/support/*.rb'].each { |f| require f }
+
 ENV['RACK_ENV'] = 'test'
 
 Bundler.require(:test)
