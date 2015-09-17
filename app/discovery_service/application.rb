@@ -5,12 +5,6 @@ module DiscoveryService
   class Application < Sinatra::Base
     configure :development, :test do
       enable :logging
-      set :logging, Logger::DEBUG
-    end
-
-    configure :production do
-      enable :logging
-      set :logging, Logger::INFO
     end
 
     get '/' do
