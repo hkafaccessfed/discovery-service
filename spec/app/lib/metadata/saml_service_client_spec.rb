@@ -2,7 +2,7 @@ require 'lib/saml_service_client'
 
 RSpec.describe DiscoveryService::SAMLServiceClient do
   context '#retrieve_entity_data' do
-    let(:url) { 'https://saml-service.example.com:443/entities' }
+    let(:url) { 'http://saml-service.example.com/entities' }
 
     before do
       stub_request(:get, url).to_return(response)

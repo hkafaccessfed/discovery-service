@@ -1,3 +1,4 @@
 log
 coverage
 tmp
+config/discovery_service.yml
