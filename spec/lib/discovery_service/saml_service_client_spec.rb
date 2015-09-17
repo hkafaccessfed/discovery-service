@@ -1,4 +1,4 @@
-require 'lib/saml_service_client'
+require 'lib/discovery_service/saml_service_client'
 
 RSpec.describe DiscoveryService::SAMLServiceClient do
   context '#retrieve_entity_data' do

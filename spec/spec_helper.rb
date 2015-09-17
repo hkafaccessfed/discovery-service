@@ -3,15 +3,13 @@ require 'simplecov'
 require 'capybara/rspec'
 require 'webmock/rspec'
 
-Dir['./spec/support/*.rb'].each { |f| require f }
-
 ENV['RACK_ENV'] = 'test'
-
 Bundler.require(:test)
 
 require_relative '../init.rb'
-require 'discovery_service/application'
 
+Dir['./spec/support/*.rb'].each { |f| require f }
+require 'app/discovery_service/application'
 Capybara.app = DiscoveryService::Application
 
 $stderr.reopen('log/rspec.log', 'w')

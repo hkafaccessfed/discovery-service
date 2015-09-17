@@ -2,8 +2,8 @@
 
 require_relative '../init'
 require 'yaml'
-require 'lib/saml_service_client'
-require 'lib/entity_data_filter'
+require 'lib/discovery_service/saml_service_client'
+require 'lib/discovery_service/entity_data_filter'
 
 config = YAML.load_file('config/discovery_service.yml')
 entity_data = DiscoveryService::SAMLServiceClient.retrieve_entity_data( \

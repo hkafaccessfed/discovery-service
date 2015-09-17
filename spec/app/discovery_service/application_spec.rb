@@ -1,4 +1,4 @@
-require 'discovery_service/application'
+require 'app/discovery_service/application'
 
 RSpec.describe DiscoveryService::Application do
   include Rack::Test::Methods
