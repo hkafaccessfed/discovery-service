@@ -20,9 +20,8 @@ module DiscoveryService
     end
 
     def self.parse_response(response)
-      @logger.debug "Parsing response (#{response.body})"
       json_response = JSON.parse(response.body, symbolize_names: true)
-      @logger.debug "Built JSON: #{json_response}"
+      @logger.debug "Built response: #{JSON.pretty_generate(json_response)}"
       json_response
     end
 
