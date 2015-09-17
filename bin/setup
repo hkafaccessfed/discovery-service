@@ -11,6 +11,9 @@ require 'gumboot/strap'
 
 include Gumboot::Strap
 
+puts "\n== Installing configuration files =="
+update_local_configuration %w(discovery_service.yml)
+
 puts "\n== Creating log directory =="
 Dir.mkdir 'log' unless File.exist?('log')
 
