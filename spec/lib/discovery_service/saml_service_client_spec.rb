@@ -3,6 +3,7 @@ require 'lib/discovery_service/saml_service_client'
 RSpec.describe DiscoveryService::SAMLServiceClient do
   context '#retrieve_entity_data' do
     include_context 'build_entity_data'
+    let(:logger) { spy }
 
     let(:klass) do
       Class.new do
@@ -17,6 +18,7 @@ RSpec.describe DiscoveryService::SAMLServiceClient do
     let(:url) { 'http://saml-service.example.com/entities' }
 
     before do
+      allow(Logger).to receive(:new).and_return(logger)
       stub_request(:get, url).to_return(response)
     end
 
