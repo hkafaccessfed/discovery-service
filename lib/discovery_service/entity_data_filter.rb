@@ -14,10 +14,9 @@ module DiscoveryService
     end
 
     def add_entity_if_tags_match(entity, group, results, tag)
-      if entity[:tags].to_set.superset?(tag.to_set)
-        results[group] = [] unless results.key?(group)
-        results[group].push(entity)
-      end
+      return unless entity[:tags].to_set.superset?(tag.to_set)
+      results[group] = [] unless results.key?(group)
+      results[group].push(entity)
     end
   end
 end
