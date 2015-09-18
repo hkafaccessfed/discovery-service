@@ -4,13 +4,23 @@ RSpec.describe DiscoveryService::SAMLServiceClient do
   context '#retrieve_entity_data' do
     include_context 'build_entity_data'
 
+    let(:klass) do
+      Class.new do
+        attr_accessor :logger
+        include DiscoveryService::SAMLServiceClient
+        def initialize
+          @logger = Logger.new($stderr)
+        end
+      end
+    end
+
     let(:url) { 'http://saml-service.example.com/entities' }
 
     before do
       stub_request(:get, url).to_return(response)
     end
 
-    subject { DiscoveryService::SAMLServiceClient.retrieve_entity_data(url) }
+    subject { klass.new.retrieve_entity_data(url) }
 
     context 'with a SAML Service response' do
       context 'that is valid' do
@@ -34,7 +44,7 @@ RSpec.describe DiscoveryService::SAMLServiceClient do
 
       context 'that is not valid' do
         def run
-          DiscoveryService::SAMLServiceClient.retrieve_entity_data(url)
+          klass.new.retrieve_entity_data(url)
         end
 
         let(:response) do

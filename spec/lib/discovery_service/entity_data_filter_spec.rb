@@ -4,9 +4,8 @@ RSpec.describe DiscoveryService::EntityDataFilter do
   context '#filter' do
     include_context 'build_entity_data'
 
-    subject do
-      DiscoveryService::EntityDataFilter.filter(entity_data, tag_config)
-    end
+    let(:klass) { Class.new { include DiscoveryService::EntityDataFilter } }
+    subject { klass.new.filter(entity_data, tag_config) }
 
     context 'with empty arguments' do
       let(:entity_data) { {} }

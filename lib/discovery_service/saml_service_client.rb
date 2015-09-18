@@ -4,9 +4,7 @@ require 'json'
 module DiscoveryService
   # For interaction with SAML Service
   module SAMLServiceClient
-    @logger = Logger.new($stderr)
-
-    def self.retrieve_entity_data(saml_service_uri)
+    def retrieve_entity_data(saml_service_uri)
       uri = URI.parse(saml_service_uri)
       req = Net::HTTP::Get.new(uri)
       with_saml_service_client(uri) do |http|
@@ -19,20 +17,20 @@ module DiscoveryService
       raise e
     end
 
-    def self.parse_response(response)
+    def parse_response(response)
       json_response = JSON.parse(response.body, symbolize_names: true)
-      @logger.debug "Built response: #{JSON.pretty_generate(json_response)}"
+      logger.debug "Built response: #{JSON.pretty_generate(json_response)}"
       json_response
     end
 
-    def self.with_saml_service_client(uri)
+    def with_saml_service_client(uri)
       client = Net::HTTP.new(uri.host, uri.port)
-      @logger.debug "Invoking SAML Service (#{uri})"
+      logger.debug "Invoking SAML Service (#{uri})"
       client.start { |http| yield http }
     end
 
-    def self.log_error(e, saml_service_uri)
-      @logger.error "SAMLService HTTPServerException #{e.message} while" \
+    def log_error(e, saml_service_uri)
+      logger.error "SAMLService HTTPServerException #{e.message} while" \
           " invoking #{saml_service_uri}"
     end
   end
