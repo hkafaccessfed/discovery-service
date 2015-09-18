@@ -12,8 +12,6 @@ Dir['./spec/support/*.rb'].each { |f| require f }
 require 'app/discovery_service/application'
 Capybara.app = DiscoveryService::Application
 
-$stderr.reopen('log/rspec.log', 'w')
-
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
