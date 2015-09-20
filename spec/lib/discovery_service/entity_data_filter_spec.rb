@@ -1,4 +1,4 @@
-require 'lib/discovery_service/entity_data_filter'
+require 'discovery_service/entity_data_filter'
 
 RSpec.describe DiscoveryService::EntityDataFilter do
   context '#filter' do

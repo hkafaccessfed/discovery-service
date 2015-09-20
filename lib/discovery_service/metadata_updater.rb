@@ -1,6 +1,6 @@
 require 'yaml'
-require 'lib/discovery_service/entity_data_filter'
-require 'lib/discovery_service/saml_service_client'
+require 'discovery_service/entity_data_filter'
+require 'discovery_service/saml_service_client'
 
 module DiscoveryService
   # Retrieves and filters metadata from SAML service
