@@ -1,14 +1,15 @@
 require 'bundler/setup'
 require 'simplecov'
 require 'capybara/rspec'
+require 'webmock/rspec'
 
 ENV['RACK_ENV'] = 'test'
-
 Bundler.require(:test)
+Dir['./spec/support/*.rb'].each { |f| require f }
 
 require_relative '../init.rb'
-require 'discovery_service/application'
 
+require 'discovery_service/application'
 Capybara.app = DiscoveryService::Application
 
 RSpec.configure do |config|
