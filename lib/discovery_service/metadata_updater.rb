@@ -1,4 +1,6 @@
 require 'yaml'
+require 'redis'
+require 'redis-namespace'
 require 'discovery_service/entity_data_filter'
 require 'discovery_service/saml_service_client'
 
@@ -13,10 +15,11 @@ module DiscoveryService
       @logger = Logger.new($stderr)
     end
 
-    def update
+    def update(redis)
       config = YAML.load_file('config/discovery_service.yml')
-      entity_data = retrieve_entity_data(config[:saml_service][:uri])
-      filter(entity_data[:entities], config[:collections])
+      raw_entity_data = retrieve_entity_data(config[:saml_service][:uri])
+      entity_data = filter(raw_entity_data[:entities], config[:collections])
+      redis.set('entity_data', entity_data.to_json)
     end
   end
 end

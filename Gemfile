@@ -4,12 +4,15 @@ gem 'sinatra', require: false
 gem 'unicorn', require: false
 
 gem 'slim'
+gem 'redis'
+gem 'redis-namespace'
 
 group :development, :test do
   gem 'rspec'
   gem 'faker'
   gem 'rack-test'
   gem 'webmock'
+  gem 'fakeredis'
 
   gem 'capybara', require: false
   gem 'poltergeist', require: false

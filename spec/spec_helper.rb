@@ -9,6 +9,8 @@ Dir['./spec/support/*.rb'].each { |f| require f }
 
 require_relative '../init.rb'
 
+require 'fakeredis/rspec'
+
 require 'discovery_service/application'
 Capybara.app = DiscoveryService::Application
 

@@ -34,6 +34,8 @@ GEM
     docile (1.1.5)
     faker (1.5.0)
       i18n (~> 0.5)
+    fakeredis (0.5.0)
+      redis (~> 3.0)
     ffi (1.9.10)
     formatador (0.2.5)
     guard (2.13.0)
@@ -100,6 +102,9 @@ GEM
     rb-fsevent (0.9.6)
     rb-inotify (0.9.5)
       ffi (>= 0.5.0)
+    redis (3.2.1)
+    redis-namespace (1.5.2)
+      redis (~> 3.0, >= 3.0.4)
     rspec (3.3.0)
       rspec-core (~> 3.3.0)
       rspec-expectations (~> 3.3.0)
@@ -163,6 +168,7 @@ DEPENDENCIES
   activesupport
   capybara
   faker
+  fakeredis
   guard
   guard-bundler
   guard-rspec
@@ -172,6 +178,8 @@ DEPENDENCIES
   poltergeist
   pry
   rack-test
+  redis
+  redis-namespace
   rspec
   simplecov
   sinatra

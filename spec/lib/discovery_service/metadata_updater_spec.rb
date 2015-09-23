@@ -4,6 +4,7 @@ RSpec.describe DiscoveryService::MetadataUpdater do
   context '#update' do
     let(:logger) { spy }
     let(:url) { 'http://saml-service.example.com/entities' }
+    let(:redis) { Redis.new }
     let(:config) do
       { saml_service: { uri: url },
         collections: { aaf: [%w(discovery aaf)],
@@ -16,7 +17,9 @@ RSpec.describe DiscoveryService::MetadataUpdater do
       stub_request(:get, url).to_return(response)
     end
 
-    subject { DiscoveryService::MetadataUpdater.new.update }
+    def run
+      DiscoveryService::MetadataUpdater.new.update(redis)
+    end
 
     context 'with successful metadata retrieval' do
       include_context 'build_entity_data'
@@ -26,17 +29,14 @@ RSpec.describe DiscoveryService::MetadataUpdater do
       let(:response_body) { { entities: [first_entity, second_entity] } }
       let(:response) { { status: 200, body: JSON.generate(response_body) } }
 
-      # TODO: Change this test to ensure data is persisted in redis
       it 'collects entities filtered by group' do
-        expect(subject).to eq(aaf: [first_entity], edugain: [second_entity])
+        run
+        expect(redis.get('entity_data'))
+          .to eq({ aaf: [first_entity], edugain: [second_entity] }.to_json)
       end
     end
 
     context 'with unsuccessful metadata retrieval' do
-      def run
-        DiscoveryService::MetadataUpdater.new.update
-      end
-
       let(:response) { { status: 400, body: JSON.generate([]) } }
 
       it 'propagates the exception' do
