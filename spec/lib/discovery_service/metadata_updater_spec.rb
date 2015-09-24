@@ -4,7 +4,7 @@ RSpec.describe DiscoveryService::MetadataUpdater do
   context '#update' do
     let(:logger) { spy }
     let(:url) { 'http://saml-service.example.com/entities' }
-    let(:redis) { Redis.new }
+    let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
     let(:config) do
       { saml_service: { uri: url },
         collections: { aaf: [%w(discovery aaf)],
@@ -18,7 +18,7 @@ RSpec.describe DiscoveryService::MetadataUpdater do
     end
 
     def run
-      DiscoveryService::MetadataUpdater.new.update(redis)
+      DiscoveryService::MetadataUpdater.new.update
     end
 
     context 'with successful metadata retrieval' do

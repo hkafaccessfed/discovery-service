@@ -13,13 +13,14 @@ module DiscoveryService
 
     def initialize
       @logger = Logger.new($stderr)
+      @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)
     end
 
-    def update(redis)
+    def update
       config = YAML.load_file('config/discovery_service.yml')
       raw_entity_data = retrieve_entity_data(config[:saml_service][:uri])
       entity_data = filter(raw_entity_data[:entities], config[:collections])
-      redis.set('entity_data', entity_data.to_json)
+      @redis.set('entity_data', entity_data.to_json)
     end
   end
 end
