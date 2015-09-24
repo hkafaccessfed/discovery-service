@@ -13,8 +13,9 @@ module DiscoveryService
       @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)
     end
 
-    get '/' do
-      entity_data = @redis.get('entity_data')
+    get '/discovery/:group' do
+      entity_data = @redis.get("entity_data:#{params[:group]}")
+      return status 404 unless entity_data
       @entity_data = JSON.parse(entity_data) if entity_data
       slim :index
     end

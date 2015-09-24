@@ -24,15 +24,30 @@ RSpec.describe DiscoveryService::MetadataUpdater do
     context 'with successful metadata retrieval' do
       include_context 'build_entity_data'
 
-      let(:first_entity) { build_entity_data(%w(discovery idp aaf vho)) }
-      let(:second_entity) { build_entity_data(%w(discovery idp edugain vho)) }
-      let(:response_body) { { entities: [first_entity, second_entity] } }
+      let(:matching_aaf_entity) { build_entity_data(%w(discovery idp aaf vho)) }
+
+      let(:matching_edugain_entity) do
+        build_entity_data(%w(discovery idp edugain vho))
+      end
+      let(:non_matching_tuakiri_entity) do
+        build_entity_data(%w(discovery idp tuakiri vho))
+      end
+
+      let(:response_body) do
+        { entities: [matching_aaf_entity, matching_edugain_entity,
+                     non_matching_tuakiri_entity] }
+      end
+
       let(:response) { { status: 200, body: JSON.generate(response_body) } }
 
-      it 'collects entities filtered by group' do
+      it 'stores each matching entity as a key value pair' do
         run
-        expect(redis.get('entity_data'))
-          .to eq({ aaf: [first_entity], edugain: [second_entity] }.to_json)
+        expect(redis.keys)
+          .to eq(['entity_data:aaf', 'entity_data:edugain'])
+        expect(redis.get('entity_data:aaf'))
+          .to eq([matching_aaf_entity].to_json)
+        expect(redis.get('entity_data:edugain'))
+          .to eq([matching_edugain_entity].to_json)
       end
     end
 

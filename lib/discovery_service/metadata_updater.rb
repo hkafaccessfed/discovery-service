@@ -20,7 +20,12 @@ module DiscoveryService
       config = YAML.load_file('config/discovery_service.yml')
       raw_entity_data = retrieve_entity_data(config[:saml_service][:uri])
       entity_data = filter(raw_entity_data[:entities], config[:collections])
-      @redis.set('entity_data', entity_data.to_json)
+      entity_data.each do |group, entities|
+        key = "entity_data:#{group}"
+        value = entities.to_json
+        logger.info "Setting entity_data (key, value) : (#{key}, #{value})"
+        @redis.set(key, value)
+      end
     end
   end
 end
