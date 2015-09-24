@@ -19,6 +19,7 @@ group :development, :test do
   gem 'phantomjs', require: 'phantomjs/poltergeist'
 
   gem 'pry', require: false
+  gem 'i18n', '~> 0.7.0'
 
   gem 'simplecov', require: false
 
