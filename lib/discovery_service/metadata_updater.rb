@@ -23,7 +23,7 @@ module DiscoveryService
       entity_data.each do |group, entities|
         key = "entity_data:#{group}"
         value = entities.to_json
-        logger.info "Setting entity_data (key, value) : (#{key}, #{value})"
+        logger.info "Storing (k,v): ('#{key}','#{entities.to_json}')"
         @redis.set(key, value)
       end
     end
