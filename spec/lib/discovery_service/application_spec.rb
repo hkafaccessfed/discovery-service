@@ -20,7 +20,7 @@ RSpec.describe DiscoveryService::Application do
 
         let(:entity_data) { [build_entity_data(%w(discovery idp aaf vho))] }
 
-        before { redis.set("entity_data:#{group_name}", entity_data.to_json) }
+        before { redis.set("entities:#{group_name}", entity_data.to_json) }
 
         it 'returns http status code 200' do
           run

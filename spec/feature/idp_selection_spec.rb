@@ -17,7 +17,7 @@ RSpec.describe 'selecting an IdP', type: :feature do
     let(:idp_1) { build_entity_data(['discovery', 'idp', group_name, 'vho']) }
     let(:idp_2) { build_entity_data(['discovery', 'idp', group_name, 'vho']) }
 
-    before { redis.set("entity_data:#{group_name}", [idp_1, idp_2].to_json) }
+    before { redis.set("entities:#{group_name}", [idp_1, idp_2].to_json) }
 
     it 'shows the page title' do
       visit path_for_group

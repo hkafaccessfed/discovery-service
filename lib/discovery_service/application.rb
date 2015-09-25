@@ -14,7 +14,7 @@ module DiscoveryService
     end
 
     get '/discovery/:group' do
-      entity_data = @redis.get("entity_data:#{params[:group]}")
+      entity_data = @redis.get("entities:#{params[:group]}")
       return status 404 unless entity_data
       @entity_data = JSON.parse(entity_data) if entity_data
       slim :index

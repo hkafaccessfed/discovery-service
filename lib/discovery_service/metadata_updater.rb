@@ -21,11 +21,15 @@ module DiscoveryService
       raw_entity_data = retrieve_entity_data(config[:saml_service][:uri])
       entity_data = filter(raw_entity_data[:entities], config[:collections])
       entity_data.each do |group, entities|
-        key = "entity_data:#{group}"
-        value = entities.to_json
-        logger.info "Storing (k,v): ('#{key}','#{entities.to_json}')"
-        @redis.set(key, value)
+        set_entity_data(group, entities)
       end
+    end
+
+    def set_entity_data(group, entities)
+      key = "entities:#{group}"
+      value = entities.to_json
+      logger.info "Storing (k,v): ('#{key}','#{entities.to_json}')"
+      @redis.set(key, value)
     end
   end
 end

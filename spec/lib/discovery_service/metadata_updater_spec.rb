@@ -43,10 +43,10 @@ RSpec.describe DiscoveryService::MetadataUpdater do
       it 'stores each matching entity as a key value pair' do
         run
         expect(redis.keys)
-          .to eq(['entity_data:aaf', 'entity_data:edugain'])
-        expect(redis.get('entity_data:aaf'))
+          .to eq(['entities:aaf', 'entities:edugain'])
+        expect(redis.get('entities:aaf'))
           .to eq([matching_aaf_entity].to_json)
-        expect(redis.get('entity_data:edugain'))
+        expect(redis.get('entities:edugain'))
           .to eq([matching_edugain_entity].to_json)
       end
     end
