@@ -1,39 +1,34 @@
 # TODO: Will be extended when filtering is implemented on the IdP selection page
 RSpec.describe 'selecting an IdP', type: :feature do
   let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
-  let(:entity_data) { nil }
+  let(:group_name) { Faker::Lorem.word }
+  let(:path_for_group) { "/discovery/#{group_name}" }
 
-  before do
-    redis.set('entity_data', entity_data.to_json) if entity_data
-    visit '/'
-  end
-
-  it 'shows the page title' do
-    expect(page).to have_title 'AAF Discovery Service'
-  end
-
-  context 'when no IdPs exist' do
-    # When the entity_data key has not been set in redis
-    it 'shows there are none to display' do
-      expect(page).to have_content 'No IdPs to display'
+  context 'when the group does not exist' do
+    it 'returns http status code 404' do
+      visit path_for_group
+      expect(page.status_code).to eq(404)
     end
   end
 
-  context 'when IdPs exist' do
+  context 'when the group exists' do
     include_context 'build_entity_data'
-    let(:aaf_idp_1) { build_entity_data(%w(discovery idp aaf vho)) }
-    let(:aaf_idp_2) { build_entity_data(%w(discovery idp aaf vho)) }
-    let(:edugain_idp) { build_entity_data(%w(discovery idp edugain vho)) }
 
-    let(:entity_data) do
-      { aaf: [aaf_idp_1, aaf_idp_2],
-        edugain: [edugain_idp] }
+    let(:idp_1) { build_entity_data(['discovery', 'idp', group_name, 'vho']) }
+    let(:idp_2) { build_entity_data(['discovery', 'idp', group_name, 'vho']) }
+
+    before { redis.set("entity_data:#{group_name}", [idp_1, idp_2].to_json) }
+
+    it 'shows the page title' do
+      visit path_for_group
+      expect(page).to have_title 'AAF Discovery Service'
     end
-    it 'shows them' do
+
+    it 'shows the IdPs' do
+      visit path_for_group
       expect(page).to have_content 'Select your IdP:'
-      expect(page).to have_content aaf_idp_1['name']
-      expect(page).to have_content aaf_idp_2['name']
-      expect(page).to have_content edugain_idp['name']
+      expect(page).to have_content idp_1[:name]
+      expect(page).to have_content idp_2[:name]
     end
   end
 end

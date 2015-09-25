@@ -18,11 +18,7 @@ RSpec.describe DiscoveryService::Application do
       context 'when it exists' do
         include_context 'build_entity_data'
 
-        let(:entity_data) do
-          hash = {}
-          hash[group_name] = [build_entity_data(%w(discovery idp aaf vho))]
-          hash
-        end
+        let(:entity_data) { [build_entity_data(%w(discovery idp aaf vho))] }
 
         before { redis.set("entity_data:#{group_name}", entity_data.to_json) }
 
