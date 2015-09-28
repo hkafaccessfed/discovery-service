@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
 require_relative '../init'
-require 'discovery_service/metadata_updater'
+require 'discovery_service/metadata/updater'
 
-DiscoveryService::MetadataUpdater.new.update
+DiscoveryService::Metadata::Updater.new.update

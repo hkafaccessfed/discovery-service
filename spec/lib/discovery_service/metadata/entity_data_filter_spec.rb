@@ -1,10 +1,13 @@
-require 'discovery_service/entity_data_filter'
+require 'discovery_service/metadata/entity_data_filter'
 
-RSpec.describe DiscoveryService::EntityDataFilter do
+RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
   context '#filter' do
     include_context 'build_entity_data'
 
-    let(:klass) { Class.new { include DiscoveryService::EntityDataFilter } }
+    let(:klass) do
+      Class.new { include DiscoveryService::Metadata::EntityDataFilter }
+    end
+
     subject { klass.new.filter(entity_data, tag_config) }
 
     context 'with empty arguments' do

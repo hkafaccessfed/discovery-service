@@ -1,12 +1,14 @@
-require 'discovery_service/page_renderer'
-require 'discovery_service/group'
+require 'discovery_service/renderer/page_renderer'
+require 'discovery_service/renderer/model/group'
 
-RSpec.describe DiscoveryService::PageRenderer do
+RSpec.describe DiscoveryService::Renderer::PageRenderer do
   context '#render' do
     include_context 'build_entity_data'
     include_context 'stringify_keys'
 
-    let(:klass) { Class.new { include DiscoveryService::PageRenderer } }
+    let(:klass) do
+      Class.new { include DiscoveryService::Renderer::PageRenderer }
+    end
 
     let(:group_name) { Faker::Lorem.word }
     let(:entity_1) do
@@ -19,7 +21,7 @@ RSpec.describe DiscoveryService::PageRenderer do
 
     subject do
       klass.new.render(:group,
-                       DiscoveryService::PageRenderer::Group.new(
+                       DiscoveryService::Renderer::Model::Group.new(
                          [entity_1, entity_2]))
     end
 

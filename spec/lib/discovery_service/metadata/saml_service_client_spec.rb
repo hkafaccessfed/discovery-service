@@ -1,6 +1,6 @@
-require 'discovery_service/saml_service_client'
+require 'discovery_service/metadata/saml_service_client'
 
-RSpec.describe DiscoveryService::SAMLServiceClient do
+RSpec.describe DiscoveryService::Metadata::SAMLServiceClient do
   context '#retrieve_entity_data' do
     include_context 'build_entity_data'
     let(:logger) { spy }
@@ -8,7 +8,7 @@ RSpec.describe DiscoveryService::SAMLServiceClient do
     let(:klass) do
       Class.new do
         attr_accessor :logger
-        include DiscoveryService::SAMLServiceClient
+        include DiscoveryService::Metadata::SAMLServiceClient
         def initialize
           @logger = Logger.new($stderr)
         end

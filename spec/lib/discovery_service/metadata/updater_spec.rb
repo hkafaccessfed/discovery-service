@@ -1,6 +1,6 @@
-require 'discovery_service/metadata_updater'
+require 'discovery_service/metadata/updater'
 
-RSpec.describe DiscoveryService::MetadataUpdater do
+RSpec.describe DiscoveryService::Metadata::Updater do
   context '#update' do
     let(:logger) { spy }
     let(:url) { 'http://saml-service.example.com/entities' }
@@ -18,7 +18,7 @@ RSpec.describe DiscoveryService::MetadataUpdater do
     end
 
     def run
-      DiscoveryService::MetadataUpdater.new.update
+      DiscoveryService::Metadata::Updater.new.update
     end
 
     context 'with successful metadata retrieval' do
