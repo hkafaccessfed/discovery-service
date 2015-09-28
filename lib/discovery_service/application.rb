@@ -14,7 +14,7 @@ module DiscoveryService
     end
 
     get '/discovery/:group' do
-      page = @redis.get("pages:index:#{params[:group]}")
+      page = @redis.get("pages:group:#{params[:group]}")
       page ? page : (status 404)
     end
   end

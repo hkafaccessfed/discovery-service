@@ -44,7 +44,7 @@ RSpec.describe DiscoveryService::MetadataUpdater do
         run
         expect(redis.keys.to_set)
           .to eq(['entities:aaf', 'entities:edugain',
-                  'pages:index:aaf', 'pages:index:edugain'].to_set)
+                  'pages:group:aaf', 'pages:group:edugain'].to_set)
       end
 
       it 'stores each matching entity as a key value pair' do
@@ -57,9 +57,9 @@ RSpec.describe DiscoveryService::MetadataUpdater do
 
       it 'stores each matching page content as a key value pair' do
         run
-        expect(redis.get('pages:index:aaf'))
+        expect(redis.get('pages:group:aaf'))
           .to include("#{matching_aaf_entity['name']}")
-        expect(redis.get('pages:index:edugain'))
+        expect(redis.get('pages:group:edugain'))
           .to include("#{matching_aaf_entity['name']}")
       end
     end

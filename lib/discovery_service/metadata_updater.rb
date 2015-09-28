@@ -31,8 +31,8 @@ module DiscoveryService
     end
 
     def set_page_content(group, entities)
-      key = "pages:index:#{group}"
-      page = render(:index, DiscoveryService::PageRenderer::Group.new(entities))
+      key = "pages:group:#{group}"
+      page = render(:group, DiscoveryService::PageRenderer::Group.new(entities))
       logger.info "Storing (k,v): ('#{key}','#{page}')"
       @redis.set(key, page)
     end

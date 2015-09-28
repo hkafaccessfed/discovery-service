@@ -20,7 +20,7 @@ RSpec.describe DiscoveryService::Application do
 
         let(:page_content) { 'Page content here' }
 
-        before { redis.set("pages:index:#{group_name}", page_content) }
+        before { redis.set("pages:group:#{group_name}", page_content) }
 
         it 'returns http status code 200' do
           run

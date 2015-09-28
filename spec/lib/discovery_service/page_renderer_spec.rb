@@ -18,7 +18,7 @@ RSpec.describe DiscoveryService::PageRenderer do
     end
 
     subject do
-      klass.new.render(:index,
+      klass.new.render(:group,
                        DiscoveryService::PageRenderer::Group.new(
                          [entity_1, entity_2]))
     end

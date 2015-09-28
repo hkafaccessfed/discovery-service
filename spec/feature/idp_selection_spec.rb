@@ -14,7 +14,7 @@ RSpec.describe 'selecting an IdP', type: :feature do
   context 'when the group exists' do
     include_context 'build_entity_data'
 
-    before { redis.set("pages:index:#{group_name}", 'Content here') }
+    before { redis.set("pages:group:#{group_name}", 'Content here') }
 
     it 'shows the content' do
       visit path_for_group
