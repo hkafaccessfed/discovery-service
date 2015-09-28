@@ -2,7 +2,6 @@ require 'discovery_service/page_renderer'
 require 'discovery_service/group'
 
 RSpec.describe DiscoveryService::PageRenderer do
-
   context '#render' do
     include_context 'build_entity_data'
     include_context 'stringify_keys'
@@ -21,7 +20,7 @@ RSpec.describe DiscoveryService::PageRenderer do
     subject do
       klass.new.render(:index,
                        DiscoveryService::PageRenderer::Group.new(
-                           [entity_1, entity_2]))
+                         [entity_1, entity_2]))
     end
 
     context 'the result' do
