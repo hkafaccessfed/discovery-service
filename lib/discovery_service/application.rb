@@ -14,10 +14,8 @@ module DiscoveryService
     end
 
     get '/discovery/:group' do
-      entity_data = @redis.get("entities:#{params[:group]}")
-      return status 404 unless entity_data
-      @entity_data = JSON.parse(entity_data) if entity_data
-      slim :index
+      page = @redis.get("pages:index:#{params[:group]}")
+      page ? page : (status 404)
     end
   end
 end

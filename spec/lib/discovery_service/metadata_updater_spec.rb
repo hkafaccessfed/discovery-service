@@ -40,14 +40,27 @@ RSpec.describe DiscoveryService::MetadataUpdater do
 
       let(:response) { { status: 200, body: JSON.generate(response_body) } }
 
+      it 'stores keys for all entities and page content' do
+        run
+        expect(redis.keys.to_set)
+            .to eq(['entities:aaf', 'entities:edugain',
+                   'pages:index:aaf', 'pages:index:edugain'].to_set)
+      end
+
       it 'stores each matching entity as a key value pair' do
         run
-        expect(redis.keys)
-          .to eq(['entities:aaf', 'entities:edugain'])
         expect(redis.get('entities:aaf'))
           .to eq([matching_aaf_entity].to_json)
         expect(redis.get('entities:edugain'))
           .to eq([matching_edugain_entity].to_json)
+      end
+
+      it 'stores each matching page content as a key value pair' do
+        run
+        expect(redis.get('pages:index:aaf'))
+            .to include("#{matching_aaf_entity['name']}")
+        expect(redis.get('pages:index:edugain'))
+            .to include("#{matching_aaf_entity['name']}")
       end
     end
 

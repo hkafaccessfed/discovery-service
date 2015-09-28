@@ -14,21 +14,11 @@ RSpec.describe 'selecting an IdP', type: :feature do
   context 'when the group exists' do
     include_context 'build_entity_data'
 
-    let(:idp_1) { build_entity_data(['discovery', 'idp', group_name, 'vho']) }
-    let(:idp_2) { build_entity_data(['discovery', 'idp', group_name, 'vho']) }
+    before { redis.set("pages:index:#{group_name}", 'Content here') }
 
-    before { redis.set("entities:#{group_name}", [idp_1, idp_2].to_json) }
-
-    it 'shows the page title' do
+    it 'shows the content' do
       visit path_for_group
-      expect(page).to have_title 'AAF Discovery Service'
-    end
-
-    it 'shows the IdPs' do
-      visit path_for_group
-      expect(page).to have_content 'Select your IdP:'
-      expect(page).to have_content idp_1[:name]
-      expect(page).to have_content idp_2[:name]
+      expect(page).to have_content 'Content here'
     end
   end
 end

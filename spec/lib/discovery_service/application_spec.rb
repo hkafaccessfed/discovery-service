@@ -18,13 +18,18 @@ RSpec.describe DiscoveryService::Application do
       context 'when it exists' do
         include_context 'build_entity_data'
 
-        let(:entity_data) { [build_entity_data(%w(discovery idp aaf vho))] }
+        let(:page_content) { 'Page content here' }
 
-        before { redis.set("entities:#{group_name}", entity_data.to_json) }
+        before { redis.set("pages:index:#{group_name}", page_content) }
 
         it 'returns http status code 200' do
           run
           expect(last_response.status).to eq(200)
+        end
+
+        it 'shows content' do
+          run
+          expect(last_response.body).to eq(page_content)
         end
       end
 
