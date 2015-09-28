@@ -13,6 +13,7 @@ group :development, :test do
   gem 'rack-test'
   gem 'webmock'
   gem 'fakeredis'
+  gem 'nokogiri'
 
   gem 'capybara', require: false
   gem 'poltergeist', require: false
