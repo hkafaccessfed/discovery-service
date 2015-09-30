@@ -16,7 +16,6 @@ group :development, :test do
   gem 'rack-test'
   gem 'webmock'
   gem 'fakeredis'
-  gem 'nokogiri'
   gem 'timecop'
 
   gem 'capybara', require: false

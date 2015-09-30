@@ -178,7 +178,6 @@ DEPENDENCIES
   guard-unicorn
   hashdiff
   i18n (~> 0.7.0)
-  nokogiri
   phantomjs
   poltergeist
   pry
