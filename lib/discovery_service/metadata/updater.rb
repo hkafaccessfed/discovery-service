@@ -7,6 +7,7 @@ require 'discovery_service/metadata/saml_service_client'
 require 'discovery_service/renderer/page_renderer'
 require 'discovery_service/renderer/model/group'
 require 'active_support/core_ext/numeric/time'
+require 'active_support/core_ext/hash/keys'
 require 'hashdiff'
 
 module DiscoveryService
@@ -38,40 +39,46 @@ module DiscoveryService
       end
 
       def update_expiry(group)
-        @redis.expire(pages_key(group), EXPIRY_IN_SECONDS)
+        logger.info("Setting #{group_page_key(group)} expiry: "\
+          "#{EXPIRY_IN_SECONDS} seconds")
+        logger.info("Setting #{entities_key(group)} expiry: "\
+          "#{EXPIRY_IN_SECONDS} seconds")
+        @redis.expire(group_page_key(group), EXPIRY_IN_SECONDS)
         @redis.expire(entities_key(group), EXPIRY_IN_SECONDS)
       end
 
       def entities_exists?(group)
-        @redis.exists(entities_key(group)) && @redis.exists(pages_key(group))
+        @redis.exists(entities_key(group)) &&
+          @redis.exists(group_page_key(group))
       end
 
       # pre: @redis.get(entities_key(group)) != nil
       def entities_changed?(group, entities)
-        stored_entities = JSON.parse(@redis.get(entities_key(group)))
-        hash_changed?(entities, stored_entities) != []
-      end
-
-      def hash_changed?(entities, stored_entities)
-        HashDiff.diff(stored_entities, entities)
+        stored_entities_as_string = @redis.get(entities_key(group))
+        stored_entities_as_json = JSON.parse(stored_entities_as_string)
+        stored_entities = stored_entities_as_json.map(&:symbolize_keys)
+        diff = HashDiff.diff(stored_entities, entities)
+        changed = diff != []
+        logger.info("Entity data changed #{group}: #{diff}") if changed
+        changed
       end
 
       def save_group_page_content(group, entities)
-        key = pages_key(group)
+        key = group_page_key(group)
         page = render(:group,
                       DiscoveryService::Renderer::Model::Group.new(entities))
-        logger.info("Storing (k,v): ('#{key}','#{page}')")
+        logger.info("Storing '#{key}': '#{page}'")
         @redis.set(key, page)
       end
 
       def save_entities(group, entities)
         key = entities_key(group)
         value = entities.to_json
-        logger.info("Storing (k,v): ('#{key}','#{value}')")
+        logger.info("Storing '#{key}': '#{JSON.pretty_generate(entities)}'")
         @redis.set(key, value)
       end
 
-      def pages_key(group)
+      def group_page_key(group)
         "pages:group:#{group}"
       end
 
