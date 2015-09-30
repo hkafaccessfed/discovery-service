@@ -4,7 +4,6 @@ require 'discovery_service/renderer/model/group'
 RSpec.describe DiscoveryService::Renderer::PageRenderer do
   context '#render(page, model)' do
     include_context 'build_entity_data'
-    include_context 'stringify_keys'
 
     let(:klass) do
       Class.new { include DiscoveryService::Renderer::PageRenderer }
@@ -12,11 +11,11 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
     let(:group_name) { Faker::Lorem.word }
     let(:entity_1) do
-      stringify_keys(build_entity_data(['test', 'idp', group_name, 'vho']))
+      build_entity_data(['test', 'idp', group_name, 'vho'])
     end
 
     let(:entity_2) do
-      stringify_keys(build_entity_data(['test', 'idp', group_name, 'vho']))
+      build_entity_data(['test', 'idp', group_name, 'vho'])
     end
 
     subject do
