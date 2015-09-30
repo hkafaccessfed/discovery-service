@@ -7,6 +7,9 @@ gem 'slim'
 gem 'redis'
 gem 'redis-namespace'
 
+gem 'activesupport'
+gem 'hashdiff'
+
 group :development, :test do
   gem 'rspec'
   gem 'faker'
@@ -14,6 +17,7 @@ group :development, :test do
   gem 'webmock'
   gem 'fakeredis'
   gem 'nokogiri'
+  gem 'timecop'
 
   gem 'capybara', require: false
   gem 'poltergeist', require: false
@@ -33,6 +37,4 @@ group :development, :test do
 
   gem 'aaf-gumboot', git: 'https://github.com/ausaccessfed/aaf-gumboot',
                      branch: 'develop'
-  # Have to drag in this dependency for gumboot
-  gem 'activesupport', require: false
 end
