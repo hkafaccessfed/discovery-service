@@ -59,7 +59,7 @@ module DiscoveryService
         stored_entities = stored_entities_as_json.map(&:symbolize_keys)
         diff = HashDiff.diff(stored_entities, entities)
         changed = diff != []
-        logger.info("Entity data changed #{group}: #{diff}") if changed
+        logger.info("Entity data changed for '#{group}': #{diff}") if changed
         changed
       end
 
