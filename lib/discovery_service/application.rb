@@ -14,8 +14,11 @@ module DiscoveryService
     end
 
     get '/discovery/:group' do
-      page = @redis.get("pages:group:#{params[:group]}")
-      page ? page : (status 404)
+      if @redis.exists("pages:group:#{params[:group]}")
+        @redis.get("pages:group:#{params[:group]}")
+      else
+        status 404
+      end
     end
   end
 end

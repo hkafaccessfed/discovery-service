@@ -8,9 +8,9 @@ RSpec.describe DiscoveryService::Metadata::Updater do
     let(:config) do
       { saml_service: { uri: url },
         groups: { aaf: [%w(discovery aaf)],
-                       edugain: [%w(discovery edugain)],
-                       taukiri: [%w(discovery taukiri)],
-                       ignored: [%w(discovery ignored)] } }
+                  edugain: [%w(discovery edugain)],
+                  taukiri: [%w(discovery taukiri)],
+                  ignored: [%w(discovery ignored)] } }
     end
 
     before do

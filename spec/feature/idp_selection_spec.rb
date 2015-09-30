@@ -1,5 +1,5 @@
 # TODO: Will be extended when filtering is implemented on the IdP selection page
-RSpec.describe 'selecting an IdP', type: :feature do
+RSpec.describe 'selecting an idp', type: :feature do
   let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
   let(:group_name) { Faker::Lorem.word }
   let(:path_for_group) { "/discovery/#{group_name}" }

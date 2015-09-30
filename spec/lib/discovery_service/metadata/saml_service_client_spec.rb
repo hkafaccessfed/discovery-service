@@ -38,7 +38,7 @@ RSpec.describe DiscoveryService::Metadata::SAMLServiceClient do
         { status: 200, body: JSON.generate(response_body) }
       end
 
-      it 'unmarshalls the payload to JSON as expected' do
+      it 'unmarshalls the payload to json as expected' do
         expect(subject).to eq(response_body)
       end
     end
