@@ -29,7 +29,7 @@ module DiscoveryService
         raw_entities = retrieve_entity_data(config[:saml_service][:uri])
         grouped_entities = filter(raw_entities[:entities], config[:collections])
         grouped_entities.each do |group, entities|
-          if !entities_exists(group) || entities_changed?(group, entities)
+          if !entities_exists?(group) || entities_changed?(group, entities)
             save_entities(group, entities)
             save_group_page_content(group, entities)
           end
@@ -42,7 +42,7 @@ module DiscoveryService
         @redis.expire(entities_key(group), EXPIRY_IN_SECONDS)
       end
 
-      def entities_exists(group)
+      def entities_exists?(group)
         @redis.exists(entities_key(group)) && @redis.exists(pages_key(group))
       end
 
