@@ -7,7 +7,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
     let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
     let(:config) do
       { saml_service: { uri: url },
-        collections: { aaf: [%w(discovery aaf)],
+        groups: { aaf: [%w(discovery aaf)],
                        edugain: [%w(discovery edugain)],
                        taukiri: [%w(discovery taukiri)],
                        ignored: [%w(discovery ignored)] } }

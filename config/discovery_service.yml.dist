@@ -3,7 +3,7 @@
 :saml_service:
   :uri: http://localhost:8080/entities
 
-:collections:
+:groups:
   :aaf:
     - [discovery, aaf]
   :edugain:

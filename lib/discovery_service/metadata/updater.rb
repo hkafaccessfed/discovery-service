@@ -28,7 +28,7 @@ module DiscoveryService
       def update
         config = YAML.load_file('config/discovery_service.yml')
         raw_entities = retrieve_entity_data(config[:saml_service][:uri])
-        grouped_entities = filter(raw_entities[:entities], config[:collections])
+        grouped_entities = filter(raw_entities[:entities], config[:groups])
         grouped_entities.each do |group, entities|
           if !entities_exists?(group) || entities_changed?(group, entities)
             save_entities(group, entities)
