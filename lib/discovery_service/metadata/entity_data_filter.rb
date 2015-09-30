@@ -7,7 +7,7 @@ module DiscoveryService
           entities = entity_data.select do |entity|
             contains_tags?(entity, tag_config_for_group)
           end
-          hash.merge(group => entities)
+          entities == [] ? hash : hash.merge(group => entities)
         end
       end
 

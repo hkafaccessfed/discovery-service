@@ -54,7 +54,7 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
         let(:entity_data) { [first_entity, second_entity] }
 
         it 'returns an empty hash' do
-          expect(subject).to eq(aaf: [])
+          expect(subject).to eq({})
         end
       end
 
@@ -85,7 +85,7 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
         end
         let(:entity_data) { [matching_entity] }
         it 'returns the matching entity' do
-          expect(subject).to eq(edugain: [matching_entity], aaf: [])
+          expect(subject).to eq(edugain: [matching_entity])
         end
       end
 
@@ -106,7 +106,7 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
         let(:entity_data) { [first_entity, second_entity] }
 
         it 'returns an empty hash' do
-          expect(subject).to eq(aaf: [], edugain: [])
+          expect(subject).to eq({})
         end
       end
 
