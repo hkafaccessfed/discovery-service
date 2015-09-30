@@ -39,9 +39,8 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
     end
 
     it 'includes the entities' do
-      expect(subject).to include(CGI::escapeHTML(entity_1[:name]))
-      expect(subject).to include(CGI::escapeHTML(entity_2[:name]))
+      expect(subject).to include(CGI.escapeHTML(entity_1[:name]))
+      expect(subject).to include(CGI.escapeHTML(entity_2[:name]))
     end
-
   end
 end

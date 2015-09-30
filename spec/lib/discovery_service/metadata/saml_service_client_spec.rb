@@ -1,7 +1,7 @@
 require 'discovery_service/metadata/saml_service_client'
 
 RSpec.describe DiscoveryService::Metadata::SAMLServiceClient do
-  context '#retrieve_entity_data' do
+  context '#retrieve_entity_data(url)' do
     include_context 'build_entity_data'
     let(:logger) { spy }
 
@@ -24,39 +24,37 @@ RSpec.describe DiscoveryService::Metadata::SAMLServiceClient do
 
     subject { klass.new.retrieve_entity_data(url) }
 
-    context 'with a SAML Service response' do
-      context 'that is valid' do
-        let(:response_body) do
-          {
-            entities: [
-              build_entity_data(%w(discovery idp aaf vho)),
-              build_entity_data(%w(aaf sp))
-            ]
-          }
-        end
-
-        let(:response) do
-          { status: 200, body: JSON.generate(response_body) }
-        end
-
-        it 'unmarshalls the payload to JSON as expected' do
-          expect(subject).to eq(response_body)
-        end
+    context 'with a valid response ' do
+      let(:response_body) do
+        {
+          entities: [
+            build_entity_data(%w(discovery idp aaf vho)),
+            build_entity_data(%w(aaf sp))
+          ]
+        }
       end
 
-      context 'that is not valid' do
-        def run
-          klass.new.retrieve_entity_data(url)
-        end
+      let(:response) do
+        { status: 200, body: JSON.generate(response_body) }
+      end
 
-        let(:response) do
-          { status: 400, body: JSON.generate([]) }
-        end
+      it 'unmarshalls the payload to JSON as expected' do
+        expect(subject).to eq(response_body)
+      end
+    end
 
-        it 'propagates the exception' do
-          expect { run }.to raise_error(Net::HTTPServerException)
-          expect(logger).to have_received(:error)
-        end
+    context 'with an invalid (400) response' do
+      def run
+        klass.new.retrieve_entity_data(url)
+      end
+
+      let(:response) do
+        { status: 400, body: JSON.generate([]) }
+      end
+
+      it 'propagates the exception' do
+        expect { run }.to raise_error(Net::HTTPServerException)
+        expect(logger).to have_received(:error)
       end
     end
   end

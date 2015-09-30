@@ -23,10 +23,10 @@ RSpec.describe DiscoveryService::Metadata::Updater do
       DiscoveryService::Metadata::Updater.new.update
     end
 
-    context 'with successful saml service data retrieval' do
+    context 'with valid saml service response' do
       include_context 'build_entity_data'
 
-      context 'and nothing stored in redis' do
+      context 'nothing stored in redis' do
         let(:matching_aaf_entity) do
           build_entity_data(%w(discovery idp aaf vho))
         end
@@ -77,7 +77,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
         end
       end
 
-      context 'and entries already stored in redis' do
+      context 'entities already stored in redis' do
         let(:original_ttl) { 10 }
         let(:existing_aaf_entity) do
           build_entity_data(%w(discovery idp aaf vho))
@@ -133,7 +133,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
             .to include("#{existing_taukiri_entity['name']}")
         end
 
-        it 'only updated the ttl for entities contained in the response' do
+        it 'only updates the ttl for entities contained in the response' do
           Timecop.freeze do
             redis.expire('entities:aaf', original_ttl)
             redis.expire('pages:group:aaf', original_ttl)
@@ -152,7 +152,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
         end
       end
 
-      context 'and the response contains no entities' do
+      context 'empty entity data' do
         let(:response_body) { { entities: [] } }
 
         let(:response) { { status: 200, body: JSON.generate(response_body) } }
@@ -164,7 +164,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
       end
     end
 
-    context 'with unsuccessful metadata retrieval' do
+    context 'with invalid (400) saml service response' do
       let(:response) { { status: 400, body: JSON.generate([]) } }
 
       it 'propagates the exception' do
