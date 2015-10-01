@@ -9,8 +9,8 @@ RSpec.describe DiscoveryService::Metadata::SAMLServiceClient do
       Class.new do
         attr_accessor :logger
         include DiscoveryService::Metadata::SAMLServiceClient
-        def initialize
-          @logger = Logger.new($stderr)
+        def initialize(logger)
+          @logger = logger
         end
       end
     end
@@ -18,11 +18,10 @@ RSpec.describe DiscoveryService::Metadata::SAMLServiceClient do
     let(:url) { 'http://saml-service.example.com/entities' }
 
     before do
-      allow(Logger).to receive(:new).and_return(logger)
       stub_request(:get, url).to_return(response)
     end
 
-    subject { klass.new.retrieve_entity_data(url) }
+    subject { klass.new(logger).retrieve_entity_data(url) }
 
     context 'with a valid response ' do
       let(:response_body) do
@@ -45,7 +44,7 @@ RSpec.describe DiscoveryService::Metadata::SAMLServiceClient do
 
     context 'with an invalid (400) response' do
       def run
-        klass.new.retrieve_entity_data(url)
+        klass.new(logger).retrieve_entity_data(url)
       end
 
       let(:response) do
