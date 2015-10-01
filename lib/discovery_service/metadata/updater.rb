@@ -67,7 +67,7 @@ module DiscoveryService
         key = group_page_key(group)
         page = render(:group,
                       DiscoveryService::Renderer::Model::Group.new(entities))
-        logger.info("Storing '#{key}': '#{page}'")
+        logger.debug("Storing '#{key}': '#{page}'")
         @redis.set(key, page)
       end
 
