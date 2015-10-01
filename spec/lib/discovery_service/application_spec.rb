@@ -7,35 +7,48 @@ RSpec.describe DiscoveryService::Application do
   let(:app) { DiscoveryService::Application.new }
 
   context 'GET /discovery/:group' do
-    let(:group_name) { Faker::Lorem.word }
     let(:path_for_group) { "/discovery/#{group_name}" }
 
     def run
       get path_for_group
     end
 
-    context 'when group exists' do
-      include_context 'build_entity_data'
-
-      let(:page_content) { 'Page content here' }
-
-      before { redis.set("pages:group:#{group_name}", page_content) }
-
-      it 'returns http status code 200' do
-        run
-        expect(last_response.status).to eq(200)
-      end
-
-      it 'shows content' do
-        run
-        expect(last_response.body).to eq(page_content)
+    context 'with an non url-safe base64 alphabet group name' do
+      before { run }
+      let(:group_name) { '@#!' }
+      it 'returns http status code 400' do
+        expect(last_response.status).to eq(400)
       end
     end
 
-    context 'when group does not exist' do
-      it 'returns http status code 404' do
-        run
-        expect(last_response.status).to eq(404)
+    context 'with a url-safe base64 alphabet group name' do
+      let(:group_name) do
+        "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-"
+      end
+
+      context 'when group exists' do
+        include_context 'build_entity_data'
+
+        let(:page_content) { 'Page content here' }
+
+        before { redis.set("pages:group:#{group_name}", page_content) }
+
+        it 'returns http status code 200' do
+          run
+          expect(last_response.status).to eq(200)
+        end
+
+        it 'shows content' do
+          run
+          expect(last_response.body).to eq(page_content)
+        end
+      end
+
+      context 'when group does not exist' do
+        it 'returns http status code 404' do
+          run
+          expect(last_response.status).to eq(404)
+        end
       end
     end
   end
