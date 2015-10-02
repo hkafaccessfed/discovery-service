@@ -1,7 +1,7 @@
 require 'discovery_service/metadata/updater'
 
 RSpec.describe DiscoveryService::Metadata::Updater do
-  context '#update' do
+  describe '#update' do
     let(:logger) { spy }
     let(:url) { 'http://saml-service.example.com/entities' }
     let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }

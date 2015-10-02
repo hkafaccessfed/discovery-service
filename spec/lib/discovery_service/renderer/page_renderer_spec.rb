@@ -2,7 +2,7 @@ require 'discovery_service/renderer/page_renderer'
 require 'discovery_service/renderer/model/group'
 
 RSpec.describe DiscoveryService::Renderer::PageRenderer do
-  context '#render(page, model)' do
+  describe '#render(page, model)' do
     include_context 'build_entity_data'
 
     let(:klass) do

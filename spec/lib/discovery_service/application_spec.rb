@@ -9,7 +9,7 @@ RSpec.describe DiscoveryService::Application do
 
   before { allow(YAML).to receive(:load_file).and_return(config) }
 
-  context 'GET /discovery/:group' do
+  describe 'GET /discovery/:group' do
     let(:path_for_group) { "/discovery/#{group_name}" }
 
     def run

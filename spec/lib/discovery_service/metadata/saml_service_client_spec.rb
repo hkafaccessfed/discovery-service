@@ -1,7 +1,7 @@
 require 'discovery_service/metadata/saml_service_client'
 
 RSpec.describe DiscoveryService::Metadata::SAMLServiceClient do
-  context '#retrieve_entity_data(url)' do
+  describe '#retrieve_entity_data(url)' do
     include_context 'build_entity_data'
     let(:logger) { spy }
 
