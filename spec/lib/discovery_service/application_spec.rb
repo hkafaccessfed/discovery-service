@@ -5,6 +5,9 @@ RSpec.describe DiscoveryService::Application do
 
   let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
   let(:app) { DiscoveryService::Application.new }
+  let(:config) { { groups: {} } }
+
+  before { allow(YAML).to receive(:load_file).and_return(config) }
 
   context 'GET /discovery/:group' do
     let(:path_for_group) { "/discovery/#{group_name}" }
@@ -22,16 +25,18 @@ RSpec.describe DiscoveryService::Application do
     end
 
     context 'with a url-safe base64 alphabet group name' do
-      let(:group_name) do
-        "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-"
-      end
+      let(:page_content) { 'Page content here' }
+      let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }
 
-      context 'when group exists' do
+      context 'when group exists in redis and config' do
         include_context 'build_entity_data'
 
-        let(:page_content) { 'Page content here' }
+        let(:config) { { groups: {} } }
 
-        before { redis.set("pages:group:#{group_name}", page_content) }
+        before do
+          config[:groups][group_name.to_sym] = []
+          redis.set("pages:group:#{group_name}", page_content)
+        end
 
         it 'returns http status code 200' do
           run
@@ -44,7 +49,24 @@ RSpec.describe DiscoveryService::Application do
         end
       end
 
-      context 'when group does not exist' do
+      context 'when group exists in redis but not config' do
+        before { redis.set("pages:group:#{group_name}", page_content) }
+        it 'returns http status code 404' do
+          run
+          expect(last_response.status).to eq(404)
+        end
+      end
+
+      context 'when group exists in config but not redis' do
+        let(:config) { { groups: {} } }
+        before { config[:groups][group_name.to_sym] = [] }
+        it 'returns http status code 404' do
+          run
+          expect(last_response.status).to eq(404)
+        end
+      end
+
+      context 'when group does not exist in redis or config' do
         it 'returns http status code 404' do
           run
           expect(last_response.status).to eq(404)

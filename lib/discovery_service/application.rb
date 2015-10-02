@@ -6,21 +6,28 @@ module DiscoveryService
   class Application < Sinatra::Base
     URL_SAFE_BASE_64_ALPHABET = /^[a-zA-Z0-9_-]+$/
 
-    configure :development, :test, :production do
-      enable :logging
+    TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
+    CONFIG = 'config/discovery_service.yml'
+
+    enable :logging
+    set :group_config, CONFIG
+
+    configure :test do
+      set :group_config, TEST_CONFIG
     end
 
     def initialize
       super
       @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)
+      @groups = YAML.load_file(settings.group_config)[:groups]
     end
 
     get '/discovery/:group' do
       group = params[:group]
       return 400 unless group =~ URL_SAFE_BASE_64_ALPHABET
-
-      if @redis.exists("pages:group:#{group}")
-        @redis.get("pages:group:#{group}")
+      key = "pages:group:#{group}"
+      if @groups.key?(group.to_sym) && @redis.exists(key)
+        @redis.get(key)
       else
         status 404
       end

@@ -1,0 +1,13 @@
+---
+:saml_service:
+  :uri: http://localhost:8080/entities
+
+:groups:
+  :aaf:
+    - [discovery, aaf]
+  :taukiri:
+    - [discovery, taukiri]
+  :edugain:
+    - [discovery, aaf]
+    - [discovery, taukiri]
+    - [discovery, edugain]
