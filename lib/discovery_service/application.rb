@@ -10,7 +10,6 @@ module DiscoveryService
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
     CONFIG = 'config/discovery_service.yml'
 
-    enable :logging
     set :group_config, CONFIG
 
     configure :test do
@@ -19,8 +18,11 @@ module DiscoveryService
 
     def initialize
       super
+      @logger = Logger.new($stderr)
       @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)
       @groups = YAML.load_file(settings.group_config)[:groups]
+      @logger.info('Initialised with group configuration: '\
+        "#{JSON.pretty_generate(@groups)}")
     end
 
     get '/discovery/:group' do
