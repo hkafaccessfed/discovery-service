@@ -1,5 +1,6 @@
 require 'sinatra/base'
 require 'json'
+require 'yaml'
 
 module DiscoveryService
   # Web application to allow users to select their IdP
