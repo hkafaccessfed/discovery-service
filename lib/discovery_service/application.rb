@@ -18,7 +18,7 @@ module DiscoveryService
 
     def initialize
       super
-      @logger = Logger.new($stderr)
+      @logger = Logger.new("log/#{settings.environment}.log")
       @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)
       @groups = YAML.load_file(settings.group_config)[:groups]
       @logger.info('Initialised with group configuration: '\
