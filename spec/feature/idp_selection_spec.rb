@@ -14,15 +14,16 @@ RSpec.feature 'selecting an idp', type: :feature do
 
   context 'when the group exists' do
     given(:group_name) { 'aaf' }
+    given(:content) { 'Content here' }
     include_context 'build_entity_data'
 
     background do
-      redis.set("pages:group:#{group_name}", 'Content here')
+      redis.set("pages:group:#{group_name}", content)
     end
 
     it 'shows the content' do
       visit path_for_group
-      expect(page).to have_content 'Content here'
+      expect(page).to have_content content
     end
   end
 end

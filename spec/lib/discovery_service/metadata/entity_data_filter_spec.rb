@@ -28,7 +28,7 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
       end
     end
 
-    context 'with one tag' do
+    context 'with one tag configured' do
       let(:tag_config) { { aaf: [%w(discovery aaf)] } }
       context 'and one matching entity' do
         let(:matching_entity) { build_entity_data(%w(discovery idp aaf vho)) }
@@ -53,7 +53,7 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
         let(:second_entity) { build_entity_data(%w(random idp tuakiri vho)) }
         let(:entity_data) { [first_entity, second_entity] }
 
-        it 'returns a hash with an empty entities' do
+        it 'returns a hash with empty entities' do
           expect(subject).to eq(aaf: [])
         end
       end
@@ -72,7 +72,7 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
       end
     end
 
-    context 'with multiple tags' do
+    context 'with multiple tags configured' do
       let(:tag_config) do
         {
           aaf: [%w(discovery aaf)],
@@ -105,7 +105,7 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
         let(:second_entity) { build_entity_data(%w(random idp aaf vho)) }
         let(:entity_data) { [first_entity, second_entity] }
 
-        it 'returns a hash with an empty entities' do
+        it 'returns a hash with empty entities' do
           expect(subject).to eq(aaf: [], edugain: [])
         end
       end
@@ -119,7 +119,7 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
           [first_match, second_match, third_match, other_entity]
         end
 
-        it 'returns all matching entities in groups' do
+        it 'returns all matching entities' do
           expect(subject).to eq(aaf: [first_match, second_match],
                                 edugain: [first_match, second_match,
                                           third_match])
