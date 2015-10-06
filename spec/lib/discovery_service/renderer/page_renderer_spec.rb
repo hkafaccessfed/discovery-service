@@ -9,19 +9,12 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       Class.new { include DiscoveryService::Renderer::PageRenderer }
     end
 
-    let(:group_name) { Faker::Lorem.word }
-    let(:entity_1) do
-      build_entity_data(['test', 'idp', group_name, 'vho'])
-    end
-
-    let(:entity_2) do
-      build_entity_data(['test', 'idp', group_name, 'vho'])
-    end
+    let(:entities) { [] }
 
     subject do
       klass.new.render(:group,
                        DiscoveryService::Renderer::Model::Group.new(
-                         [entity_1, entity_2]))
+                         entities))
     end
 
     it 'includes the layout' do
@@ -33,13 +26,30 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       expect(subject).to include('<title>AAF Discovery Service</title>')
     end
 
-    it 'includes the selection string' do
-      expect(subject).to include('Select your IdP:')
+    it 'shows that there are no entities' do
+      expect(subject).to include('No IdPs to select')
     end
 
-    it 'includes the entities' do
-      expect(subject).to include(CGI.escapeHTML(entity_1[:name]))
-      expect(subject).to include(CGI.escapeHTML(entity_2[:name]))
+    context 'with entities' do
+      let(:group_name) { Faker::Lorem.word }
+      let(:entity_1) do
+        build_entity_data(['test', 'idp', group_name, 'vho'])
+      end
+
+      let(:entity_2) do
+        build_entity_data(['test', 'idp', group_name, 'vho'])
+      end
+
+      let(:entities) { [entity_1, entity_2] }
+
+      it 'includes the selection string' do
+        expect(subject).to include('Select your IdP:')
+      end
+
+      it 'includes the entities' do
+        expect(subject).to include(CGI.escapeHTML(entity_1[:name]))
+        expect(subject).to include(CGI.escapeHTML(entity_2[:name]))
+      end
     end
   end
 end

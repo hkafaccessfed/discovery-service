@@ -1,4 +1,7 @@
-'Select your IdP:
-select
-  - @entities.each do | entity |
-    option #{entity[:name]}
+- if @entities.any?
+  'Select your IdP:
+  select
+    - @entities.each do | entity |
+      option #{entity[:name]}
+- else
+  'No IdPs to select
