@@ -9,8 +9,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
       { saml_service: { uri: url },
         groups: { aaf: [%w(discovery aaf)],
                   edugain: [%w(discovery edugain)],
-                  taukiri: [%w(discovery taukiri)],
-                  ignored: [%w(discovery ignored)] } }
+                  taukiri: [%w(discovery taukiri)] } }
     end
 
     before do
@@ -24,6 +23,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
     end
 
     context 'with valid saml service response' do
+      let(:expiry) { 28.days.to_i }
       include_context 'build_entity_data'
 
       context 'nothing stored in redis' do
@@ -48,15 +48,16 @@ RSpec.describe DiscoveryService::Metadata::Updater do
         it 'stores all entities and page content' do
           run
           expect(redis.keys.to_set)
-            .to eq(['entities:aaf', 'entities:edugain',
-                    'pages:group:aaf', 'pages:group:edugain'].to_set)
+            .to eq(['entities:aaf', 'entities:edugain', 'entities:taukiri',
+                    'pages:group:edugain', 'pages:group:aaf',
+                    'pages:group:taukiri'].to_set)
         end
 
         it 'sets an expiry for all entities' do
           Timecop.freeze do
             run
-            expect(redis.ttl('entities:aaf')).to(equal(28.days.to_i))
-            expect(redis.ttl('entities:edugain')).to(equal(28.days.to_i))
+            expect(redis.ttl('entities:aaf')).to(equal(expiry))
+            expect(redis.ttl('entities:edugain')).to(equal(expiry))
           end
         end
 
@@ -97,6 +98,10 @@ RSpec.describe DiscoveryService::Metadata::Updater do
         let(:existing_edugain_page_content) { 'Edugain page content here' }
         let(:existing_taukiri_entities) { [existing_taukiri_entity].to_json }
         let(:existing_taukiri_page_content) { 'Taukiri page content here' }
+        let(:existing_unconfigured_entities) { [].to_json }
+        let(:existing_unconfigured_page_content) do
+          'Unconfigured group page content here'
+        end
 
         before do
           redis.set('entities:aaf', existing_aaf_entities)
@@ -105,6 +110,9 @@ RSpec.describe DiscoveryService::Metadata::Updater do
           redis.set('pages:group:edugain', existing_edugain_page_content)
           redis.set('entities:taukiri', existing_taukiri_entities)
           redis.set('pages:group:taukiri', existing_taukiri_page_content)
+          redis.set('entities:unconfigured', existing_unconfigured_entities)
+          redis.set('pages:group:unconfigured',
+                    existing_unconfigured_page_content)
         end
 
         let(:new_aaf_entity) { build_entity_data(%w(discovery idp aaf vho)) }
@@ -141,25 +149,52 @@ RSpec.describe DiscoveryService::Metadata::Updater do
             redis.expire('pages:group:edugain', original_ttl)
             redis.expire('entities:taukiri', original_ttl)
             redis.expire('pages:group:taukiri', original_ttl)
+
+            redis.expire('entities:unconfigured', original_ttl)
+            redis.expire('pages:group:unconfigured', original_ttl)
+
             run
-            expect(redis.ttl('entities:aaf')).to(equal(28.days.to_i))
-            expect(redis.ttl('pages:group:aaf')).to(equal(28.days.to_i))
-            expect(redis.ttl('entities:taukiri')).to(equal(28.days.to_i))
-            expect(redis.ttl('pages:group:taukiri')).to(equal(28.days.to_i))
-            expect(redis.ttl('entities:edugain')).to(equal(original_ttl))
-            expect(redis.ttl('pages:group:edugain')).to(equal(original_ttl))
+
+            expect(redis.ttl('entities:aaf')).to(equal(expiry))
+            expect(redis.ttl('pages:group:aaf')).to(equal(expiry))
+            expect(redis.ttl('entities:taukiri')).to(equal(expiry))
+            expect(redis.ttl('pages:group:taukiri')).to(equal(expiry))
+            expect(redis.ttl('entities:edugain')).to(equal(expiry))
+            expect(redis.ttl('pages:group:edugain')).to(equal(expiry))
+
+            expect(redis.ttl('entities:unconfigured')).to(equal(original_ttl))
+            expect(redis.ttl('pages:group:unconfigured'))
+              .to(equal(original_ttl))
           end
         end
       end
 
-      context 'empty entity data' do
+      context 'that contains empty entity data' do
         let(:response_body) { { entities: [] } }
 
         let(:response) { { status: 200, body: JSON.generate(response_body) } }
 
-        it 'stores nothing' do
+        it 'stores all entities and page content' do
           run
-          expect(redis.keys).to eq([])
+          expect(redis.keys.to_set)
+            .to eq(['entities:aaf', 'entities:edugain', 'entities:taukiri',
+                    'pages:group:edugain', 'pages:group:aaf',
+                    'pages:group:taukiri'].to_set)
+        end
+
+        it 'stores each entity as an empty array' do
+          run
+          expect(redis.get('entities:aaf')).to eq([].to_json)
+          expect(redis.get('entities:edugain')).to eq([].to_json)
+        end
+
+        it 'stores an empty page for each configured tag' do
+          run
+          expect(redis.get('pages:group:aaf')).to include('No IdPs to select')
+          expect(redis.get('pages:group:edugain'))
+            .to include('No IdPs to select')
+          expect(redis.get('pages:group:taukiri'))
+            .to include('No IdPs to select')
         end
       end
     end
