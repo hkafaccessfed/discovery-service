@@ -4,18 +4,26 @@ gem 'sinatra', require: false
 gem 'unicorn', require: false
 
 gem 'slim'
+gem 'redis'
+gem 'redis-namespace'
+
+gem 'activesupport'
+gem 'hashdiff'
 
 group :development, :test do
   gem 'rspec'
   gem 'faker'
   gem 'rack-test'
   gem 'webmock'
+  gem 'fakeredis'
+  gem 'timecop'
 
   gem 'capybara', require: false
   gem 'poltergeist', require: false
   gem 'phantomjs', require: 'phantomjs/poltergeist'
 
   gem 'pry', require: false
+  gem 'i18n', '~> 0.7.0'
 
   gem 'simplecov', require: false
 
@@ -28,6 +36,4 @@ group :development, :test do
 
   gem 'aaf-gumboot', git: 'https://github.com/ausaccessfed/aaf-gumboot',
                      branch: 'develop'
-  # Have to drag in this dependency for gumboot
-  gem 'activesupport', require: false
 end
