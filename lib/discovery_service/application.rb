@@ -25,6 +25,10 @@ module DiscoveryService
         "#{JSON.pretty_generate(@groups)}")
     end
 
+    def sp_return_url
+      "#{params[:return]}&entityID=#{params[:user_idp]}"
+    end
+
     get '/discovery/:group' do
       group = params[:group]
       return 400 unless group =~ URL_SAFE_BASE_64_ALPHABET
@@ -34,6 +38,12 @@ module DiscoveryService
       else
         status 404
       end
+    end
+
+    post '/discovery/:group' do
+      @logger.debug("User selected IdP #{params[:user_idp]} for requesting SP"\
+        " #{params[:entity_id]}, now redirecting user to #{sp_return_url}")
+      redirect to(sp_return_url)
     end
   end
 end

@@ -32,23 +32,32 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
     context 'with entities' do
       let(:group_name) { Faker::Lorem.word }
-      let(:entity_1) do
-        build_entity_data(['test', 'idp', group_name, 'vho'])
-      end
-
-      let(:entity_2) do
-        build_entity_data(['test', 'idp', group_name, 'vho'])
-      end
+      let(:entity_1) { build_entity_data(['test', 'idp', group_name, 'vho']) }
+      let(:entity_2) { build_entity_data(['test', 'idp', group_name, 'vho']) }
 
       let(:entities) { [entity_1, entity_2] }
+
+      let(:expected_form) do
+        expected_form_with_newlines = <<-EOF
+<form action="" method="POST">
+<select name="user_idp">
+<option value="#{CGI.escapeHTML(entity_1[:entity_id])}">
+#{CGI.escapeHTML(entity_1[:name])}</option>
+<option value="#{CGI.escapeHTML(entity_2[:entity_id])}">
+#{CGI.escapeHTML(entity_2[:name])}</option>
+</select>
+<input class="button" type="submit" value="Select" />
+</form>
+      EOF
+        expected_form_with_newlines.delete("\n")
+      end
 
       it 'includes the selection string' do
         expect(subject).to include('Select your IdP:')
       end
 
-      it 'includes the entities' do
-        expect(subject).to include(CGI.escapeHTML(entity_1[:name]))
-        expect(subject).to include(CGI.escapeHTML(entity_2[:name]))
+      it 'includes a form to submit idp selection' do
+        expect(subject).to include(expected_form)
       end
     end
   end

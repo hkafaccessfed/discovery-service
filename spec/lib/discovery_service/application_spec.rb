@@ -74,4 +74,33 @@ RSpec.describe DiscoveryService::Application do
       end
     end
   end
+
+  describe 'POST /discovery/:group' do
+    let(:group_name) { Faker::Lorem.word }
+
+    let(:return_url) { 'return_url' }
+    let(:requesting_sp) { 'requesting_sp' }
+    let(:selected_idp) { 'selected_idp' }
+
+    let(:path) do
+      "/discovery/#{group_name}?entityID=#{requesting_sp}&return=#{return_url}"
+    end
+
+    let(:form_content) { { user_idp: selected_idp } }
+
+    def run
+      post path, form_content
+    end
+
+    before { run }
+
+    it 'returns http status code 302' do
+      expect(last_response.status).to eq(302)
+    end
+
+    it 'redirects back to sp with entity id' do
+      expect(last_response.location)
+        .to eq("http://example.org/#{return_url}&entityID=#{selected_idp}")
+    end
+  end
 end
