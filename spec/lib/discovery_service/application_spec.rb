@@ -78,9 +78,9 @@ RSpec.describe DiscoveryService::Application do
   describe 'POST /discovery/:group' do
     let(:group_name) { Faker::Lorem.word }
 
-    let(:return_url) { 'return_url' }
-    let(:requesting_sp) { 'requesting_sp' }
-    let(:selected_idp) { 'selected_idp' }
+    let(:return_url) { Faker::Internet.url }
+    let(:requesting_sp) { Faker::Internet.url }
+    let(:selected_idp) { Faker::Internet.url }
 
     let(:path) do
       "/discovery/#{group_name}?entityID=#{requesting_sp}&return=#{return_url}"
@@ -100,7 +100,7 @@ RSpec.describe DiscoveryService::Application do
 
     it 'redirects back to sp with entity id' do
       expect(last_response.location)
-        .to eq("http://example.org/#{return_url}&entityID=#{selected_idp}")
+        .to eq("#{return_url}&entityID=#{selected_idp}")
     end
   end
 end
