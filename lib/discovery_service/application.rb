@@ -47,7 +47,7 @@ module DiscoveryService
 
     def entity_exists?
       @redis.exists(entities_key(params[:group])) &&
-        entities.key?(params[:entity_id].to_sym)
+        entities.key?(params[:entityID].to_sym)
     end
 
     get '/discovery/:group' do
@@ -60,13 +60,19 @@ module DiscoveryService
       end
     end
 
+    def valid_post_params?
+      puts params
+      params.key?(:entityID) && params[:group] =~ URL_SAFE_BASE_64_ALPHABET
+    end
+
     post '/discovery/:group' do
-      params.symbolize_keys! # Verify these param are safe
+      params.symbolize_keys!
+      return status 400 unless valid_post_params?
       return status 404 unless group_configured?(params[:group])
       if params.key?(:return)
         redirect to(sp_url_with_entity_id(params[:return]))
       elsif entity_exists?
-        sp_url = entities[params[:entity_id].to_sym][:discovery_response]
+        sp_url = entities[params[:entityID].to_sym][:discovery_response]
         redirect to(sp_url_with_entity_id(sp_url))
       else
         status 404

@@ -87,11 +87,42 @@ RSpec.describe DiscoveryService::Application do
     context 'when group is not configured' do
       before { run }
       let(:path) do
-        "/discovery/#{group_name}?entity_id=#{requesting_sp}"
+        "/discovery/#{group_name}?entityID=#{requesting_sp}"
       end
 
       it 'returns http status code 404' do
         expect(last_response.status).to eq(404)
+      end
+    end
+
+    context 'without mandatory entity id parameter' do
+      let(:config) { { groups: {} } }
+      let(:path) { "/discovery/#{group_name}" }
+
+      before do
+        config[:groups][group_name.to_sym] = []
+        run
+      end
+
+      it 'returns http status code 400' do
+        expect(last_response.status).to eq(400)
+      end
+    end
+
+    context 'with an non url-safe base64 alphabet group name' do
+      let(:group_name) { '@#!' }
+      let(:config) { { groups: {} } }
+      let(:path) do
+        "/discovery/#{group_name}?entityID=#{requesting_sp}"
+      end
+
+      before do
+        config[:groups][group_name.to_sym] = []
+        run
+      end
+
+      it 'returns http status code 400' do
+        expect(last_response.status).to eq(400)
       end
     end
 
@@ -100,7 +131,7 @@ RSpec.describe DiscoveryService::Application do
       let(:config) { { groups: {} } }
 
       let(:path) do
-        "/discovery/#{group_name}?entity_id=#{requesting_sp}"
+        "/discovery/#{group_name}?entityID=#{requesting_sp}"
       end
 
       before do
@@ -119,7 +150,7 @@ RSpec.describe DiscoveryService::Application do
       let(:requesting_sp) { existing_entity[:entity_id] }
 
       let(:path) do
-        "/discovery/#{group_name}?entity_id=#{requesting_sp}"
+        "/discovery/#{group_name}?entityID=#{requesting_sp}"
       end
 
       before do
@@ -144,7 +175,7 @@ RSpec.describe DiscoveryService::Application do
       let(:sp_return_url) { Faker::Internet.url }
 
       let(:path) do
-        "/discovery/#{group_name}?entity_id=#{requesting_sp}"\
+        "/discovery/#{group_name}?entityID=#{requesting_sp}"\
         "&return=#{sp_return_url}"
       end
 
