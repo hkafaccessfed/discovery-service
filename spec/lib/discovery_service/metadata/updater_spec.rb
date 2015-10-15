@@ -39,10 +39,10 @@ RSpec.describe DiscoveryService::Metadata::Updater do
                     'pages:group:taukiri'].to_set)
         end
 
-        it 'stores each entity as an empty array' do
+        it 'stores each entity as an empty hash' do
           run
-          expect(redis.get('entities:aaf')).to eq([].to_json)
-          expect(redis.get('entities:edugain')).to eq([].to_json)
+          expect(redis.get('entities:aaf')).to eq({}.to_json)
+          expect(redis.get('entities:edugain')).to eq({}.to_json)
         end
 
         it 'stores an empty page for each configured tag' do
@@ -94,9 +94,9 @@ RSpec.describe DiscoveryService::Metadata::Updater do
           it 'stores each matching entity as a key value pair' do
             run
             expect(redis.get('entities:aaf'))
-              .to eq([matching_aaf_entity].to_json)
+              .to eq(to_hash([matching_aaf_entity]).to_json)
             expect(redis.get('entities:edugain'))
-              .to eq([matching_edugain_entity].to_json)
+              .to eq(to_hash([matching_edugain_entity]).to_json)
           end
 
           it 'stores each matching page content as a key value pair' do
@@ -110,44 +110,44 @@ RSpec.describe DiscoveryService::Metadata::Updater do
 
         context 'entities already stored in redis' do
           let(:original_ttl) { 10 }
-          let(:existing_aaf_entity) do
+          let(:aaf_entity) do
             build_entity_data(%w(discovery idp aaf vho))
           end
 
-          let(:existing_edugain_entity) do
+          let(:edugain_entity) do
             build_entity_data(%w(discovery idp edugain vho))
           end
 
-          let(:existing_taukiri_entity) do
+          let(:taukiri_entity) do
             build_entity_data(%w(discovery idp taukiri vho))
           end
 
-          let(:existing_aaf_entities) { [existing_aaf_entity].to_json }
-          let(:existing_aaf_page_content) { 'AAF page content here' }
-          let(:existing_edugain_entities) { [existing_edugain_entity].to_json }
-          let(:existing_edugain_page_content) { 'Edugain page content here' }
-          let(:existing_taukiri_entities) { [existing_taukiri_entity].to_json }
-          let(:existing_taukiri_page_content) { 'Taukiri page content here' }
-          let(:existing_unconfigured_entities) { [].to_json }
-          let(:existing_unconfigured_page_content) do
+          let(:aaf_entities) { to_hash([aaf_entity]).to_json }
+          let(:aaf_page_content) { 'AAF page content here' }
+          let(:edugain_entities) { to_hash([edugain_entity]).to_json }
+          let(:edugain_page_content) { 'Edugain page content here' }
+          let(:taukiri_entities) { to_hash([taukiri_entity]).to_json }
+          let(:taukiri_page_content) { 'Taukiri page content here' }
+          let(:unconfigured_entities) { {}.to_json }
+          let(:unconfigured_page_content) do
             'Unconfigured group page content here'
           end
 
           before do
-            redis.set('entities:aaf', existing_aaf_entities)
-            redis.set('pages:group:aaf', existing_aaf_page_content)
-            redis.set('entities:edugain', existing_edugain_entities)
-            redis.set('pages:group:edugain', existing_edugain_page_content)
-            redis.set('entities:taukiri', existing_taukiri_entities)
-            redis.set('pages:group:taukiri', existing_taukiri_page_content)
-            redis.set('entities:unconfigured', existing_unconfigured_entities)
+            redis.set('entities:aaf', aaf_entities)
+            redis.set('pages:group:aaf', aaf_page_content)
+            redis.set('entities:edugain', edugain_entities)
+            redis.set('pages:group:edugain', edugain_page_content)
+            redis.set('entities:taukiri', taukiri_entities)
+            redis.set('pages:group:taukiri', taukiri_page_content)
+            redis.set('entities:unconfigured', unconfigured_entities)
             redis.set('pages:group:unconfigured',
-                      existing_unconfigured_page_content)
+                      unconfigured_page_content)
           end
 
           let(:new_aaf_entity) { build_entity_data(%w(discovery idp aaf vho)) }
           let(:new_entities) do
-            [new_aaf_entity, existing_aaf_entity, existing_taukiri_entity]
+            [new_aaf_entity, aaf_entity, taukiri_entity]
           end
 
           let(:response_body) { { entities: new_entities } }
@@ -156,19 +156,19 @@ RSpec.describe DiscoveryService::Metadata::Updater do
           it 'only stores matching entities from the latest response' do
             run
             expect(redis.get('entities:aaf'))
-              .to eq([new_aaf_entity, existing_aaf_entity].to_json)
+              .to eq(to_hash([new_aaf_entity, aaf_entity]).to_json)
             expect(redis.get('entities:taukiri'))
-              .to eq([existing_taukiri_entity].to_json)
+              .to eq(to_hash([taukiri_entity]).to_json)
           end
 
           it 'only stores matching page content from the latest response' do
             run
             expect(redis.get('pages:group:aaf'))
-              .to include("#{existing_aaf_entity['name']}")
+              .to include("#{aaf_entity['name']}")
             expect(redis.get('pages:group:aaf'))
               .to include("#{new_aaf_entity['name']}")
             expect(redis.get('pages:group:taukiri'))
-              .to include("#{existing_taukiri_entity['name']}")
+              .to include("#{taukiri_entity['name']}")
           end
 
           it 'only updates the ttl for entities contained in the response' do

@@ -3,11 +3,12 @@ require 'redis'
 require 'redis-namespace'
 require 'slim'
 require 'discovery_service/metadata/entity_data_filter'
+require 'discovery_service/persistence/keys'
 require 'discovery_service/metadata/saml_service_client'
 require 'discovery_service/renderer/page_renderer'
 require 'discovery_service/renderer/model/group'
+require 'discovery_service/persistence/entities'
 require 'active_support/core_ext/numeric/time'
-require 'active_support/core_ext/hash/keys'
 require 'hashdiff'
 
 module DiscoveryService
@@ -18,6 +19,8 @@ module DiscoveryService
       include DiscoveryService::Metadata::SAMLServiceClient
       include DiscoveryService::Metadata::EntityDataFilter
       include DiscoveryService::Renderer::PageRenderer
+      include DiscoveryService::Persistence::Keys
+      include DiscoveryService::Persistence::Entities
       EXPIRY_IN_SECONDS = 28.days.to_i
 
       def initialize
@@ -54,10 +57,8 @@ module DiscoveryService
 
       # pre: @redis.get(entities_key(group)) != nil
       def entities_changed?(group, entities)
-        stored_entities_as_string = @redis.get(entities_key(group))
-        stored_entities_as_json = JSON.parse(stored_entities_as_string)
-        stored_entities = stored_entities_as_json.map(&:symbolize_keys)
-        diff = HashDiff.diff(stored_entities, entities)
+        stored_entities = build_entities(@redis.get(entities_key(group)))
+        diff = HashDiff.diff(stored_entities, to_hash(entities))
         changed = diff.any?
         logger.info("Entity data changed for '#{group}': #{diff}") if changed
         changed
@@ -73,17 +74,9 @@ module DiscoveryService
 
       def save_entities(group, entities)
         key = entities_key(group)
-        value = entities.to_json
-        logger.info("Storing '#{key}': '#{JSON.pretty_generate(entities)}'")
+        value = to_hash(entities).to_json
+        logger.info("Storing '#{key}': '#{value}'")
         @redis.set(key, value)
-      end
-
-      def group_page_key(group)
-        "pages:group:#{group}"
-      end
-
-      def entities_key(group)
-        "entities:#{group}"
       end
     end
   end
