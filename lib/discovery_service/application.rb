@@ -39,9 +39,12 @@ module DiscoveryService
       build_entities(entities_as_string)
     end
 
-    def sp_url_with_entity_id(path)
+    def sp_url_with_entity_id(path, custom_entity_id)
       url = path.include?('?') ? "#{path}&" : "#{path}?"
-      url_params = Rack::Utils.build_query(entityID: params[:user_idp])
+      query = {}
+      entity_id = custom_entity_id.nil? ? :entityID : custom_entity_id.to_sym
+      query[entity_id] = params[:user_idp]
+      url_params = Rack::Utils.build_query(query)
       "#{url}#{url_params}"
     end
 
@@ -68,10 +71,12 @@ module DiscoveryService
       return status 400 unless valid_post_params?
       return status 404 unless group_configured?(params[:group])
       if params[:return]
-        redirect to(sp_url_with_entity_id(params[:return]))
+        redirect to(sp_url_with_entity_id(params[:return],
+                                          params[:returnIDParam]))
       elsif entity_exists?
         sp_url = entities[params[:entityID].to_sym][:discovery_response]
-        redirect to(sp_url_with_entity_id(sp_url))
+        redirect to(sp_url_with_entity_id(sp_url,
+                                          params[:returnIDParam]))
       else
         status 404
       end

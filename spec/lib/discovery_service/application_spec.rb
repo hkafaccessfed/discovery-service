@@ -197,6 +197,32 @@ RSpec.describe DiscoveryService::Application do
       end
     end
 
+    context 'with entity id, return and return id parameter' do
+      let(:sp_return_url) { Faker::Internet.url }
+
+      let(:path) do
+        "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+        "&return=#{sp_return_url}&returnIDParam=myCustomEntityID"
+      end
+
+      let(:form_content) { { user_idp: selected_idp } }
+
+      before do
+        config[:groups][group_name.to_sym] = []
+        run
+      end
+
+      it 'returns http status code 302' do
+        expect(last_response.status).to eq(302)
+      end
+
+      it 'redirects back to sp using return url value and custom entity id' do
+        expect(last_response.location)
+          .to eq("#{sp_return_url}?"\
+          "#{Rack::Utils.build_query(myCustomEntityID: selected_idp)}")
+      end
+    end
+
     context 'with entity id parameter, return parameter and also a'\
       ' discovery response' do
       let(:sp_return_url) { Faker::Internet.url }
