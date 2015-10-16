@@ -3,6 +3,7 @@ require 'discovery_service/persistence/entities'
 require 'sinatra/base'
 require 'json'
 require 'yaml'
+require 'uri'
 
 module DiscoveryService
   # Web application to allow users to select their IdP
@@ -10,6 +11,8 @@ module DiscoveryService
     include DiscoveryService::Persistence::Keys
     include DiscoveryService::Persistence::Entities
 
+    IDP_DISCOVERY_SINGLE_PROTOCOL =
+        'urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single'
     URL_SAFE_BASE_64_ALPHABET = /^[a-zA-Z0-9_-]+$/
 
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
@@ -53,10 +56,18 @@ module DiscoveryService
         entities.key?(params[:entityID].to_sym)
     end
 
+    def uri?(value)
+      value =~ /\A#{URI.regexp}\z/
+    end
+
+    def valid_policy?(policy)
+      policy.nil? || policy == IDP_DISCOVERY_SINGLE_PROTOCOL
+    end
+
     def valid_post_params?
-      params[:entityID] && params[:group] =~ URL_SAFE_BASE_64_ALPHABET &&
-        (params[:policy].nil? || params[:policy] ==
-        'urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single')
+      uri?(params[:entityID]) && uri?(params[:user_idp]) &&
+        params[:group] =~ URL_SAFE_BASE_64_ALPHABET &&
+        valid_policy?(params[:policy])
     end
 
     get '/discovery/:group' do
