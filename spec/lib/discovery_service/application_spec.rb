@@ -262,6 +262,46 @@ RSpec.describe DiscoveryService::Application do
       end
     end
 
+    context 'with entity id, return and passive parameter' do
+      let(:sp_return_url) { Faker::Internet.url }
+      let(:path) do
+        "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+        "&return=#{sp_return_url}&isPassive=#{passive}"
+      end
+
+      let(:form_content) { { user_idp: selected_idp } }
+
+      before do
+        config[:groups][group_name.to_sym] = []
+        run
+      end
+
+      context 'with passive set to true' do
+        let(:passive) { 'true' }
+        it 'returns http status code 302' do
+          expect(last_response.status).to eq(302)
+        end
+
+        it 'redirects back to sp without entity id because'\
+       ' idp cannot be resolved from cookies/storage' do
+          expect(last_response.location).to eq("#{sp_return_url}")
+        end
+      end
+
+      context 'with passive set to false' do
+        let(:passive) { 'false' }
+        it 'returns http status code 302' do
+          expect(last_response.status).to eq(302)
+        end
+
+        it 'redirects back to sp using return url value and entity id' do
+          expect(last_response.location)
+            .to eq("#{sp_return_url}?"\
+          "#{Rack::Utils.build_query(entityID: selected_idp)}")
+        end
+      end
+    end
+
     context 'with entity id parameter, return parameter and also a'\
       ' discovery response' do
       let(:sp_return_url) { Faker::Internet.url }

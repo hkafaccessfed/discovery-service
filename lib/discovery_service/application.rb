@@ -56,7 +56,7 @@ module DiscoveryService
     def valid_post_params?
       params[:entityID] && params[:group] =~ URL_SAFE_BASE_64_ALPHABET &&
         (params[:policy].nil? || params[:policy] ==
-            'urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single')
+        'urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single')
     end
 
     get '/discovery/:group' do
@@ -72,7 +72,10 @@ module DiscoveryService
     post '/discovery/:group' do
       return status 400 unless valid_post_params?
       return status 404 unless group_configured?(params[:group])
-      if params[:return]
+      if params[:isPassive] && params[:isPassive] == 'true'
+        # TODO: Resolve IdP selection from cookies/storage if possible
+        redirect to(params[:return])
+      elsif params[:return]
         redirect to(sp_url_with_entity_id(params[:return],
                                           params[:returnIDParam]))
       elsif entity_exists?
