@@ -223,6 +223,45 @@ RSpec.describe DiscoveryService::Application do
       end
     end
 
+    context 'with entity id, return and policy parameter' do
+      let(:sp_return_url) { Faker::Internet.url }
+
+      let(:path) do
+        "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+        "&return=#{sp_return_url}&policy=#{policy}"
+      end
+
+      let(:form_content) { { user_idp: selected_idp } }
+
+      before do
+        config[:groups][group_name.to_sym] = []
+        run
+      end
+
+      context 'with unsupported policy' do
+        let(:policy) { 'unsupported_policy ' }
+        it 'returns http status code 400' do
+          expect(last_response.status).to eq(400)
+        end
+      end
+
+      context 'with supported policy' do
+        let(:policy) do
+          'urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single'
+        end
+
+        it 'returns http status code 302' do
+          expect(last_response.status).to eq(302)
+        end
+
+        it 'redirects back to sp using return url value' do
+          expect(last_response.location)
+            .to eq("#{sp_return_url}?"\
+            "#{Rack::Utils.build_query(entityID: selected_idp)}")
+        end
+      end
+    end
+
     context 'with entity id parameter, return parameter and also a'\
       ' discovery response' do
       let(:sp_return_url) { Faker::Internet.url }

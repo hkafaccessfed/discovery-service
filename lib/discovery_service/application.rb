@@ -54,7 +54,9 @@ module DiscoveryService
     end
 
     def valid_post_params?
-      params[:entityID] && params[:group] =~ URL_SAFE_BASE_64_ALPHABET
+      params[:entityID] && params[:group] =~ URL_SAFE_BASE_64_ALPHABET &&
+        (params[:policy].nil? || params[:policy] ==
+            'urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single')
     end
 
     get '/discovery/:group' do
