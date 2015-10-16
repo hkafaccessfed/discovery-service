@@ -37,12 +37,7 @@ module DiscoveryService
       @groups.key?(group.to_sym)
     end
 
-    def entities
-      entities_as_string = @redis.get(entities_key(params[:group]))
-      build_entities(entities_as_string)
-    end
-
-    def sp_url_with_entity_id(path, custom_entity_id)
+    def sp_url(path, custom_entity_id)
       url = path.include?('?') ? "#{path}&" : "#{path}?"
       query = {}
       entity_id = custom_entity_id.nil? ? :entityID : custom_entity_id.to_sym
@@ -51,9 +46,20 @@ module DiscoveryService
       "#{url}#{url_params}"
     end
 
-    def entity_exists?
-      @redis.exists(entities_key(params[:group])) &&
-        entities.key?(params[:entityID].to_sym)
+    def entities
+      build_entities(@redis.get(entities_key_for_group))
+    end
+
+    def entities_key_for_group
+      entities_key(params[:group])
+    end
+
+    def discovery_response
+      return nil unless @redis.exists(entities_key_for_group)
+      entity_id = params[:entityID].to_sym
+      return nil unless entities.key?(entity_id) &&
+                        entities[entity_id].key?(:discovery_response)
+      entities[entity_id][:discovery_response]
     end
 
     def uri?(value)
@@ -87,12 +93,9 @@ module DiscoveryService
         # TODO: Resolve IdP selection from cookies/storage if possible
         redirect to(params[:return])
       elsif params[:return]
-        redirect to(sp_url_with_entity_id(params[:return],
-                                          params[:returnIDParam]))
-      elsif entity_exists?
-        sp_url = entities[params[:entityID].to_sym][:discovery_response]
-        redirect to(sp_url_with_entity_id(sp_url,
-                                          params[:returnIDParam]))
+        redirect to(sp_url(params[:return], params[:returnIDParam]))
+      elsif discovery_response
+        redirect to(sp_url(discovery_response, params[:returnIDParam]))
       else
         status 404
       end
