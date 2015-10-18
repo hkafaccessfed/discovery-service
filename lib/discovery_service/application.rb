@@ -12,7 +12,7 @@ module DiscoveryService
     include DiscoveryService::Persistence::Entities
 
     IDP_DISCOVERY_SINGLE_PROTOCOL =
-        'urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single'
+        'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol:single'
     URL_SAFE_BASE_64_ALPHABET = /^[a-zA-Z0-9_-]+$/
 
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'

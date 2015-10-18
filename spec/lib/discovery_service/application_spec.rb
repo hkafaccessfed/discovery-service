@@ -249,7 +249,7 @@ RSpec.describe DiscoveryService::Application do
 
         context 'with supported policy' do
           let(:policy) do
-            'urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single'
+            'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol:single'
           end
 
           it 'returns http status code 302' do
