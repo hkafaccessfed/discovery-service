@@ -37,13 +37,14 @@ module DiscoveryService
       @groups.key?(group.to_sym)
     end
 
-    def sp_url(path, custom_entity_id)
-      url = path.include?('?') ? "#{path}&" : "#{path}?"
-      query = {}
-      entity_id = custom_entity_id.nil? ? :entityID : custom_entity_id.to_sym
-      query[entity_id] = params[:user_idp]
-      url_params = Rack::Utils.build_query(query)
-      "#{url}#{url_params}"
+    def sp_response_url(return_url, param_key, selected_idp)
+      uri = URI.parse(return_url)
+      key = param_key || :entityID
+      query_opts = []
+      query_opts << URI.decode_www_form(uri.query) unless uri.query.nil?
+      query_opts << [key, selected_idp]
+      uri.query = URI.encode_www_form(query_opts)
+      uri.to_s
     end
 
     def entities
@@ -93,9 +94,11 @@ module DiscoveryService
         # TODO: Resolve IdP selection from cookies/storage if possible
         redirect to(params[:return])
       elsif params[:return]
-        redirect to(sp_url(params[:return], params[:returnIDParam]))
+        redirect to(sp_response_url(params[:return], params[:returnIDParam],
+                                    params[:user_idp]))
       elsif discovery_response
-        redirect to(sp_url(discovery_response, params[:returnIDParam]))
+        redirect to(sp_response_url(discovery_response, params[:returnIDParam],
+                                    params[:user_idp]))
       else
         status 404
       end
