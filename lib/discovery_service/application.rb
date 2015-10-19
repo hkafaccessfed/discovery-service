@@ -1,4 +1,3 @@
-require 'discovery_service/persistence/keys'
 require 'discovery_service/persistence/entities'
 require 'sinatra/base'
 require 'json'
@@ -8,7 +7,6 @@ require 'uri'
 module DiscoveryService
   # Web application to allow users to select their IdP
   class Application < Sinatra::Base
-    include DiscoveryService::Persistence::Keys
     include DiscoveryService::Persistence::Entities
 
     IDP_DISCOVERY_SINGLE_PROTOCOL =
@@ -47,22 +45,6 @@ module DiscoveryService
       uri.to_s
     end
 
-    def entities
-      build_entities(@redis.get(entities_key_for_group))
-    end
-
-    def entities_key_for_group
-      entities_key(params[:group])
-    end
-
-    def discovery_response
-      return nil unless @redis.exists(entities_key_for_group)
-      entity_id = params[:entityID]
-      return nil unless entities.key?(entity_id) &&
-                        entities[entity_id].key?(:discovery_response)
-      entities[entity_id][:discovery_response]
-    end
-
     def uri?(value)
       value =~ /\A#{URI.regexp}\z/
     end
@@ -80,8 +62,8 @@ module DiscoveryService
     get '/discovery/:group' do
       group = params[:group]
       return 400 unless group =~ URL_SAFE_BASE_64_ALPHABET
-      if group_configured?(group) && @redis.exists(group_page_key(group))
-        @redis.get(group_page_key(group))
+      if group_configured?(group) && group_page_exists?(group)
+        group_page(group)
       else
         status 404
       end
@@ -96,8 +78,10 @@ module DiscoveryService
       elsif params[:return]
         redirect to(sp_response_url(params[:return], params[:returnIDParam],
                                     params[:user_idp]))
-      elsif discovery_response
-        redirect to(sp_response_url(discovery_response, params[:returnIDParam],
+      elsif discovery_response(params[:group], params[:entityID])
+        redirect to(sp_response_url(discovery_response(params[:group],
+                                                       params[:entityID]),
+                                    params[:returnIDParam],
                                     params[:user_idp]))
       else
         status 404

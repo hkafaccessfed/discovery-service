@@ -3,7 +3,6 @@ require 'redis'
 require 'redis-namespace'
 require 'slim'
 require 'discovery_service/metadata/entity_data_filter'
-require 'discovery_service/persistence/keys'
 require 'discovery_service/metadata/saml_service_client'
 require 'discovery_service/renderer/page_renderer'
 require 'discovery_service/renderer/model/group'
@@ -19,9 +18,7 @@ module DiscoveryService
       include DiscoveryService::Metadata::SAMLServiceClient
       include DiscoveryService::Metadata::EntityDataFilter
       include DiscoveryService::Renderer::PageRenderer
-      include DiscoveryService::Persistence::Keys
       include DiscoveryService::Persistence::Entities
-      EXPIRY_IN_SECONDS = 28.days.to_i
 
       def initialize
         @logger = Logger.new($stderr)
@@ -33,50 +30,28 @@ module DiscoveryService
         raw_entities = retrieve_entity_data(config[:saml_service][:uri])
         grouped_entities = filter(raw_entities[:entities], config[:groups])
         grouped_entities.each do |group, entities|
-          if !entities_exists?(group) || entities_changed?(group, entities)
-            save_entities(group, entities)
+          if !entities_exist?(group) || entities_changed?(entities, group)
+            save_entities_content(group, entities)
             save_group_page_content(group, entities)
           end
           update_expiry(group)
         end
       end
 
-      def update_expiry(group)
-        logger.info("Setting #{group_page_key(group)} expiry: "\
-          "#{EXPIRY_IN_SECONDS} seconds")
-        logger.info("Setting #{entities_key(group)} expiry: "\
-          "#{EXPIRY_IN_SECONDS} seconds")
-        @redis.expire(group_page_key(group), EXPIRY_IN_SECONDS)
-        @redis.expire(entities_key(group), EXPIRY_IN_SECONDS)
-      end
-
-      def entities_exists?(group)
-        @redis.exists(entities_key(group)) &&
-          @redis.exists(group_page_key(group))
-      end
-
-      # pre: @redis.get(entities_key(group)) != nil
-      def entities_changed?(group, entities)
-        stored_entities = build_entities(@redis.get(entities_key(group)))
-        diff = HashDiff.diff(stored_entities, to_hash(entities))
-        changed = diff.any?
-        logger.info("Entity data changed for '#{group}': #{diff}") if changed
-        changed
+      def entities_changed?(entities, group)
+        entities_diff(group, entities).any?
       end
 
       def save_group_page_content(group, entities)
-        key = group_page_key(group)
         page = render(:group,
                       DiscoveryService::Renderer::Model::Group.new(entities))
-        logger.debug("Storing '#{key}': '#{page}'")
-        @redis.set(key, page)
+        logger.debug("Storing page for group '#{group}': '#{page}'")
+        save_group_page(group, page)
       end
 
-      def save_entities(group, entities)
-        key = entities_key(group)
-        value = to_hash(entities).to_json
-        logger.info("Storing '#{key}': '#{value}'")
-        @redis.set(key, value)
+      def save_entities_content(group, entities)
+        logger.info("Storing entities for group '#{group}': '#{entities}'")
+        save_entities(entities, group)
       end
     end
   end
