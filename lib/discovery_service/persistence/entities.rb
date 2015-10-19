@@ -7,12 +7,12 @@ module DiscoveryService
     module Entities
       def build_entities(entities_as_string)
         stored_entities_as_json = JSON.parse(entities_as_string)
-        stored_entities_as_json.deep_symbolize_keys!
+        stored_entities_as_json.each { |_k, v| v.symbolize_keys! }
       end
 
       def to_hash(entities)
         hash = Hash[entities.map { |e| [e[:entity_id], e.except(:entity_id)] }]
-        hash.deep_symbolize_keys!
+        hash.each { |_k, v| v.symbolize_keys! }
       end
     end
   end

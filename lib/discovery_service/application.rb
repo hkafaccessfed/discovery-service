@@ -57,7 +57,7 @@ module DiscoveryService
 
     def discovery_response
       return nil unless @redis.exists(entities_key_for_group)
-      entity_id = params[:entityID].to_sym
+      entity_id = params[:entityID]
       return nil unless entities.key?(entity_id) &&
                         entities[entity_id].key?(:discovery_response)
       entities[entity_id][:discovery_response]

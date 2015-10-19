@@ -28,11 +28,11 @@ RSpec.describe DiscoveryService::Persistence::Entities do
 
   describe '#build_entities(entities_as_string)' do
     let(:expected_entities) do
-      { "https://example.org/idp/shibboleth":
+      { 'https://example.org/idp/shibboleth' =>
           { sso_endpoint: 'https://example.org/idp/profile/Shibboleth/SSO',
             name: 'AAF Virtual Home',
             tags: %w(discovery idp aaf vho) },
-        "https://example.org/shibboleth":
+        'https://example.org/shibboleth' =>
           { discovery_response: 'https://example.org/Shibboleth.sso/Login',
             name: 'AAF Virtual Home SP',
             tags: %w(aaf sp)
@@ -63,11 +63,11 @@ RSpec.describe DiscoveryService::Persistence::Entities do
 
       it 'converts entities into a hash keyed by entity id' do
         expect(subject)
-          .to eq(entity1[:entity_id].to_sym =>
+          .to eq(entity1[:entity_id] =>
                      { discovery_response: entity1[:discovery_response],
                        name: entity1[:name],
                        tags: entity1[:tags] },
-                 entity2[:entity_id].to_sym =>
+                 entity2[:entity_id] =>
                      { discovery_response: entity2[:discovery_response],
                        name: entity2[:name],
                        tags: entity2[:tags] })
