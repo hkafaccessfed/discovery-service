@@ -1,4 +1,4 @@
-require 'discovery_service/persistence/entities'
+require 'discovery_service/persistence/entity_cache'
 require 'sinatra/base'
 require 'json'
 require 'yaml'
@@ -7,8 +7,6 @@ require 'uri'
 module DiscoveryService
   # Web application to allow users to select their IdP
   class Application < Sinatra::Base
-    include DiscoveryService::Persistence::Entities
-
     IDP_DISCOVERY_SINGLE_PROTOCOL =
         'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol:single'
     URL_SAFE_BASE_64_ALPHABET = /^[a-zA-Z0-9_-]+$/
@@ -25,7 +23,7 @@ module DiscoveryService
     def initialize
       super
       @logger = Logger.new("log/#{settings.environment}.log")
-      @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)
+      @entity_cache = DiscoveryService::Persistence::EntityCache.new
       @groups = YAML.load_file(settings.group_config)[:groups]
       @logger.info('Initialised with group configuration: '\
         "#{JSON.pretty_generate(@groups)}")
@@ -62,8 +60,8 @@ module DiscoveryService
     get '/discovery/:group' do
       group = params[:group]
       return 400 unless group =~ URL_SAFE_BASE_64_ALPHABET
-      if group_configured?(group) && group_page_exists?(group)
-        group_page(group)
+      if group_configured?(group) && @entity_cache.group_page_exists?(group)
+        @entity_cache.group_page(group)
       else
         status 404
       end
@@ -78,9 +76,9 @@ module DiscoveryService
       elsif params[:return]
         redirect to(sp_response_url(params[:return], params[:returnIDParam],
                                     params[:user_idp]))
-      elsif discovery_response(params[:group], params[:entityID])
-        redirect to(sp_response_url(discovery_response(params[:group],
-                                                       params[:entityID]),
+      elsif @entity_cache.discovery_response(params[:group], params[:entityID])
+        redirect to(sp_response_url(@entity_cache.discovery_response(
+                                      params[:group], params[:entityID]),
                                     params[:returnIDParam],
                                     params[:user_idp]))
       else

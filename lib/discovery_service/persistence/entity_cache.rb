@@ -4,9 +4,13 @@ require 'discovery_service/persistence/keys'
 
 module DiscoveryService
   module Persistence
-    # Collection of methods to build entity data (from / to) redis
-    module Entities
+    # Class to handle storage / retrieval of entities
+    class EntityCache
       include DiscoveryService::Persistence::Keys
+
+      def initialize
+        @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)
+      end
 
       EXPIRY_IN_SECONDS = 28.days.to_i
 
@@ -35,10 +39,6 @@ module DiscoveryService
       end
 
       def update_expiry(group)
-        logger.info("Setting #{group_page_key(group)} expiry: "\
-          "#{EXPIRY_IN_SECONDS} seconds")
-        logger.info("Setting #{entities_key(group)} expiry: "\
-          "#{EXPIRY_IN_SECONDS} seconds")
         @redis.expire(group_page_key(group), EXPIRY_IN_SECONDS)
         @redis.expire(entities_key(group), EXPIRY_IN_SECONDS)
       end
