@@ -65,8 +65,7 @@ module DiscoveryService
       end
 
       def to_hash(entities)
-        hash = Hash[entities.map { |e| [e[:entity_id], e.except(:entity_id)] }]
-        hash.each { |_k, v| v.symbolize_keys! }
+        Hash[entities.map { |e| [e[:entity_id], e.except(:entity_id)] }]
       end
     end
   end
