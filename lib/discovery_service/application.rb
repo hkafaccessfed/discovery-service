@@ -1,10 +1,14 @@
+require 'discovery_service/persistence/entity_cache'
 require 'sinatra/base'
 require 'json'
 require 'yaml'
+require 'uri'
 
 module DiscoveryService
   # Web application to allow users to select their IdP
   class Application < Sinatra::Base
+    IDP_DISCOVERY_SINGLE_PROTOCOL =
+        'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol:single'
     URL_SAFE_BASE_64_ALPHABET = /^[a-zA-Z0-9_-]+$/
 
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
@@ -19,18 +23,62 @@ module DiscoveryService
     def initialize
       super
       @logger = Logger.new("log/#{settings.environment}.log")
-      @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)
+      @entity_cache = DiscoveryService::Persistence::EntityCache.new
       @groups = YAML.load_file(settings.group_config)[:groups]
       @logger.info('Initialised with group configuration: '\
         "#{JSON.pretty_generate(@groups)}")
     end
 
+    def group_configured?(group)
+      @groups.key?(group.to_sym)
+    end
+
+    def sp_response_url(return_url, param_key, selected_idp)
+      uri = URI.parse(return_url)
+      key = param_key || :entityID
+      query_opts = URI.decode_www_form(uri.query || '') << [key, selected_idp]
+      uri.query = URI.encode_www_form(query_opts)
+      uri.to_s
+    end
+
+    def uri?(value)
+      value =~ /\A#{URI.regexp}\z/
+    end
+
+    def valid_policy?(policy)
+      policy.nil? || policy == IDP_DISCOVERY_SINGLE_PROTOCOL
+    end
+
+    def valid_post_params?
+      uri?(params[:entityID]) && uri?(params[:user_idp]) &&
+        params[:group] =~ URL_SAFE_BASE_64_ALPHABET &&
+        valid_policy?(params[:policy])
+    end
+
     get '/discovery/:group' do
       group = params[:group]
       return 400 unless group =~ URL_SAFE_BASE_64_ALPHABET
-      key = "pages:group:#{group}"
-      if @groups.key?(group.to_sym) && @redis.exists(key)
-        @redis.get(key)
+      if group_configured?(group) && @entity_cache.group_page_exists?(group)
+        @entity_cache.group_page(group)
+      else
+        status 404
+      end
+    end
+
+    post '/discovery/:group' do
+      return status 400 unless valid_post_params?
+      return status 404 unless group_configured?(params[:group])
+      if params[:isPassive] && params[:isPassive] == 'true'
+        # TODO: Resolve IdP selection from cookies/storage if possible
+        redirect to(params[:return])
+      elsif params[:return]
+        redirect to(sp_response_url(params[:return], params[:returnIDParam],
+                                    params[:user_idp]))
+      elsif @entity_cache.discovery_response(params[:group], params[:entityID])
+        redirect to(sp_response_url(@entity_cache.discovery_response(
+                                      params[:group], params[:entityID]),
+                                    params[:returnIDParam],
+                                    params[:user_idp]))
       else
         status 404
       end

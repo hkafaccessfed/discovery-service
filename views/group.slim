@@ -1,7 +1,9 @@
 - if @entities.any?
   'Select your IdP:
-  select
-    - @entities.each do | entity |
-      option #{entity[:name]}
+  form action=="" method="POST"
+    select name="user_idp"
+      - @entities.each do | entity |
+        option value="#{entity[:entity_id]}" #{entity[:name]}
+    input.button type="submit" value="Select"
 - else
   'No IdPs to select

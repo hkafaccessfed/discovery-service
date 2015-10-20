@@ -4,11 +4,19 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
   describe '#filter(entity_data, tag_config)' do
     include_context 'build_entity_data'
 
+    let(:logger) { spy }
+
     let(:klass) do
-      Class.new { include DiscoveryService::Metadata::EntityDataFilter }
+      Class.new do
+        attr_accessor :logger
+        include DiscoveryService::Metadata::EntityDataFilter
+        def initialize(logger)
+          @logger = logger
+        end
+      end
     end
 
-    subject { klass.new.filter(entity_data, tag_config) }
+    subject { klass.new(logger).filter(entity_data, tag_config) }
 
     context 'with empty arguments' do
       let(:entity_data) { {} }
