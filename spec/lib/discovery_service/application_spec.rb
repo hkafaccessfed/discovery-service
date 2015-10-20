@@ -79,11 +79,17 @@ RSpec.describe DiscoveryService::Application do
   end
 
   describe 'POST /discovery/:group' do
-    def response_matches?(expected_location, expected_params)
-      actual_params = Rack::Utils.parse_nested_query(
-        URI.parse(last_response.location).query)
-      actual_location = last_response.location.split('?').first
-      actual_location == expected_location && actual_params == expected_params
+    def actual_params
+      Rack::Utils.parse_nested_query(URI.parse(last_response.location).query)
+    end
+
+    def actual_location
+      last_response.location.split('?').first
+    end
+
+    def expect_matching_response(expected_location, expected_params)
+      expect(actual_location).to eq(expected_location)
+      expect(actual_params).to eq(expected_params)
     end
 
     let(:group_name) { Faker::Lorem.word }
@@ -192,8 +198,8 @@ RSpec.describe DiscoveryService::Application do
         end
 
         it 'redirects back to sp using discovery response value' do
-          expect(response_matches?(existing_entity[:discovery_response],
-                                   'entityID' => selected_idp))
+          expect_matching_response(existing_entity[:discovery_response],
+                                   'entityID' => selected_idp)
         end
       end
 
@@ -210,7 +216,29 @@ RSpec.describe DiscoveryService::Application do
         end
 
         it 'redirects back to sp using return url value' do
-          expect(response_matches?(sp_return_url, 'entityID' => selected_idp))
+          expect_matching_response(sp_return_url, 'entityID' => selected_idp)
+        end
+      end
+
+      context 'with entity id and return parameter containing a query' do
+        let(:return_query) { CGI.escape('?a=b&c=d') }
+        let(:sp_return_url_with_query) { "#{sp_return_url}#{return_query}" }
+        let(:path) do
+          "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+          "&return=#{sp_return_url_with_query}"
+        end
+
+        before { run }
+
+        it 'returns http status code 302' do
+          expect(last_response.status).to eq(302)
+        end
+
+        it 'redirects back to sp using return url value' do
+          expect_matching_response(sp_return_url,
+                                   'entityID' => selected_idp,
+                                   'a' => 'b',
+                                   'c' => 'd')
         end
       end
 
@@ -227,8 +255,8 @@ RSpec.describe DiscoveryService::Application do
         end
 
         it 'redirects back to sp using return url value and custom entity id' do
-          expect(response_matches?(sp_return_url,
-                                   'myCustomEntityID' => selected_idp))
+          expect_matching_response(sp_return_url,
+                                   'myCustomEntityID' => selected_idp)
         end
       end
 
@@ -257,7 +285,7 @@ RSpec.describe DiscoveryService::Application do
           end
 
           it 'redirects back to sp using return url value' do
-            expect(response_matches?(sp_return_url, 'entityID' => selected_idp))
+            expect_matching_response(sp_return_url, 'entityID' => selected_idp)
           end
         end
       end
@@ -289,7 +317,7 @@ RSpec.describe DiscoveryService::Application do
           end
 
           it 'redirects back to sp using return url value and entity id' do
-            expect(response_matches?(sp_return_url, 'entityID' => selected_idp))
+            expect_matching_response(sp_return_url, 'entityID' => selected_idp)
           end
         end
       end
@@ -314,7 +342,7 @@ RSpec.describe DiscoveryService::Application do
         end
 
         it 'ignores stored discovery response value and uses return param' do
-          expect(response_matches?(sp_return_url, 'entityID' => selected_idp))
+          expect_matching_response(sp_return_url, 'entityID' => selected_idp)
         end
       end
     end
