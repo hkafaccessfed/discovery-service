@@ -36,9 +36,7 @@ module DiscoveryService
     def sp_response_url(return_url, param_key, selected_idp)
       uri = URI.parse(return_url)
       key = param_key || :entityID
-      query_opts = []
-      query_opts << URI.decode_www_form(uri.query) unless uri.query.nil?
-      query_opts << [key, selected_idp]
+      query_opts = URI.decode_www_form(uri.query || '') << [key, selected_idp]
       uri.query = URI.encode_www_form(query_opts)
       uri.to_s
     end
