@@ -7,12 +7,12 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       Class.new { include DiscoveryService::Renderer::PageRenderer }
     end
 
-    let(:entities) { [] }
+    let(:idps) { [] }
+    let(:sps) { [] }
 
     subject do
       klass.new.render(:group,
-                       DiscoveryService::Renderer::Model::Group.new(
-                         entities))
+                       DiscoveryService::Renderer::Model::Group.new(idps, sps))
     end
 
     it 'includes the layout' do
@@ -24,29 +24,29 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       expect(subject).to include('<title>AAF Discovery Service</title>')
     end
 
-    it 'shows that there are no entities' do
+    it 'shows that there are no idps' do
       expect(subject).to include('No IdPs to select')
     end
 
-    context 'with entities' do
+    context 'with idps' do
       let(:group_name) { Faker::Lorem.word }
-      let(:entity_1) do
+      let(:idp_1) do
         { name: Faker::University.name, entity_id: Faker::Internet.url }
       end
-      let(:entity_2) do
+      let(:idp_2) do
         { name: Faker::University.name, entity_id: Faker::Internet.url }
       end
 
-      let(:entities) { [entity_1, entity_2] }
+      let(:idps) { [idp_1, idp_2] }
 
       let(:expected_form) do
         expected_form_with_newlines = <<-EOF
 <form action="" method="POST">
 <select name="user_idp">
-<option value="#{CGI.escapeHTML(entity_1[:entity_id])}">
-#{CGI.escapeHTML(entity_1[:name])}</option>
-<option value="#{CGI.escapeHTML(entity_2[:entity_id])}">
-#{CGI.escapeHTML(entity_2[:name])}</option>
+<option value="#{CGI.escapeHTML(idp_1[:entity_id])}">
+#{CGI.escapeHTML(idp_1[:name])}</option>
+<option value="#{CGI.escapeHTML(idp_2[:entity_id])}">
+#{CGI.escapeHTML(idp_2[:name])}</option>
 </select>
 <input class="button" type="submit" value="Select" />
 </form>

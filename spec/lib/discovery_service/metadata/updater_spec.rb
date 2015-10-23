@@ -134,16 +134,15 @@ RSpec.describe DiscoveryService::Metadata::Updater do
           it 'stores each matching page content as a key value pair' do
             run
             expect(redis.get('pages:group:aaf'))
-              .to include(matching_aaf_entity[:names].first[:value])
-            expect(redis.get('pages:group:edugain'))
-              .to include(matching_edugain_entity[:names].first[:value])
+              .to include(CGI.escapeHTML(
+                            matching_aaf_entity[:names].first[:value]))
           end
         end
 
         context 'entities already stored in redis' do
           let(:original_ttl) { 10 }
           let(:aaf_entity) do
-            build_entity_data(%w(discovery sp aaf), 'en')
+            build_entity_data(%w(discovery idp aaf), 'en')
           end
 
           let(:edugain_entity) do
@@ -199,9 +198,9 @@ RSpec.describe DiscoveryService::Metadata::Updater do
           it 'only stores matching page content from the latest response' do
             run
             expect(redis.get('pages:group:aaf'))
-              .to include(aaf_entity[:names].first[:value])
+              .to include(CGI.escapeHTML(aaf_entity[:names].first[:value]))
             expect(redis.get('pages:group:aaf'))
-              .to include(new_aaf_entity[:names].first[:value])
+              .to include(CGI.escapeHTML(new_aaf_entity[:names].first[:value]))
             expect(redis.get('pages:group:taukiri')).to eq(taukiri_page_content)
           end
 

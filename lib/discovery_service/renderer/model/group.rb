@@ -3,10 +3,12 @@ module DiscoveryService
     module Model
       # Model for the group page
       class Group
-        attr_accessor :entities
+        attr_accessor :idps
+        attr_accessor :sps
 
-        def initialize(entities)
-          @entities = entities
+        def initialize(idps, sps)
+          @idps = idps
+          @sps = sps
         end
       end
     end

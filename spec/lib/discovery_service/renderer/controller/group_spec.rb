@@ -20,88 +20,167 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       let(:lang) { Faker::Lorem.characters(2) }
       it { is_expected.to_not be_nil }
 
-      context 'generated entities' do
-        subject { run.entities }
+      context 'generated idps' do
+        subject { run.idps }
+        it { is_expected.to eq([]) }
+      end
+
+      context 'generated sps' do
+        subject { run.sps }
         it { is_expected.to eq([]) }
       end
     end
 
     context 'with empty entities' do
-      let(:entities) { nil }
+      let(:entities) { [] }
       let(:lang) { Faker::Lorem.characters(2) }
       it { is_expected.to_not be_nil }
 
-      context 'generated entities' do
-        subject { run.entities }
+      context 'generated idps' do
+        subject { run.idps }
+        it { is_expected.to eq([]) }
+      end
+
+      context 'generated sps' do
+        subject { run.sps }
         it { is_expected.to eq([]) }
       end
     end
 
-    context 'with one entity' do
-      let(:entity) { build_entity_data }
-      let(:entities) { [entity] }
-      let(:lang) { entity[:names].first[:lang] }
+    context 'with one idp' do
+      let(:idp) { build_entity_data(['idp']) }
+      let(:entities) { [idp] }
+      let(:lang) { idp[:names].first[:lang] }
 
       it { is_expected.to_not be_nil }
 
-      context 'generated entities' do
-        subject { run.entities }
-        it 'builds entities as expected' do
+      context 'generated idps' do
+        subject { run.idps }
+        it 'builds idp as expected' do
           expect(subject)
-            .to eq([{ name: entity[:names].first[:value],
-                      entity_id: entity[:entity_id] }])
+            .to eq([{ name: idp[:names].first[:value],
+                      entity_id: idp[:entity_id] }])
         end
+      end
+
+      context 'generated sps' do
+        subject { run.sps }
+        it { is_expected.to eq([]) }
       end
     end
 
-    context 'with many entities of the same language' do
+    context 'with one idp and one sp' do
       let(:lang) { Faker::Lorem.characters(2) }
 
-      let(:entity1) do
-        build_entity_data([Faker::Lorem.word, Faker::Lorem.word], lang)
-      end
+      let(:idp) { build_entity_data(['idp'], lang) }
+      let(:sp) { build_entity_data(['sp'], lang) }
 
-      let(:entity2) do
-        build_entity_data([Faker::Lorem.word, Faker::Lorem.word], lang)
-      end
-
-      let(:entities) { [entity1, entity2] }
+      let(:entities) { [idp, sp] }
 
       it { is_expected.to_not be_nil }
 
-      context 'generated entities' do
-        subject { run.entities }
-        it 'builds all entities as expected' do
+      context 'generated idps' do
+        subject { run.idps }
+        it 'builds idp as expected' do
           expect(subject)
-            .to eq([{ name: entity1[:names].first[:value],
-                      entity_id: entity1[:entity_id] },
-                    { name: entity2[:names].first[:value],
-                      entity_id: entity2[:entity_id] }])
+            .to eq([{ name: idp[:names].first[:value],
+                      entity_id: idp[:entity_id] }])
+        end
+      end
+
+      context 'generated sps' do
+        subject { run.sps }
+        it 'builds sp as expected' do
+          expect(subject)
+            .to eq([{ name: sp[:names].first[:value],
+                      entity_id: sp[:entity_id] }])
         end
       end
     end
 
-    context 'with multiple entities of different languages' do
-      let(:lang) { "#{Faker::Lorem.characters(4)}" }
-      let(:entity) { build_entity_data }
+    context 'multiple idps and sps' do
+      let(:lang) { Faker::Lorem.characters(2) }
 
-      let(:entity_with_matching_lang) do
-        build_entity_data([Faker::Lorem.word, Faker::Lorem.word], lang)
-      end
+      let(:idp1) { build_entity_data(['idp'], lang) }
+      let(:idp2) { build_entity_data(['idp'], lang) }
+      let(:sp1) { build_entity_data(['sp'], lang) }
+      let(:sp2) { build_entity_data(['sp'], lang) }
 
-      let(:entities) { [entity, entity_with_matching_lang] }
+      let(:entities) { [idp1, sp1, idp2, sp2] }
 
       it { is_expected.to_not be_nil }
 
-      context 'generated entities' do
-        subject { run.entities }
+      context 'generated idps' do
+        subject { run.idps }
+        it 'builds idps as expected' do
+          expect(subject)
+            .to eq([{ name: idp1[:names].first[:value],
+                      entity_id: idp1[:entity_id] },
+                    { name: idp2[:names].first[:value],
+                      entity_id: idp2[:entity_id] }])
+        end
+      end
+
+      context 'generated sps' do
+        subject { run.sps }
+        it 'builds sps as expected' do
+          expect(subject)
+            .to eq([{ name: sp1[:names].first[:value],
+                      entity_id: sp1[:entity_id] },
+                    { name: sp2[:names].first[:value],
+                      entity_id: sp2[:entity_id] }])
+        end
+      end
+    end
+
+    context 'with many idps of the same language' do
+      let(:lang) { Faker::Lorem.characters(2) }
+
+      let(:idp1) { build_entity_data(['idp'], lang) }
+      let(:idp2) { build_entity_data(['idp'], lang) }
+
+      let(:entities) { [idp1, idp2] }
+
+      it { is_expected.to_not be_nil }
+
+      context 'generated idps' do
+        subject { run.idps }
+        it 'builds idps as expected' do
+          expect(subject)
+            .to eq([{ name: idp1[:names].first[:value],
+                      entity_id: idp1[:entity_id] },
+                    { name: idp2[:names].first[:value],
+                      entity_id: idp2[:entity_id] }])
+        end
+      end
+      context 'generated sps' do
+        subject { run.sps }
+        it { is_expected.to eq([]) }
+      end
+    end
+
+    context 'with multiple idps of different languages' do
+      let(:lang) { "#{Faker::Lorem.characters(4)}" }
+      let(:idp) { build_entity_data(['idp']) }
+      let(:idp_with_matching_lang) { build_entity_data(['idp'], lang) }
+
+      let(:entities) { [idp, idp_with_matching_lang] }
+
+      it { is_expected.to_not be_nil }
+
+      context 'generated idps' do
+        subject { run.idps }
         it 'use the entity id for name when no lang can be matched' do
           expect(subject)
-            .to eq([{ name: entity[:entity_id],
-                      entity_id: entity[:entity_id] },
-                    { name: entity_with_matching_lang[:names].first[:value],
-                      entity_id: entity_with_matching_lang[:entity_id] }])
+            .to eq([{ name: idp[:entity_id],
+                      entity_id: idp[:entity_id] },
+                    { name: idp_with_matching_lang[:names].first[:value],
+                      entity_id: idp_with_matching_lang[:entity_id] }])
         end
+      end
+      context 'generated sps' do
+        subject { run.sps }
+        it { is_expected.to eq([]) }
       end
     end
   end

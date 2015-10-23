@@ -4,15 +4,27 @@ module DiscoveryService
       # Generates group model based on requested language
       module Group
         def generate_group_model(entities, lang)
-          model = []
-          if entities
-            model = entities.map do |e|
-              names = e[:names].select { |n| n[:lang] == lang }
-              { name: names.any? ? names.first[:value] : e[:entity_id],
-                entity_id: e[:entity_id] }
-            end
+          result = { idps: [], sps: [] }
+          entities.nil? || entities.each_with_object(result) do |e, hash|
+            hash[group(e)] << entry(e, lang) if group(e)
           end
-          DiscoveryService::Renderer::Model::Group.new(model)
+          DiscoveryService::Renderer::Model::Group.new(result[:idps],
+                                                       result[:sps])
+        end
+
+        def group(entity)
+          return :sps if entity[:tags].include?('sp')
+          return :idps if entity[:tags].include?('idp')
+        end
+
+        def names_for_language(entity, lang)
+          entity[:names].select { |name| name[:lang] == lang }
+        end
+
+        def entry(entity, lang)
+          names = names_for_language(entity, lang)
+          { name: names.any? ? names.first[:value] : entity[:entity_id],
+            entity_id: entity[:entity_id] }
         end
       end
     end
