@@ -3,8 +3,6 @@ require 'discovery_service/renderer/model/group'
 
 RSpec.describe DiscoveryService::Renderer::PageRenderer do
   describe '#render(page, model)' do
-    include_context 'build_entity_data'
-
     let(:klass) do
       Class.new { include DiscoveryService::Renderer::PageRenderer }
     end
@@ -32,8 +30,12 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
     context 'with entities' do
       let(:group_name) { Faker::Lorem.word }
-      let(:entity_1) { build_entity_data(['test', 'idp', group_name, 'vho']) }
-      let(:entity_2) { build_entity_data(['test', 'idp', group_name, 'vho']) }
+      let(:entity_1) do
+        { name: Faker::University.name, entity_id: Faker::Internet.url }
+      end
+      let(:entity_2) do
+        { name: Faker::University.name, entity_id: Faker::Internet.url }
+      end
 
       let(:entities) { [entity_1, entity_2] }
 
