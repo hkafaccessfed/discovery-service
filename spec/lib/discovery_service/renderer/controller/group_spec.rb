@@ -69,6 +69,33 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       end
     end
 
+    context 'with entities without names' do
+      let(:idp_without_names) { build_entity_data(['idp']).except(:names) }
+      let(:sp_without_names) { build_entity_data(['sp']).except(:names) }
+      let(:entities) { [idp_without_names, sp_without_names] }
+      let(:lang) {  Faker::Lorem.characters(2) }
+
+      it { is_expected.to_not be_nil }
+
+      context 'generated idps' do
+        subject { run.idps }
+        it 'builds idp with entity id as name' do
+          expect(subject)
+              .to eq([{ name: idp_without_names[:entity_id],
+                        entity_id: idp_without_names[:entity_id] }])
+        end
+      end
+
+      context 'generated sps' do
+        subject { run.sps }
+        it 'builds sp with entity id as name' do
+          expect(subject)
+              .to eq([{ name: sp_without_names[:entity_id],
+                        entity_id: sp_without_names[:entity_id] }])
+        end
+      end
+    end
+
     context 'with one idp and one sp' do
       let(:lang) { Faker::Lorem.characters(2) }
 

@@ -18,6 +18,7 @@ module DiscoveryService
         end
 
         def names_for_language(entity, lang)
+          return [] unless entity[:names]
           entity[:names].select { |name| name[:lang] == lang }
         end
 
