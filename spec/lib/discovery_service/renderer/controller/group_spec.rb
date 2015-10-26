@@ -187,7 +187,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     context 'with multiple idps of different languages' do
-      let(:lang) { "#{Faker::Lorem.characters(4)}" }
+      let(:lang) { Faker::Lorem.characters(4) }
       let(:idp) { build_entity_data(['idp']) }
       let(:idp_with_matching_lang) { build_entity_data(['idp'], lang) }
 
