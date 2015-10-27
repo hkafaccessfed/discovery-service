@@ -42,10 +42,13 @@ module DiscoveryService
       private
 
       def combine_sp_idp(raw_entities)
-        [raw_entities[:identity_providers],
-         raw_entities[:service_providers]]
-          .compact
-          .reduce([], :+)
+        idps = raw_entities[:identity_providers]
+        sps = raw_entities[:service_providers]
+        [add_tag(idps, 'idp'), add_tag(sps, 'sp')].compact.reduce([], :+)
+      end
+
+      def add_tag(entities, tag)
+        entities.each { |e| e[:tags] << tag } unless entities.nil?
       end
 
       def update_expiry(group)

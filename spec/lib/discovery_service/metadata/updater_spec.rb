@@ -87,16 +87,26 @@ RSpec.describe DiscoveryService::Metadata::Updater do
       end
 
       context 'that contains identity and service providers' do
+        def result(entities)
+          to_hash(entities).to_json
+        end
+
+        def add_tag(entity, tag)
+          entity_copy = Marshal.load(Marshal.dump(entity))
+          entity_copy[:tags] << tag
+          entity_copy
+        end
+
         context 'nothing stored in redis' do
           let(:aaf_idp) do
-            build_entity_data(%w(discovery idp aaf vho), 'en')
+            build_entity_data(%w(discovery aaf vho), 'en')
           end
 
           let(:edugain_sp) do
-            build_entity_data(%w(discovery sp edugain), 'en')
+            build_entity_data(%w(discovery edugain), 'en')
           end
           let(:non_matching_tuakiri_idp) do
-            build_entity_data(%w(discovery idp tuakiri vho))
+            build_entity_data(%w(discovery tuakiri vho))
           end
 
           let(:response_body) do
@@ -122,12 +132,15 @@ RSpec.describe DiscoveryService::Metadata::Updater do
             end
           end
 
+          let(:aaf_idp_tagged) { add_tag(aaf_idp, 'idp') }
+          let(:edugain_sp_tagged) { add_tag(edugain_sp, 'sp') }
+
           it 'stores each matching entity as a key value pair' do
             run
             expect(redis.get('entities:aaf'))
-              .to eq(to_hash([aaf_idp]).to_json)
+              .to eq(result([aaf_idp_tagged]))
             expect(redis.get('entities:edugain'))
-              .to eq(to_hash([edugain_sp]).to_json)
+              .to eq(result([edugain_sp_tagged]))
           end
 
           it 'stores page content containing aaf idp' do
@@ -139,21 +152,25 @@ RSpec.describe DiscoveryService::Metadata::Updater do
 
         context 'entities already stored in redis' do
           let(:original_ttl) { 10 }
-          let(:aaf_idp) { build_entity_data(%w(discovery idp aaf), 'en') }
+          let(:aaf_idp) { build_entity_data(%w(discovery aaf), 'en') }
 
           let(:edugain_idp) do
-            build_entity_data(%w(discovery idp edugain vho), 'en')
+            build_entity_data(%w(discovery edugain vho), 'en')
           end
 
           let(:taukiri_idp) do
-            build_entity_data(%w(discovery idp taukiri vho), 'en')
+            build_entity_data(%w(discovery taukiri vho), 'en')
           end
 
-          let(:aaf_entities) { to_hash([aaf_idp]).to_json }
+          let(:aaf_idp_tagged) { add_tag(aaf_idp, 'idp') }
+          let(:edugain_idp_tagged) { add_tag(edugain_idp, 'idp') }
+          let(:taukiri_idp_tagged) { add_tag(taukiri_idp, 'idp') }
+
+          let(:aaf_entities) { result([aaf_idp_tagged]) }
           let(:aaf_page_content) { 'Original AAF page content here' }
-          let(:edugain_entities) { to_hash([edugain_idp]).to_json }
+          let(:edugain_entities) { result([edugain_idp_tagged]) }
           let(:edugain_page_content) { 'Original Edugain page content here' }
-          let(:taukiri_entities) { to_hash([taukiri_idp]).to_json }
+          let(:taukiri_entities) { result([taukiri_idp_tagged]) }
           let(:taukiri_page_content) { 'Original Taukiri page content here' }
           let(:unconfigured_entities) { {}.to_json }
           let(:unconfigured_page_content) do
@@ -173,22 +190,24 @@ RSpec.describe DiscoveryService::Metadata::Updater do
           end
 
           let(:new_aaf_idp) do
-            build_entity_data(%w(discovery idp aaf vho), 'en')
+            build_entity_data(%w(discovery aaf vho), 'en')
           end
 
           let(:response_body) do
-            { identity_providers: [new_aaf_idp, taukiri_idp],
-              service_providers: [aaf_idp] }
+            { identity_providers: [new_aaf_idp, aaf_idp, taukiri_idp],
+              service_providers: [] }
           end
 
           let(:response) { { status: 200, body: JSON.generate(response_body) } }
 
+          let(:new_aaf_idp_tagged) { add_tag(new_aaf_idp, 'idp') }
+
           it 'only stores matching entities from the latest response' do
             run
             expect(redis.get('entities:aaf'))
-              .to eq(to_hash([new_aaf_idp, aaf_idp]).to_json)
+              .to eq(result([new_aaf_idp_tagged, aaf_idp_tagged]))
             expect(redis.get('entities:taukiri'))
-              .to eq(to_hash([taukiri_idp]).to_json)
+              .to eq(result([taukiri_idp_tagged]))
           end
 
           it 'only stores matching page content from the latest response' do
