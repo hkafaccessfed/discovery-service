@@ -20,7 +20,8 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
         expect(subject)
           .to eq("{\"#{entity[:entity_id]}\":{"\
               "\"discovery_response\":\"#{entity[:discovery_response]}\","\
-              "\"name\":\"#{entity[:name]}\","\
+              "\"names\":[{\"value\":\"#{entity[:names].first[:value]}\","\
+                         "\"lang\":\"#{entity[:names].first[:lang]}\"}],"\
               "\"tags\":#{entity[:tags].to_json}}}")
       end
     end
@@ -52,9 +53,10 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
       it 'is a json string' do
         expect(subject)
           .to eq("{\"#{entity[:entity_id]}\":{"\
-                "\"discovery_response\":\"#{entity[:discovery_response]}\","\
-                "\"name\":\"#{entity[:name]}\","\
-                "\"tags\":#{entity[:tags].to_json}}}")
+              "\"discovery_response\":\"#{entity[:discovery_response]}\","\
+              "\"names\":[{\"value\":\"#{entity[:names].first[:value]}\","\
+                         "\"lang\":\"#{entity[:names].first[:lang]}\"}],"\
+              "\"tags\":#{entity[:tags].to_json}}}")
       end
     end
   end
@@ -132,13 +134,16 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
     let(:original_entities) { to_hash([entity]).to_json }
     before { redis.set(entities_key, original_entities) }
 
-    let(:updated_name) { "#{entity[:name]} Version 2" }
+    let(:updated_names) do
+      [{ value: "#{entity[:names].first[:value]} Version 2",
+         lang: entity[:names].first[:lang] }]
+    end
     let(:updated_discovery_response) { "#{entity[:discovery_response]}/v2" }
     let(:updated_entity) do
       {
         entity_id: entity[:entity_id],
         discovery_response: updated_discovery_response,
-        name: updated_name,
+        names: updated_names,
         tags: entity[:tags]
       }
     end
@@ -151,9 +156,16 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
       expect(subject)
         .to eq([['~', "#{entity[:entity_id]}.discovery_response",
                  entity[:discovery_response], updated_discovery_response],
-                ['~', "#{entity[:entity_id]}.name",
-                 entity[:name], updated_name],
-                ['+', new_entity[:entity_id], new_entity.except(:entity_id)]])
+                ['-', "#{entity[:entity_id]}.names[0]",
+                 { value: entity[:names].first[:value],
+                   lang: entity[:names].first[:lang] }],
+                ['+', "#{entity[:entity_id]}.names[0]",
+                 { value: updated_entity[:names].first[:value],
+                   lang: updated_entity[:names].first[:lang] }],
+                ['+', new_entity[:entity_id],
+                 { discovery_response: new_entity[:discovery_response],
+                   names: new_entity[:names],
+                   tags: new_entity[:tags] }]])
     end
   end
 

@@ -60,8 +60,7 @@ module DiscoveryService
       private
 
       def build_entities(entities_as_string)
-        stored_entities_as_json = JSON.parse(entities_as_string)
-        stored_entities_as_json.each { |_k, v| v.symbolize_keys! }
+        JSON.parse(entities_as_string, symbolize_names: true).stringify_keys
       end
 
       def to_hash(entities)
