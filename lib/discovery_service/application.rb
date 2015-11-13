@@ -1,5 +1,10 @@
 require 'discovery_service/persistence/entity_cache'
 require 'sinatra/base'
+require 'sinatra/asset_pipeline'
+require 'rails-assets-jquery'
+require 'rails-assets-semantic-ui'
+require 'sprockets'
+require 'sprockets-helpers'
 require 'json'
 require 'yaml'
 require 'uri'
@@ -13,6 +18,13 @@ module DiscoveryService
 
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
     CONFIG = 'config/discovery_service.yml'
+
+    set :assets_precompile, %w(application.js application.css)
+    register Sinatra::AssetPipeline
+    RailsAssets.load_paths.each { |path| settings.sprockets.append_path(path) }
+    settings.sprockets.append_path(File.join(root, 'assets/javascripts'))
+    settings.sprockets.append_path(File.join(root, 'assets/stylesheets'))
+    helpers Sprockets::Helpers
 
     set :group_config, CONFIG
 
