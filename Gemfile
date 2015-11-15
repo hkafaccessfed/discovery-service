@@ -16,6 +16,8 @@ gem 'sprockets-helpers'
 source 'https://rails-assets.org' do
   gem 'rails-assets-jquery'
   gem 'rails-assets-semantic-ui'
+  gem 'rails-assets-datatables'
+  gem 'rails-assets-slimscroll'
 end
 
 group :development, :test do
