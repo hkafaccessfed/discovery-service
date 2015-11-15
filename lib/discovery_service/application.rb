@@ -22,8 +22,8 @@ module DiscoveryService
     set :assets_precompile, %w(application.js application.css)
     register Sinatra::AssetPipeline
     RailsAssets.load_paths.each { |path| settings.sprockets.append_path(path) }
-    settings.sprockets.append_path(File.join(root, 'assets/javascripts'))
-    settings.sprockets.append_path(File.join(root, 'assets/stylesheets'))
+    settings.sprockets.append_path('assets/javascripts')
+    settings.sprockets.append_path('assets/stylesheets')
     helpers Sprockets::Helpers
 
     set :group_config, CONFIG

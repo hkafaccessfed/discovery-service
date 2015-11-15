@@ -8,10 +8,9 @@ module DiscoveryService
     # Generates a page using Slim
     module PageRenderer
       include Sprockets::Helpers
-      ASSET_PATH = 'lib/discovery_service/assets'
       ENVIRONMENT = Sprockets::Environment.new
-      ENVIRONMENT.append_path("#{ASSET_PATH}/javascripts")
-      ENVIRONMENT.append_path("#{ASSET_PATH}/stylesheets")
+      ENVIRONMENT.append_path('assets/javascripts')
+      ENVIRONMENT.append_path('assets/stylesheets')
       RailsAssets.load_paths.each { |path| ENVIRONMENT.append_path(path) }
 
       Sprockets::Helpers.configure do |config|
