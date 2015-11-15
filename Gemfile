@@ -10,6 +10,14 @@ gem 'redis-namespace'
 gem 'activesupport'
 gem 'hashdiff'
 
+gem 'sinatra-asset-pipeline'
+gem 'sprockets-helpers'
+
+source 'https://rails-assets.org' do
+  gem 'rails-assets-jquery'
+  gem 'rails-assets-semantic-ui'
+end
+
 group :development, :test do
   gem 'rspec'
   gem 'faker'
