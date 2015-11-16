@@ -7,12 +7,17 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       Class.new { include DiscoveryService::Renderer::PageRenderer }
     end
 
+    let(:environment) do
+      { name: Faker::Lorem.word, status_uri: Faker::Internet.url }
+    end
+
     let(:idps) { [] }
     let(:sps) { [] }
 
     subject do
       klass.new.render(:group,
-                       DiscoveryService::Renderer::Model::Group.new(idps, sps))
+                       DiscoveryService::Renderer::Model::Group.new(
+                         idps, sps, environment))
     end
 
     it 'includes the layout' do
@@ -25,7 +30,17 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
     end
 
     it 'shows that there are no idps' do
-      expect(subject).to include('No IdPs to select')
+      expect(subject).to include('No organisations to select')
+    end
+
+    it 'includes the link to status' do
+      expect(subject)
+        .to include("<a href=\"#{environment[:status_uri]}\""\
+                           " target=\"_blank\">Federation Status</a>")
+    end
+
+    it 'includes the environment name' do
+      expect(subject).to include("#{environment[:name]} Environment")
     end
 
     context 'with idps' do
@@ -39,27 +54,25 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
       let(:idps) { [idp_1, idp_2] }
 
-      let(:expected_form) do
-        expected_form_with_newlines = <<-EOF
-<form action="" method="POST">
-<select name="user_idp">
-<option value="#{CGI.escapeHTML(idp_1[:entity_id])}">
-#{CGI.escapeHTML(idp_1[:name])}</option>
-<option value="#{CGI.escapeHTML(idp_2[:entity_id])}">
-#{CGI.escapeHTML(idp_2[:name])}</option>
-</select>
-<input class="button" type="submit" value="Select" />
-</form>
-      EOF
-        expected_form_with_newlines.delete("\n")
-      end
+      let(:expected_open_form_tag) { '<form action="" method="POST">' }
 
       it 'includes the selection string' do
-        expect(subject).to include('Select your IdP:')
+        expect(subject).to include('Search for your organisation')
       end
 
       it 'includes a form to submit idp selection' do
-        expect(subject).to include(expected_form)
+        expect(subject).to include(expected_open_form_tag)
+      end
+
+      it 'includes the organisations to select' do
+        expect(subject).to include(CGI.escapeHTML(idp_1[:name]))
+        expect(subject).to include(CGI.escapeHTML(idp_2[:name]))
+      end
+
+      it 'includes the selection button' do
+        expect(subject)
+          .to include("<div class=\"ui floated right button large primary\""\
+            " id=\"select_organisation_button\">")
       end
     end
   end

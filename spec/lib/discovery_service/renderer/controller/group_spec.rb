@@ -9,8 +9,12 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       Class.new { include DiscoveryService::Renderer::Controller::Group }
     end
 
+    let(:environment) do
+      { name: Faker::Lorem.word, status_uri: Faker::Internet.url }
+    end
+
     def run
-      klass.new.generate_group_model(entities, lang)
+      klass.new.generate_group_model(entities, lang, environment)
     end
 
     subject { run }
@@ -28,6 +32,13 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       context 'generated sps' do
         subject { run.sps }
         it { is_expected.to eq([]) }
+      end
+
+      context 'the environment' do
+        subject { run.environment }
+        it 'is passed along' do
+          expect(subject).to eq(environment)
+        end
       end
     end
 

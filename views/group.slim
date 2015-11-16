@@ -1,9 +1,81 @@
-- if @idps.any?
-  'Select your IdP:
-  form action=="" method="POST"
-    select name="user_idp"
-      - @idps.each do | idp |
-        option value="#{idp[:entity_id]}" #{idp[:name]}
-    input.button type="submit" value="Select"
-- else
-  'No IdPs to select
+.ui.text.container
+  .ui.mobile.stackable.padded.grid
+    .ten.wide.column
+      h2.ui.header
+        img#sp_header_logo.ui.image/
+      #sp_header.content
+        #sp_header_description.sub.header
+    .six.wide.column
+      .ui.list
+        .item
+          a#sp_header_information_url target="_blank" 
+        .item
+          a#sp_header_privacy_url target="_blank" 
+  br/
+  - if @idps.any?
+    form action="" method="POST"
+      .ui.form.attached.fluid
+        #loader.ui.inverted.dimmer
+          .ui.text.loader
+        .field
+          #tab_menu.ui.top.attached.tabular.menu
+            a.item.active data-tab="tab_data_international"
+              | International
+          .ui.bottom.segment.attached
+            #search_options.ui.mobile.stackable.padded.grid
+              #search_column.ten.wide.column
+                .ui.left.icon.right.action.input.fluid
+                  i.search.icon
+                  input#search_input placeholder=("Search for your organisation") type="text" /
+                  .ui.basic.floating.icon.button
+                    i#search_clear_button.remove.icon
+              #organisations_near_me_column.six.wide.column
+                #organisations_near_me_button.ui.right.labeled.icon.button
+                  i.marker.icon
+                  | Organisations near me
+            #message
+            .ui.active.tab data-tab="international"
+              #international_scroll.ui.scrollable.segment
+                table.ui.celled.table.datatable
+                  thead
+                    tr
+                      th
+                      th
+                      th
+                  tbody
+                    - @idps.each do |idp|
+                      tr
+                        td
+                          img.ui.image.tiny.bordered src="#{idp[:logo_uri]}" /
+                        td
+                          strong #{idp[:name]}
+                          br/
+                          em #{idp[:description]}
+                          br/
+                          | #{idp[:domain]}
+                        td
+                          #distance_|#{idp[:entity_id]}
+                          #select_organisation_button_|#{idp[:entity_id]}.button.ui.floated.right.button.small.primary.select_organisation_button Select
+        .field
+          #select_organisation_button.ui.floated.right.button.large.primary
+        .field
+          .ui.checkbox
+            input name="remember" type="checkbox" /
+            label Remember this selection permanently
+  - else
+    .ui.negative.message
+      .header Error
+      p No organisations to select
+  br/
+  .ui.divider
+  .ui.mobile.stackable.grid
+    .twelve.wide.column
+      .ui.horizontal.list
+        .item
+          img.ui.mini.circular.image src="aaf_logo_sq.png" /
+          .content
+            .ui.sub.header Australian Access Federation
+            | #{@environment[:name]} Environment
+    .four.wide.column
+      .item
+        a href="#{@environment[:status_uri]}" target="_blank" Federation Status

@@ -9,7 +9,8 @@ RSpec.describe DiscoveryService::Metadata::Updater do
       { saml_service: { uri: url },
         groups: { aaf: [%w(discovery aaf)],
                   edugain: [%w(discovery edugain)],
-                  taukiri: [%w(discovery taukiri)] } }
+                  taukiri: [%w(discovery taukiri)] },
+        environment: { name: Faker::Lorem.word, status: Faker::Internet.url } }
     end
 
     before do
@@ -47,11 +48,12 @@ RSpec.describe DiscoveryService::Metadata::Updater do
 
         it 'stores an empty page for each configured tag' do
           run
-          expect(redis.get('pages:group:aaf')).to include('No IdPs to select')
+          expect(redis.get('pages:group:aaf'))
+            .to include('No organisations to select')
           expect(redis.get('pages:group:edugain'))
-            .to include('No IdPs to select')
+            .to include('No organisations to select')
           expect(redis.get('pages:group:taukiri'))
-            .to include('No IdPs to select')
+            .to include('No organisations to select')
         end
       end
 
@@ -78,11 +80,12 @@ RSpec.describe DiscoveryService::Metadata::Updater do
 
         it 'stores an empty page for each configured tag' do
           run
-          expect(redis.get('pages:group:aaf')).to include('No IdPs to select')
+          expect(redis.get('pages:group:aaf'))
+            .to include('No organisations to select')
           expect(redis.get('pages:group:edugain'))
-            .to include('No IdPs to select')
+            .to include('No organisations to select')
           expect(redis.get('pages:group:taukiri'))
-            .to include('No IdPs to select')
+            .to include('No organisations to select')
         end
       end
 
