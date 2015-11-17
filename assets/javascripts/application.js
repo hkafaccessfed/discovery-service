@@ -20,9 +20,12 @@ $(document).ready(function () {
 
   function showJSEnabledElements() {
     $('#search_options').show();
-    $('#select_organisation_button').css( "display", "inline-block")
+    $('#select_organisation_button').css("display", "inline-block");
     $('#select_organisation_button').text('Select');
 
+    $('#sp_header').text('');             // TODO Set Initiating SP
+    $('#sp_header_logo').attr("src", ''); // TODO Set Initiating SP
+    $('#sp_header_logo').hide();          // TODO TEMP
   }
 
   function init() {
