@@ -40,7 +40,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
     end
 
     it 'includes the environment name' do
-      expect(subject).to include("#{environment[:name]} Environment")
+      expect(subject).to include("#{environment[:name]} environment")
     end
 
     context 'with idps' do
