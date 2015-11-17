@@ -13,6 +13,8 @@ module DiscoveryService
                                                        environment)
         end
 
+        private
+
         def group(entity)
           return :sps if entity[:tags].include?('sp')
           return :idps if entity[:tags].include?('idp')
