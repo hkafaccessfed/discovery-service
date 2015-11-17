@@ -29,6 +29,7 @@ module DiscoveryService
     helpers Sprockets::Helpers
 
     set :group_config, CONFIG
+    set :public_folder, 'public'
 
     configure :test do
       set :group_config, TEST_CONFIG
