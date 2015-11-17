@@ -54,8 +54,9 @@
                           br/
                           | #{idp[:domain]}
                         td
-                          #distance_|#{idp[:entity_id]}
-                          #select_organisation_button_|#{idp[:entity_id]}.button.ui.floated.right.button.small.primary.select_organisation_button Select
+                          /TODO MOVE TO HELPER
+                          div[id="#distance_#{idp[:entity_id].gsub(/\//,'_')}"]
+                          button[id="#select_organisation_button_#{idp[:entity_id].gsub(/\//,'_')}" class="button ui floated right button small primary select_organisation_button"] Select
         .field
           #select_organisation_button.ui.floated.right.button.large.primary
         .field
