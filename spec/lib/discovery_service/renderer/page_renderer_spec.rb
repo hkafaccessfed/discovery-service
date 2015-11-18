@@ -54,7 +54,9 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
       let(:idps) { [idp_1, idp_2] }
 
-      let(:expected_open_form_tag) { '<form action="" method="POST">' }
+      let(:expected_open_form_tag) do
+        '<form action="" id="idp_selection_form" method="POST">'
+      end
 
       it 'includes the selection string' do
         expect(subject).to include('Search for your organisation')

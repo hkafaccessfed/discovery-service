@@ -15,7 +15,7 @@
           a#sp_header_privacy_url target="_blank" 
   br/
   - if @idps.any?
-    form action="" method="POST"
+    form[id="idp_selection_form" action="" method="POST"]
       .ui.form.attached.fluid
         #loader.ui.inverted.dimmer
           .ui.text.loader

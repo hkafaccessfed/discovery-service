@@ -5,9 +5,7 @@
 
 $(document).ready(function () {
 
-  function initHandlers() {
-
-    // Make rows on the IdP table selectable
+  function makeIdPRowsSelectable() {
     $('#idp_selection_table tbody').on('click', 'tr', function () {
       var tr = $(this);
       if (tr.hasClass('active')) {
@@ -18,14 +16,52 @@ $(document).ready(function () {
         tr.addClass('active');
       }
     });
+  }
 
+  function appendIdPSelectionOnFormSubmit() {
+    $("#idp_selection_form").submit(function () {
+      $('<input />').attr('type', 'hidden')
+          .attr('name', "https://vho.test.aaf.edu.au/idp/shibboleth")
+          .appendTo('#idp_selection_form');
+      return true;
+    });
+  }
+
+  function showSearchOptions() {
+    $('#search_options').show();
+  }
+
+  function submitFormOnSelectIdPButtonClick() {
+    $('#select_organisation_button').on('click', function () {
+      $("#idp_selection_form").submit();
+    });
+  }
+
+  function clearSearchOnClearButtonClick() {
     $('#search_clear_button').on('click', function () {
-      // TODO clearSearch();
+      // TODO
     });
+  }
 
+  function locateOrganisationsOnLocateButtonClick() {
     $('#organisations_near_me_button').on('click', function () {
-      // TODO getLocation();
+      // TODO
     });
+  }
+
+  function displayMainIdPSelectButton() {
+    $('#select_organisation_button').css("display", "inline-block");
+    $('#select_organisation_button').text('Select');
+  }
+
+  function loadInitiatingSPDetails() {
+    $('#sp_header').text('');             // TODO Set Initiating SP
+    $('#sp_header_logo').attr("src", ''); // TODO Set Initiating SP
+    $('#sp_header_logo').hide();          // TODO TEMP
+  }
+
+  function setCursorToPointerOnIdPRows() {
+    $('.datatable tbody tr').css('cursor', 'pointer');
   }
 
   function hideNonJSElements() {
@@ -33,20 +69,19 @@ $(document).ready(function () {
     $('.select_organisation_button').hide();
   }
 
+  function initHandlers() {
+    makeIdPRowsSelectable();
+    appendIdPSelectionOnFormSubmit();
+    submitFormOnSelectIdPButtonClick();
+    clearSearchOnClearButtonClick();
+    locateOrganisationsOnLocateButtonClick();
+  }
+
   function showJSEnabledElements() {
-    // Search only works when JS enabled, so show it
-    $('#search_options').show();
-
-    // Display the main "Select" button below the IdP list
-    $('#select_organisation_button').css("display", "inline-block");
-    $('#select_organisation_button').text('Select');
-
-    // We only want the pointer icon to appear on IdP rows when JS enabled
-    $('.datatable tbody tr').css('cursor', 'pointer');
-
-    $('#sp_header').text('');             // TODO Set Initiating SP
-    $('#sp_header_logo').attr("src", ''); // TODO Set Initiating SP
-    $('#sp_header_logo').hide();          // TODO TEMP
+    showSearchOptions();
+    displayMainIdPSelectButton();
+    setCursorToPointerOnIdPRows();
+    loadInitiatingSPDetails();
   }
 
   function init() {
