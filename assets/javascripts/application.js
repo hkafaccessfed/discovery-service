@@ -5,13 +5,26 @@
 
 $(document).ready(function () {
 
-  function setHandlers() {
+  function initHandlers() {
+
+    // Make rows on the IdP table selectable
+    $('#idp_selection_table tbody').on('click', 'tr', function () {
+      var tr = $(this);
+      if (tr.hasClass('active')) {
+        tr.removeClass('active');
+      }
+      else {
+        $('#idp_selection_table tbody tr').removeClass('active');
+        tr.addClass('active');
+      }
+    });
+
     $('#search_clear_button').on('click', function () {
-      clearSearch();
+      // TODO clearSearch();
     });
 
     $('#organisations_near_me_button').on('click', function () {
-      getLocation();
+      // TODO getLocation();
     });
   }
 
@@ -24,7 +37,7 @@ $(document).ready(function () {
     // Search only works when JS enabled, so show it
     $('#search_options').show();
 
-    // Display the main "Select" button below the list
+    // Display the main "Select" button below the IdP list
     $('#select_organisation_button').css("display", "inline-block");
     $('#select_organisation_button').text('Select');
 
@@ -40,7 +53,7 @@ $(document).ready(function () {
     hideNonJSElements();
     showJSEnabledElements();
 
-    setHandlers();
+    initHandlers();
   }
 
   init();
