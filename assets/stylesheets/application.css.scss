@@ -53,17 +53,9 @@ $tablet-max-width: 767px;
   display: none;
 }
 
-.datatable thead tr {
-  cursor: pointer;
-}
-
 .datatable thead tr th {
   white-space: nowrap;
   display: none;
-}
-
-.datatable tbody tr {
-  cursor: pointer;
 }
 
 .datatable tbody tr td {
