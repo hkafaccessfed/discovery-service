@@ -28,7 +28,11 @@ module DiscoveryService
         def entry(entity, lang)
           names = names_for_language(entity, lang)
           { name: names.any? ? names.first[:value] : entity[:entity_id],
-            entity_id: entity[:entity_id] }
+            entity_id: entity[:entity_id],
+            logo_uri: entity[:logo_uri],
+            description: entity[:description],
+            domain: entity[:domain]
+          }
         end
       end
     end

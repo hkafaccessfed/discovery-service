@@ -22,7 +22,10 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
               "\"discovery_response\":\"#{entity[:discovery_response]}\","\
               "\"names\":[{\"value\":\"#{entity[:names].first[:value]}\","\
                          "\"lang\":\"#{entity[:names].first[:lang]}\"}],"\
-              "\"tags\":#{entity[:tags].to_json}}}")
+              "\"tags\":#{entity[:tags].to_json},"\
+              "\"logo_uri\":\"#{entity[:logo_uri]}\","\
+              "\"description\":\"#{entity[:description]}\","\
+              "\"domain\":\"#{entity[:domain]}\"}}")
       end
     end
   end
@@ -56,7 +59,10 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
               "\"discovery_response\":\"#{entity[:discovery_response]}\","\
               "\"names\":[{\"value\":\"#{entity[:names].first[:value]}\","\
                          "\"lang\":\"#{entity[:names].first[:lang]}\"}],"\
-              "\"tags\":#{entity[:tags].to_json}}}")
+              "\"tags\":#{entity[:tags].to_json},"\
+              "\"logo_uri\":\"#{entity[:logo_uri]}\","\
+              "\"description\":\"#{entity[:description]}\","\
+              "\"domain\":\"#{entity[:domain]}\"}}")
       end
     end
   end
@@ -144,7 +150,10 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
         entity_id: entity[:entity_id],
         discovery_response: updated_discovery_response,
         names: updated_names,
-        tags: entity[:tags]
+        tags: entity[:tags],
+        logo_uri: entity[:logo_uri],
+        description: entity[:description],
+        domain: entity[:domain]
       }
     end
 
@@ -165,7 +174,10 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
                 ['+', new_entity[:entity_id],
                  { discovery_response: new_entity[:discovery_response],
                    names: new_entity[:names],
-                   tags: new_entity[:tags] }]])
+                   tags: new_entity[:tags],
+                   logo_uri: new_entity[:logo_uri],
+                   description: new_entity[:description],
+                   domain: new_entity[:domain] }]])
     end
   end
 
