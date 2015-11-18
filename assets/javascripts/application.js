@@ -20,8 +20,13 @@ $(document).ready(function () {
 
   function appendIdPSelectionOnFormSubmit() {
     $("#idp_selection_form").submit(function () {
+      var selectedIdPRowSelector = "#idp_selection_table tbody tr.active td"
+          + " input.select_organisation_button";
+      var selectedIdP = $(selectedIdPRowSelector).attr('name');
+      // TODO validation here
+
       $('<input />').attr('type', 'hidden')
-          .attr('name', "https://vho.test.aaf.edu.au/idp/shibboleth")
+          .attr('name', selectedIdP)
           .appendTo('#idp_selection_form');
       return true;
     });
