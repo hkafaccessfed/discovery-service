@@ -66,7 +66,7 @@ $(document).ready(function () {
   }
 
   function setCursorToPointerOnIdPRows() {
-    $('.datatable tbody tr').css('cursor', 'pointer');
+    $('#idp_selection_table tbody tr').css('cursor', 'pointer');
   }
 
   function hideNonJSElements() {
