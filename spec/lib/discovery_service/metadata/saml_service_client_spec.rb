@@ -37,8 +37,27 @@ RSpec.describe DiscoveryService::Metadata::SAMLServiceClient do
         { status: 200, body: JSON.generate(response_body) }
       end
 
+      it 'disables https' do
+        expect_any_instance_of(Net::HTTP).to receive(:use_ssl=).with(false)
+        subject
+      end
+
       it 'unmarshalls the payload to json as expected' do
         expect(subject).to eq(response_body)
+      end
+
+      context 'with an https url' do
+        let(:url) { 'https://saml-service.example.com/entities' }
+
+        it 'uses https' do
+          expect_any_instance_of(Net::HTTP)
+            .to receive(:use_ssl=).with(true).and_call_original
+          subject
+        end
+
+        it 'unmarshalls the payload to json as expected' do
+          expect(subject).to eq(response_body)
+        end
       end
     end
 

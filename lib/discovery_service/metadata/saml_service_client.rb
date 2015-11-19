@@ -26,6 +26,7 @@ module DiscoveryService
 
       def with_saml_service_client(uri)
         client = Net::HTTP.new(uri.host, uri.port)
+        client.use_ssl = (uri.scheme == 'https')
         logger.info "Invoking SAML Service (#{uri})"
         client.start { |http| yield http }
       end
