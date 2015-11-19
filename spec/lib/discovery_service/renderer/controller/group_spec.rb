@@ -13,8 +13,14 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       { name: Faker::Lorem.word, status_uri: Faker::Internet.url }
     end
 
+    let(:tag_groups) do
+      [{ name: 'Australia', tag: 'au' },
+       { name: 'New Zealand', tag: 'nz' },
+       { name: 'International', tag: '*' }]
+    end
+
     def run
-      klass.new.generate_group_model(entities, lang, environment)
+      klass.new.generate_group_model(entities, lang, tag_groups, environment)
     end
 
     def expected_entity(entity_data, name = nil)
@@ -47,6 +53,13 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         subject { run.environment }
         it 'is passed along' do
           expect(subject).to eq(environment)
+        end
+      end
+
+      context 'the tag groups' do
+        subject { run.tag_groups }
+        it 'are passed along' do
+          expect(subject).to eq(tag_groups)
         end
       end
     end

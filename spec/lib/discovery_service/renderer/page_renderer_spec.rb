@@ -11,13 +11,19 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       { name: Faker::Lorem.word, status_uri: Faker::Internet.url }
     end
 
+    let(:tag_groups) do
+      [{ name: 'Australia', tag: 'au' },
+       { name: 'New Zealand', tag: 'nz' },
+       { name: 'International', tag: '*' }]
+    end
+
     let(:idps) { [] }
     let(:sps) { [] }
 
     subject do
       klass.new.render(:group,
                        DiscoveryService::Renderer::Model::Group.new(
-                         idps, sps, environment))
+                         idps, sps, tag_groups, environment))
     end
 
     it 'includes the layout' do

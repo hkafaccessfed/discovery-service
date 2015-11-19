@@ -10,7 +10,10 @@ RSpec.describe DiscoveryService::Metadata::Updater do
         groups: { aaf: [%w(discovery aaf)],
                   edugain: [%w(discovery edugain)],
                   taukiri: [%w(discovery taukiri)] },
-        environment: { name: Faker::Lorem.word, status: Faker::Internet.url } }
+        environment: { name: Faker::Lorem.word, status: Faker::Internet.url },
+        tag_groups:  [{ name: 'Australia', tag: 'au' },
+                      { name: 'New Zealand', tag: 'nz' },
+                      { name: 'International', tag: '*' }] }
     end
 
     before do

@@ -3,13 +3,14 @@ module DiscoveryService
     module Controller
       # Generates group model based on requested language
       module Group
-        def generate_group_model(entities, lang, environment)
+        def generate_group_model(entities, lang, tag_groups, environment)
           result = { idps: [], sps: [] }
           entities.nil? || entities.each_with_object(result) do |e, hash|
             hash[group(e)] << entry(e, lang) if group(e)
           end
           DiscoveryService::Renderer::Model::Group.new(result[:idps],
                                                        result[:sps],
+                                                       tag_groups,
                                                        environment)
         end
 

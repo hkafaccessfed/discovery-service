@@ -15,3 +15,11 @@
 :environment:
   :name: 'test'
   :status_uri: 'http://status.test.aaf.edu.au'
+
+:tag_groups:
+  - :name: 'Australia'
+    :tag: 'au'
+  - :name: 'New Zealand'
+    :tag: 'nz'
+  - :name: 'International'
+    :tag: '*'
