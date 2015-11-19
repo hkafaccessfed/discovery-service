@@ -45,6 +45,11 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
     context 'with idps' do
       let(:group_name) { Faker::Lorem.word }
+      let(:select_button_class) do
+        'button ui floated right button small primary'\
+        ' select_organisation_button'
+      end
+
       let(:idp_1) do
         { name: Faker::University.name, entity_id: Faker::Internet.url }
       end
@@ -71,7 +76,14 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
         expect(subject).to include(CGI.escapeHTML(idp_2[:name]))
       end
 
-      it 'includes the selection button' do
+      it 'includes a submit button for each idp' do
+        expect(subject).to include("<input class=\"#{select_button_class}\""\
+          " name=\"#{idp_1[:entity_id]}\" type=\"submit\" value=\"Select\" />")
+        expect(subject).to include("<input class=\"#{select_button_class}\""\
+          " name=\"#{idp_2[:entity_id]}\" type=\"submit\" value=\"Select\" />")
+      end
+
+      it 'includes the main (javascript enabled) idp selection button' do
         expect(subject)
           .to include("<div class=\"ui floated right button large primary\""\
             " id=\"select_organisation_button\">")
