@@ -7,7 +7,10 @@ RSpec.shared_context 'build_entity_data' do
       discovery_response: Faker::Internet.url,
       names: [{ value: Faker::University.name,
                 lang: lang ? lang : Faker::Lorem.characters(2) }],
-      tags: tags.nil? ? [Faker::Lorem.word, Faker::Lorem.word] : tags
+      tags: tags.nil? ? [Faker::Lorem.word, Faker::Lorem.word] : tags,
+      logo_uri: Faker::Company.logo,
+      description: Faker::Lorem.sentence,
+      domain: Faker::Internet.domain_name
     }
   end
 

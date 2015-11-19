@@ -3,6 +3,8 @@ require 'sinatra/base'
 require 'sinatra/asset_pipeline'
 require 'rails-assets-jquery'
 require 'rails-assets-semantic-ui'
+require 'rails-assets-datatables'
+require 'rails-assets-slimscroll'
 require 'sprockets'
 require 'sprockets-helpers'
 require 'json'
@@ -27,6 +29,7 @@ module DiscoveryService
     helpers Sprockets::Helpers
 
     set :group_config, CONFIG
+    set :public_folder, 'public'
 
     configure :test do
       set :group_config, TEST_CONFIG
@@ -62,9 +65,13 @@ module DiscoveryService
     end
 
     def valid_post_params?
-      uri?(params[:entityID]) && uri?(params[:user_idp]) &&
+      uri?(params[:entityID]) && uri?(user_idp) &&
         params[:group] =~ URL_SAFE_BASE_64_ALPHABET &&
         valid_policy?(params[:policy])
+    end
+
+    def user_idp
+      request.POST.keys[0] if request.POST.any?
     end
 
     get '/discovery/:group' do
@@ -85,12 +92,12 @@ module DiscoveryService
         redirect to(params[:return])
       elsif params[:return]
         redirect to(sp_response_url(params[:return], params[:returnIDParam],
-                                    params[:user_idp]))
+                                    user_idp))
       elsif @entity_cache.discovery_response(params[:group], params[:entityID])
         redirect to(sp_response_url(@entity_cache.discovery_response(
                                       params[:group], params[:entityID]),
                                     params[:returnIDParam],
-                                    params[:user_idp]))
+                                    user_idp))
       else
         status 404
       end

@@ -9,8 +9,21 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       Class.new { include DiscoveryService::Renderer::Controller::Group }
     end
 
+    let(:environment) do
+      { name: Faker::Lorem.word, status_uri: Faker::Internet.url }
+    end
+
     def run
-      klass.new.generate_group_model(entities, lang)
+      klass.new.generate_group_model(entities, lang, environment)
+    end
+
+    def expected_entity(entity_data, name = nil)
+      { name: name.nil? ? entity_data[:names].first[:value] : name,
+        entity_id: entity_data[:entity_id],
+        logo_uri: entity_data[:logo_uri],
+        description: entity_data[:description],
+        domain: entity_data[:domain]
+      }
     end
 
     subject { run }
@@ -28,6 +41,13 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       context 'generated sps' do
         subject { run.sps }
         it { is_expected.to eq([]) }
+      end
+
+      context 'the environment' do
+        subject { run.environment }
+        it 'is passed along' do
+          expect(subject).to eq(environment)
+        end
       end
     end
 
@@ -58,8 +78,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         subject { run.idps }
         it 'builds idp with name and entity id' do
           expect(subject)
-            .to eq([{ name: idp[:names].first[:value],
-                      entity_id: idp[:entity_id] }])
+            .to eq([expected_entity(idp)])
         end
       end
 
@@ -81,8 +100,8 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         subject { run.idps }
         it 'builds idp with entity id as name' do
           expect(subject)
-            .to eq([{ name: idp_without_names[:entity_id],
-                      entity_id: idp_without_names[:entity_id] }])
+            .to eq([expected_entity(idp_without_names,
+                                    idp_without_names[:entity_id])])
         end
       end
 
@@ -90,8 +109,8 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         subject { run.sps }
         it 'builds sp with entity id as name' do
           expect(subject)
-            .to eq([{ name: sp_without_names[:entity_id],
-                      entity_id: sp_without_names[:entity_id] }])
+            .to eq([expected_entity(sp_without_names,
+                                    sp_without_names[:entity_id])])
         end
       end
     end
@@ -110,17 +129,14 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         subject { run.idps }
         it 'builds idp with name and entity id' do
           expect(subject)
-            .to eq([{ name: idp[:names].first[:value],
-                      entity_id: idp[:entity_id] }])
+            .to eq([expected_entity(idp)])
         end
       end
 
       context 'generated sps' do
         subject { run.sps }
         it 'builds sp with name and entity id' do
-          expect(subject)
-            .to eq([{ name: sp[:names].first[:value],
-                      entity_id: sp[:entity_id] }])
+          expect(subject).to eq([expected_entity(sp)])
         end
       end
     end
@@ -141,10 +157,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         subject { run.idps }
         it 'builds idps with name and entity id' do
           expect(subject)
-            .to eq([{ name: idp1[:names].first[:value],
-                      entity_id: idp1[:entity_id] },
-                    { name: idp2[:names].first[:value],
-                      entity_id: idp2[:entity_id] }])
+            .to eq([expected_entity(idp1), expected_entity(idp2)])
         end
       end
 
@@ -152,10 +165,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         subject { run.sps }
         it 'builds sps with name and entity id' do
           expect(subject)
-            .to eq([{ name: sp1[:names].first[:value],
-                      entity_id: sp1[:entity_id] },
-                    { name: sp2[:names].first[:value],
-                      entity_id: sp2[:entity_id] }])
+            .to eq([expected_entity(sp1), expected_entity(sp2)])
         end
       end
     end
@@ -174,10 +184,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         subject { run.idps }
         it 'builds all idps with name and entity id' do
           expect(subject)
-            .to eq([{ name: idp1[:names].first[:value],
-                      entity_id: idp1[:entity_id] },
-                    { name: idp2[:names].first[:value],
-                      entity_id: idp2[:entity_id] }])
+            .to eq([expected_entity(idp1), expected_entity(idp2)])
         end
       end
       context 'generated sps' do
@@ -199,10 +206,8 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         subject { run.idps }
         it 'use the entity id for name when no language can be matched' do
           expect(subject)
-            .to eq([{ name: idp[:entity_id],
-                      entity_id: idp[:entity_id] },
-                    { name: idp_with_matching_lang[:names].first[:value],
-                      entity_id: idp_with_matching_lang[:entity_id] }])
+            .to eq([expected_entity(idp, idp[:entity_id]),
+                    expected_entity(idp_with_matching_lang)])
         end
       end
       context 'generated sps' do

@@ -5,10 +5,12 @@ module DiscoveryService
       class Group
         attr_accessor :idps
         attr_accessor :sps
+        attr_accessor :environment
 
-        def initialize(idps, sps)
+        def initialize(idps, sps, environment)
           @idps = idps
           @sps = sps
+          @environment = environment
         end
       end
     end

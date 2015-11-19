@@ -9,3 +9,7 @@
   :edugain:
     - [discovery, aaf]
     - [discovery, edugain]
+
+:environment:
+  :name: 'Test Environment'
+  :status_uri: 'http://status.test.aaf.edu.au'

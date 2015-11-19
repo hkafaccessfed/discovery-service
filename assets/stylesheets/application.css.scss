@@ -1,18 +1,65 @@
-//= require semantic-ui/dist/components/tab
-//= require semantic-ui/dist/components/checkbox
-//= require semantic-ui/dist/components/dimmer
-//= require semantic-ui/dist/components/dropdown
-//= require semantic-ui/dist/components/item
-//= require semantic-ui/dist/components/form
-//= require semantic-ui/dist/components/grid
-//= require semantic-ui/dist/components/menu
-//= require semantic-ui/dist/components/table
-//= require semantic-ui/dist/components/label
-//= require semantic-ui/dist/components/loader
-//= require semantic-ui/dist/components/segment
-//= require semantic-ui/dist/components/divider
-//= require semantic-ui/dist/components/header
-//= require semantic-ui/dist/components/icon
-//= require semantic-ui/dist/components/image
-//= require semantic-ui/dist/components/input
-//= require semantic-ui/dist/components/button
+//= require semantic-ui/dist/semantic
+
+$form_left_padding: 0px !important;
+$mobile-max-width: 420px;
+$tablet-max-width: 767px;
+
+@media only screen and (max-width: $tablet-max-width) {
+  #organisations_near_me_column {
+    padding-top: $form_left_padding;
+  }
+}
+
+@media only screen and (max-width: $mobile-max-width) {
+  #organisations_near_me_button {
+    width: 100%;
+  }
+
+  #sp_header {
+    padding-left: 0px;
+  }
+}
+
+#search_options {
+  display: none;
+}
+
+#select_organisation_button {
+  display: none;
+}
+
+#organisations_near_me_column {
+  padding-left: $form_left_padding
+}
+
+#search_column {
+  padding-left: $form_left_padding
+}
+
+.scrollable {
+  padding-top: 0px;
+}
+
+.distance {
+  display: none;
+}
+
+.datatable {
+  border: 0px !important;
+}
+
+.datatable thead {
+  white-space: nowrap;
+  display: none;
+}
+
+.datatable thead tr th {
+  white-space: nowrap;
+  display: none;
+}
+
+.datatable tbody tr td {
+  border-right: 0 !important;
+  border-left: 0 !important;
+}
+

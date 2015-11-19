@@ -9,7 +9,8 @@ RSpec.describe DiscoveryService::Metadata::Updater do
       { saml_service: { uri: url },
         groups: { aaf: [%w(discovery aaf)],
                   edugain: [%w(discovery edugain)],
-                  taukiri: [%w(discovery taukiri)] } }
+                  taukiri: [%w(discovery taukiri)] },
+        environment: { name: Faker::Lorem.word, status: Faker::Internet.url } }
     end
 
     before do
@@ -47,11 +48,12 @@ RSpec.describe DiscoveryService::Metadata::Updater do
 
         it 'stores an empty page for each configured tag' do
           run
-          expect(redis.get('pages:group:aaf')).to include('No IdPs to select')
+          expect(redis.get('pages:group:aaf'))
+            .to include('No organisations to select')
           expect(redis.get('pages:group:edugain'))
-            .to include('No IdPs to select')
+            .to include('No organisations to select')
           expect(redis.get('pages:group:taukiri'))
-            .to include('No IdPs to select')
+            .to include('No organisations to select')
         end
       end
 
@@ -78,11 +80,12 @@ RSpec.describe DiscoveryService::Metadata::Updater do
 
         it 'stores an empty page for each configured tag' do
           run
-          expect(redis.get('pages:group:aaf')).to include('No IdPs to select')
+          expect(redis.get('pages:group:aaf'))
+            .to include('No organisations to select')
           expect(redis.get('pages:group:edugain'))
-            .to include('No IdPs to select')
+            .to include('No organisations to select')
           expect(redis.get('pages:group:taukiri'))
-            .to include('No IdPs to select')
+            .to include('No organisations to select')
         end
       end
 
@@ -158,19 +161,19 @@ RSpec.describe DiscoveryService::Metadata::Updater do
             build_entity_data(%w(discovery edugain vho), 'en')
           end
 
-          let(:taukiri_idp) do
+          let(:unchanged_taukiri_idp) do
             build_entity_data(%w(discovery taukiri vho), 'en')
           end
 
           let(:aaf_idp_tagged) { add_tag(aaf_idp, 'idp') }
           let(:edugain_idp_tagged) { add_tag(edugain_idp, 'idp') }
-          let(:taukiri_idp_tagged) { add_tag(taukiri_idp, 'idp') }
+          let(:taukiri_idp_tagged) { add_tag(unchanged_taukiri_idp, 'idp') }
 
           let(:aaf_entities) { result([aaf_idp_tagged]) }
           let(:aaf_page_content) { 'Original AAF page content here' }
           let(:edugain_entities) { result([edugain_idp_tagged]) }
           let(:edugain_page_content) { 'Original Edugain page content here' }
-          let(:taukiri_entities) { result([taukiri_idp_tagged]) }
+          let(:unchanged_taukiri_entities) { result([taukiri_idp_tagged]) }
           let(:taukiri_page_content) { 'Original Taukiri page content here' }
           let(:unconfigured_entities) { {}.to_json }
           let(:unconfigured_page_content) do
@@ -182,7 +185,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
             redis.set('pages:group:aaf', aaf_page_content)
             redis.set('entities:edugain', edugain_entities)
             redis.set('pages:group:edugain', edugain_page_content)
-            redis.set('entities:taukiri', taukiri_entities)
+            redis.set('entities:taukiri', unchanged_taukiri_entities)
             redis.set('pages:group:taukiri', taukiri_page_content)
             redis.set('entities:unconfigured', unconfigured_entities)
             redis.set('pages:group:unconfigured',
@@ -194,7 +197,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
           end
 
           let(:response_body) do
-            { identity_providers: [new_aaf_idp, aaf_idp, taukiri_idp],
+            { identity_providers: [new_aaf_idp, aaf_idp, unchanged_taukiri_idp],
               service_providers: [] }
           end
 
@@ -216,7 +219,13 @@ RSpec.describe DiscoveryService::Metadata::Updater do
               .to include(CGI.escapeHTML(aaf_idp[:names].first[:value]))
             expect(redis.get('pages:group:aaf'))
               .to include(CGI.escapeHTML(new_aaf_idp[:names].first[:value]))
-            expect(redis.get('pages:group:taukiri')).to eq(taukiri_page_content)
+          end
+
+          it 'generates new page content even if the entities are unchanged' do
+            run
+            expect(redis.get('pages:group:taukiri'))
+              .to include(CGI.escapeHTML(
+                            unchanged_taukiri_idp[:names].first[:value]))
           end
 
           it 'only updates the ttl for entities contained in the response' do
