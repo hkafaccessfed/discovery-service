@@ -39,8 +39,8 @@ module DiscoveryService
         grouped_entities.each do |group, entities|
           if !@entity_cache.entities_exist?(group) || changed?(entities, group)
             save_entities_content(group, entities)
-            save_group_page_content(group, entities, environment)
           end
+          save_group_page_content(group, entities, environment)
           update_expiry(group)
         end
       end
