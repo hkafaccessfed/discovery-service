@@ -32,6 +32,18 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       }
     end
 
+    def expected_idp(entity_data, name = nil)
+      expected_entity = expected_entity(entity_data, name)
+      expected_entity[:geolocations] = entity_data[:geolocations]
+    end
+
+    def expected_sp(entity_data, name = nil)
+      expected_entity = expected_entity(entity_data, name)
+      expected_entity[:information_uri] = entity_data[:information_uri]
+      expected_entity[:privacy_statement_uri] =
+          entity_data[:privacy_statement_uri]
+    end
+
     subject { run }
 
     context 'with nil entities' do
@@ -81,7 +93,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     context 'with one idp' do
-      let(:idp) { build_entity_data(['idp']) }
+      let(:idp) { build_idp_data(['idp']) }
       let(:entities) { [idp] }
       let(:lang) { idp[:names].first[:lang] }
 
@@ -102,8 +114,8 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     context 'with entities without names' do
-      let(:idp_without_names) { build_entity_data(['idp']).except(:names) }
-      let(:sp_without_names) { build_entity_data(['sp']).except(:names) }
+      let(:idp_without_names) { build_idp_data(['idp']).except(:names) }
+      let(:sp_without_names) { build_sp_data(['sp']).except(:names) }
       let(:entities) { [idp_without_names, sp_without_names] }
       let(:lang) { Faker::Lorem.characters(2) }
 
@@ -131,8 +143,8 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     context 'with one idp and one sp' do
       let(:lang) { Faker::Lorem.characters(2) }
 
-      let(:idp) { build_entity_data(['idp'], lang) }
-      let(:sp) { build_entity_data(['sp'], lang) }
+      let(:idp) { build_idp_data(['idp'], lang) }
+      let(:sp) { build_sp_data(['sp'], lang) }
 
       let(:entities) { [idp, sp] }
 
@@ -157,10 +169,10 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     context 'multiple idps and sps' do
       let(:lang) { Faker::Lorem.characters(2) }
 
-      let(:idp1) { build_entity_data(['idp'], lang) }
-      let(:idp2) { build_entity_data(['idp'], lang) }
-      let(:sp1) { build_entity_data(['sp'], lang) }
-      let(:sp2) { build_entity_data(['sp'], lang) }
+      let(:idp1) { build_idp_data(['idp'], lang) }
+      let(:idp2) { build_idp_data(['idp'], lang) }
+      let(:sp1) { build_sp_data(['sp'], lang) }
+      let(:sp2) { build_sp_data(['sp'], lang) }
 
       let(:entities) { [idp1, sp1, idp2, sp2] }
 
@@ -186,8 +198,8 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     context 'with many idps of the same language' do
       let(:lang) { Faker::Lorem.characters(2) }
 
-      let(:idp1) { build_entity_data(['idp'], lang) }
-      let(:idp2) { build_entity_data(['idp'], lang) }
+      let(:idp1) { build_idp_data(['idp'], lang) }
+      let(:idp2) { build_idp_data(['idp'], lang) }
 
       let(:entities) { [idp1, idp2] }
 
@@ -208,8 +220,8 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
 
     context 'with multiple idps of different languages' do
       let(:lang) { Faker::Lorem.characters(4) }
-      let(:idp) { build_entity_data(['idp']) }
-      let(:idp_with_matching_lang) { build_entity_data(['idp'], lang) }
+      let(:idp) { build_idp_data(['idp']) }
+      let(:idp_with_matching_lang) { build_idp_data(['idp'], lang) }
 
       let(:entities) { [idp, idp_with_matching_lang] }
 
