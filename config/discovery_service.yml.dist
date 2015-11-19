@@ -11,5 +11,5 @@
     - [discovery, edugain]
 
 :environment:
-  :name: 'test'
+  :name: 'Test Environment'
   :status_uri: 'http://status.test.aaf.edu.au'
