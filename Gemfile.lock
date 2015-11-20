@@ -44,6 +44,7 @@ GEM
       redis (~> 3.0)
     ffi (1.9.10)
     formatador (0.2.5)
+    god (0.13.7)
     guard (2.13.0)
       formatador (>= 0.2.4)
       listen (>= 2.7, <= 4.0)
@@ -208,6 +209,7 @@ DEPENDENCIES
   capybara
   faker
   fakeredis
+  god
   guard
   guard-bundler
   guard-rspec
