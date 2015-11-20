@@ -1,3 +1,6 @@
+require 'active_support/core_ext/hash'
+require 'active_support/core_ext/object/deep_dup'
+
 module DiscoveryService
   module Renderer
     module Controller
@@ -28,12 +31,9 @@ module DiscoveryService
 
         def entry(entity, lang)
           names = names_for_language(entity, lang)
-          { name: names.any? ? names.first[:value] : entity[:entity_id],
-            entity_id: entity[:entity_id],
-            logo_uri: entity[:logo_uri],
-            description: entity[:description],
-            domain: entity[:domain]
-          }
+          entry = entity.deep_dup.except(:names)
+          entry[:name] = names.any? ? names.first[:value] : entity[:entity_id]
+          entry
         end
       end
     end
