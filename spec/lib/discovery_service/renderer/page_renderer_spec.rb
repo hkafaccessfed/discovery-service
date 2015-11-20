@@ -12,9 +12,9 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
     end
 
     let(:tag_groups) do
-      [{ name: 'Australia', tag: 'au' },
-       { name: 'New Zealand', tag: 'nz' },
-       { name: 'International', tag: '*' }]
+      [{ name: Faker::Address.country, tag: Faker::Address.country_code },
+       { name: Faker::Address.country, tag: Faker::Address.country_code },
+       { name: Faker::Address.country, tag: '*' }]
     end
 
     let(:idps) { [] }
@@ -93,6 +93,19 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
         expect(subject)
           .to include("<div class=\"ui floated right button large primary\""\
             " id=\"select_organisation_button\">")
+      end
+
+      it 'includes the organisations to select' do
+        expect(subject).to include(CGI.escapeHTML(idp_1[:name]))
+        expect(subject).to include(CGI.escapeHTML(idp_2[:name]))
+      end
+
+      it 'includes all tabs' do
+        tag_groups.each do |tag_group|
+          expect(subject).to include('<a class="item" '\
+            "data-tab=\"#{tag_group[:tag]}\">"\
+            "#{CGI.escapeHTML(tag_group[:name])}")
+        end
       end
     end
   end

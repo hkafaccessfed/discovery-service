@@ -14,9 +14,9 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     let(:tag_groups) do
-      [{ name: 'Australia', tag: 'au' },
-       { name: 'New Zealand', tag: 'nz' },
-       { name: 'International', tag: '*' }]
+      [{ name: Faker::Address.country, tag: Faker::Address.country_code },
+       { name: Faker::Address.country, tag: Faker::Address.country_code },
+       { name: Faker::Address.country, tag: '*' }]
     end
 
     def run

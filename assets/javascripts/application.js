@@ -59,6 +59,10 @@ $(document).ready(function () {
     $('#select_organisation_button').text('Select');
   }
 
+  function setFirstTabAsActive() {
+    $('#tab_menu .item:first').addClass('active');
+  }
+
   function loadInitiatingSPDetails() {
     $('#sp_header').text('');             // TODO Set Initiating SP
     $('#sp_header_logo').attr("src", ''); // TODO Set Initiating SP
@@ -92,9 +96,17 @@ $(document).ready(function () {
       idPDetails.name = idP.name;
       idPDetails.description = idP.description;
       idPDetails.domain = idP.domain;
-      return [idP.logo_uri, idPDetails, idP.entity_id];
+      return [idP.logo_uri, idPDetails, idP.entity_id, idP.tags];
     });
   }
+
+  $.fn.dataTable.ext.search.push(
+      function (settings, data) {
+        var tagsForIdP = data[3];
+        var selectedTab = $('#tab_menu a.active').attr('data-tab');
+        return tagsForIdP.indexOf(selectedTab) != -1 || selectedTab == '*'
+      }
+  );
 
   function loadDataTable() {
     var idpJson = $.parseJSON($('#idps').html());
@@ -105,15 +117,26 @@ $(document).ready(function () {
       paging: false,
       sDom: '<"top">rt<"bottom"><"clear">',
       columnDefs: [
-        { render: renderLogo, targets: 0 },
-        { render: renderIdPDetails, targets: 1 },
-        { render: renderEntityIdInput, targets: 2 }
+        {render: renderLogo, targets: 0},
+        {render: renderIdPDetails, targets: 1},
+        {render: renderEntityIdInput, targets: 2},
+        {visible: false, targets: 3}
       ],
       bAutoWidth: false
     });
   }
 
+  function makeTabsClickable() {
+    $('#tab_menu .item').on('click', function () {
+      $('#tab_menu .item').removeClass('active');
+      $(this).addClass('active');
+      $('#idp_selection_table').DataTable().draw();
+    });
+  }
+
   function initHandlers() {
+    makeTabsClickable();
+
     makeIdPRowsSelectable();
     appendIdPSelectionOnFormSubmit();
     submitFormOnSelectIdPButtonClick();
@@ -122,6 +145,7 @@ $(document).ready(function () {
   }
 
   function showJSEnabledElements() {
+    setFirstTabAsActive();
     showSearchOptions();
     displayMainIdPSelectButton();
     loadInitiatingSPDetails();
@@ -132,6 +156,7 @@ $(document).ready(function () {
 
     initHandlers();
     loadDataTable();
+
     hideButtonsAlongsideEachIdP();
     setCursorToPointerOnIdPRows();
   }
