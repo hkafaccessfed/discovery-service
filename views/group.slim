@@ -1,3 +1,6 @@
+script#idps(type='application/json')== JSON.generate(@idps)
+script#sps(type='application/json')== JSON.generate(@sps)
+
 .ui.text.container
   .ui.mobile.stackable.padded.grid
     .ten.wide.column
@@ -21,7 +24,7 @@
           .ui.text.loader
         .field
           #tab_menu.ui.top.attached.tabular.menu
-            a.item.active data-tab="tab_data_international"
+            a.item.active
               | International
           .ui.bottom.segment.attached
             #search_options.ui.mobile.stackable.padded.grid
@@ -36,8 +39,8 @@
                   i.marker.icon
                   | Organisations near me
             #message
-            .ui.active.tab data-tab="international"
-              #international_scroll.ui.scrollable.segment
+            .ui.active.tab
+              ui.scrollable.segment
                 table[id="idp_selection_table" class="ui celled table datatable"]
                   thead
                     tr
@@ -56,7 +59,7 @@
                           br/
                           | #{idp[:domain]}
                         td
-                          input[type="submit" value="Select" name="#{idp[:entity_id]}" class="button ui floated right button small primary select_organisation_button"]
+                          input[type="submit" value="Select" name="#{idp[:entity_id]}" class="button ui floated right button small primary select_organisation_input"]
         .field
           #select_organisation_button.ui.floated.right.button.large.primary
         .field

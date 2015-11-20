@@ -21,7 +21,7 @@ $(document).ready(function () {
   function appendIdPSelectionOnFormSubmit() {
     $("#idp_selection_form").submit(function () {
       var selectedIdPRowSelector = "#idp_selection_table tbody tr.active td"
-          + " input.select_organisation_button";
+          + " input.select_organisation_input";
       var selectedIdP = $(selectedIdPRowSelector).attr('name');
       // TODO validation here
 
@@ -69,9 +69,48 @@ $(document).ready(function () {
     $('#idp_selection_table tbody tr').css('cursor', 'pointer');
   }
 
-  function hideNonJSElements() {
-    // Hide buttons alongside each IdP (for HTML only)
-    $('.select_organisation_button').hide();
+  function hideButtonsAlongsideEachIdP() {
+    $('.select_organisation_input').hide();
+  }
+
+  function renderLogo(logoURI) {
+    return '<img class="ui image tiny bordered" src="' + logoURI + '">';
+  }
+
+  function renderIdPDetails(idPDetails) {
+    return '<strong>' + idPDetails.name + '</strong><br><em>' +
+        idPDetails.description + '</em><br>' + idPDetails.domain;
+  }
+
+  function renderEntityIdInput(entityID) {
+    return '<input class="select_organisation_input" name="' + entityID + '">';
+  }
+
+  function buildDataset(idPData) {
+    return idPData.map(function (idP) {
+      var idPDetails = {}
+      idPDetails.name = idP.name;
+      idPDetails.description = idP.description;
+      idPDetails.domain = idP.domain;
+      return [idP.logo_uri, idPDetails, idP.entity_id];
+    });
+  }
+
+  function loadDataTable() {
+    var idpJson = $.parseJSON($('#idps').html());
+
+    $('#idp_selection_table').DataTable({
+      data: buildDataset(idpJson),
+      scrollCollapse: true,
+      paging: false,
+      sDom: '<"top">rt<"bottom"><"clear">',
+      columnDefs: [
+        { render: renderLogo, targets: 0 },
+        { render: renderIdPDetails, targets: 1 },
+        { render: renderEntityIdInput, targets: 2 }
+      ],
+      bAutoWidth: false
+    });
   }
 
   function initHandlers() {
@@ -85,15 +124,16 @@ $(document).ready(function () {
   function showJSEnabledElements() {
     showSearchOptions();
     displayMainIdPSelectButton();
-    setCursorToPointerOnIdPRows();
     loadInitiatingSPDetails();
   }
 
   function init() {
-    hideNonJSElements();
     showJSEnabledElements();
 
     initHandlers();
+    loadDataTable();
+    hideButtonsAlongsideEachIdP();
+    setCursorToPointerOnIdPRows();
   }
 
   init();

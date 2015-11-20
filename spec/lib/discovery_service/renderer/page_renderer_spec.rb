@@ -53,7 +53,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       let(:group_name) { Faker::Lorem.word }
       let(:select_button_class) do
         'button ui floated right button small primary'\
-        ' select_organisation_button'
+        ' select_organisation_input'
       end
 
       let(:idp_1) do
