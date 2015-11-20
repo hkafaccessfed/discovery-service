@@ -1,5 +1,6 @@
 log
 coverage
+public/assets
 tmp
 config/discovery_service.yml
 .sass-cache
