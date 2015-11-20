@@ -17,6 +17,7 @@ before_fork do |server, _worker|
   end
 end
 
+# Override Unicorn's process name to include the application name.
 class Unicorn::HttpServer # rubocop:disable ClassAndModuleChildren
   def proc_name(tag)
     $0 = ([File.basename(START_CTX[0]), 'discovery',
