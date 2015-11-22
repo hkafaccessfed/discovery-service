@@ -28,6 +28,10 @@ $tablet-max-width: 767px;
   display: none;
 }
 
+#tab_menu a {
+  display: none;
+}
+
 #organisations_near_me_column {
   padding-left: $form_left_padding
 }
