@@ -5,6 +5,10 @@
 
 $(document).ready(function () {
 
+  function focusSearchField() {
+    $("#search_input").focus();
+  }
+
   function initialiseCheckbox() {
     $('.ui.checkbox').checkbox();
   }
@@ -181,6 +185,7 @@ $(document).ready(function () {
     displayMainIdPSelectButton();
     loadInitiatingSPDetails();
     initialiseCheckbox();
+    focusSearchField();
   }
 
   function init() {
