@@ -42,9 +42,17 @@ $(document).ready(function () {
     });
   }
 
+  function clearSearch() {
+    $('#search_input').val('');
+    $('#idp_selection_table').DataTable()
+        .search('')
+        .columns().search('')
+        .draw();
+  }
+
   function clearSearchOnClearButtonClick() {
     $('#search_clear_button').on('click', function () {
-      // TODO
+      clearSearch();
     });
   }
 
@@ -134,6 +142,12 @@ $(document).ready(function () {
     });
   }
 
+  function performSearchOnOrganisationSearchKeyup() {
+    $('#search_input').keyup(function () {
+      $('#idp_selection_table').DataTable().search($(this).val()).draw();
+    })
+  }
+
   function initHandlers() {
     makeTabsClickable();
 
@@ -142,6 +156,8 @@ $(document).ready(function () {
     submitFormOnSelectIdPButtonClick();
     clearSearchOnClearButtonClick();
     locateOrganisationsOnLocateButtonClick();
+    performSearchOnOrganisationSearchKeyup();
+
   }
 
   function showJSEnabledElements() {

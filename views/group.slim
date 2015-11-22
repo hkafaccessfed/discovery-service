@@ -34,8 +34,8 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
                 .ui.left.icon.right.action.input.fluid
                   i.search.icon
                   input#search_input placeholder=("Search for your organisation") type="text" /
-                  .ui.basic.floating.icon.button
-                    i#search_clear_button.remove.icon
+                  #search_clear_button.ui.basic.floating.icon.button
+                    i.remove.icon
               #organisations_near_me_column.six.wide.column
                 #organisations_near_me_button.ui.right.labeled.icon.button
                   i.marker.icon
