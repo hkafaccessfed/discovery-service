@@ -5,6 +5,10 @@
 
 $(document).ready(function () {
 
+  function initialiseCheckbox() {
+    $('.ui.checkbox').checkbox();
+  }
+
   function unselectIdP() {
     $('#idp_selection_table tbody tr').removeClass('active');
   }
@@ -171,6 +175,7 @@ $(document).ready(function () {
     showSearchOptions();
     displayMainIdPSelectButton();
     loadInitiatingSPDetails();
+    initialiseCheckbox();
   }
 
   function init() {
