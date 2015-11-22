@@ -5,6 +5,10 @@
 
 $(document).ready(function () {
 
+  function unselectIdP() {
+    $('#idp_selection_table tbody tr').removeClass('active');
+  }
+
   function makeIdPRowsSelectable() {
     $('#idp_selection_table tbody').on('click', 'tr', function () {
       var tr = $(this);
@@ -12,7 +16,7 @@ $(document).ready(function () {
         tr.removeClass('active');
       }
       else {
-        $('#idp_selection_table tbody tr').removeClass('active');
+        unselectIdP();
         tr.addClass('active');
       }
     });
@@ -56,7 +60,7 @@ $(document).ready(function () {
     });
   }
 
-  function locateOrganisationsOnLocateButtonClick() {
+  function locateIdPsOnLocateButtonClick() {
     $('#organisations_near_me_button').on('click', function () {
       // TODO
     });
@@ -139,10 +143,12 @@ $(document).ready(function () {
       $('#tab_menu .item').removeClass('active');
       $(this).addClass('active');
       $('#idp_selection_table').DataTable().draw();
+      clearSearch();
+      unselectIdP();
     });
   }
 
-  function performSearchOnOrganisationSearchKeyup() {
+  function performSearchOnIdPSearchKeyup() {
     $('#search_input').keyup(function () {
       $('#idp_selection_table').DataTable().search($(this).val()).draw();
     })
@@ -155,8 +161,8 @@ $(document).ready(function () {
     appendIdPSelectionOnFormSubmit();
     submitFormOnSelectIdPButtonClick();
     clearSearchOnClearButtonClick();
-    locateOrganisationsOnLocateButtonClick();
-    performSearchOnOrganisationSearchKeyup();
+    locateIdPsOnLocateButtonClick();
+    performSearchOnIdPSearchKeyup();
 
   }
 
