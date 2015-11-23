@@ -5,6 +5,14 @@
 
 $(document).ready(function () {
 
+  function initScroller() {
+    $('#scroller').slimScroll({
+      height: '250px',
+      wheelStep: 40,
+      alwaysVisible: true
+    });
+  }
+
   function focusSearchField() {
     $("#search_input").focus();
   }
@@ -231,6 +239,7 @@ $(document).ready(function () {
 
     hideButtonsAlongsideEachIdP();
     setCursorToPointerOnIdPRows();
+    initScroller();
   }
 
   init();
