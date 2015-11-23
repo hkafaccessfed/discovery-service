@@ -95,10 +95,6 @@ $(document).ready(function () {
     }
   }
 
-  function renderSPHeader(sp) {
-    return 'Login to "<em>' + sp.name + '</em>"';
-  }
-
   function getUrlParameter(sParam) {
     var sPageURL = decodeURIComponent(window.location.search.substring(1)),
         sURLVariables = sPageURL.split('&'),
@@ -120,7 +116,7 @@ $(document).ready(function () {
 
     if (initiatingSP) {
       var sp = getSP(spJson, initiatingSP);
-      $('#sp_header').html(renderSPHeader(sp));
+      $('#sp_header_name').text('\"' + sp.name + '\"');
       $('#sp_header_description').text(sp.description);
       $('#sp_header_logo').attr("src", sp.logo_uri);
       $('#sp_header_information_url').attr("href", sp.information_uri);
