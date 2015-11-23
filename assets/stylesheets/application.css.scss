@@ -28,6 +28,10 @@ $tablet-max-width: 767px;
   display: none;
 }
 
+#tab_menu {
+  min-height: 0;
+}
+
 #tab_menu a {
   display: none;
 }
