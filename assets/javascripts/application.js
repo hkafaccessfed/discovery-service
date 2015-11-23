@@ -149,7 +149,8 @@ $(document).ready(function () {
   }
 
   function renderEntityIdInput(entityID) {
-    return '<input class="select_organisation_input" name="' + entityID + '">';
+    return '<input class="select_organisation_input" name="' + entityID + '"' +
+        ' type="submit">';
   }
 
   function buildDataset(idPData) {
