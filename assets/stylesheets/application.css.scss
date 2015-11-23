@@ -44,31 +44,42 @@ $tablet-max-width: 767px;
   padding-left: $form_left_padding
 }
 
+
+#idp_selection_table {
+  border: 0px !important;
+}
+
+#idp_selection_table thead {
+  white-space: nowrap;
+  display: none;
+}
+
+#idp_selection_table thead tr {
+  white-space: nowrap;
+  display: none;
+}
+
+#idp_selection_table thead th {
+  white-space: nowrap;
+  display: none;
+}
+
+#idp_selection_table tbody tr {
+  border-right: 0 !important;
+  border-left: 0 !important;
+}
+
+#idp_selection_table tbody td {
+  border-right: 0 !important;
+  border-left: 0 !important;
+}
+
 .scrollable {
   padding-top: 0px;
 }
 
 .distance {
   display: none;
-}
-
-.datatable {
-  border: 0px !important;
-}
-
-.datatable thead {
-  white-space: nowrap;
-  display: none;
-}
-
-.datatable thead tr th {
-  white-space: nowrap;
-  display: none;
-}
-
-.datatable tbody tr td {
-  border-right: 0 !important;
-  border-left: 0 !important;
 }
 
 .select_organisation_input {
