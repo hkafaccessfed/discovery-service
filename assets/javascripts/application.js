@@ -124,8 +124,10 @@ $(document).ready(function () {
       $('#sp_header_description').text(sp.description);
       $('#sp_header_logo').attr("src", sp.logo_uri);
       $('#sp_header_information_url').attr("href", sp.information_uri);
+      $('#sp_header_information_url').text('Service Information');
       $('#sp_header_privacy_statement_uri').
           attr("href", sp.privacy_statement_uri);
+      $('#sp_header_privacy_statement_uri').text('Privacy Statement');
     }
   }
 
