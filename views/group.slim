@@ -4,19 +4,19 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
 
 .ui.text.container
   .ui.mobile.stackable.padded.grid
-    .ten.wide.column
+    .twelve.wide.column
       h2.ui.header
         img#sp_header_logo.ui.image src="/aaf_logo.png" /
         #sp_header.content
           | Login to service
           #sp_header_description.sub.header
             | Select your organisation to continue
-    .six.wide.column
+    .four.wide.column
       .ui.list
         .item
-          a#sp_header_information_url target="_blank" 
+          a#sp_header_information_url target="_blank" Service Information
         .item
-          a#sp_header_privacy_url target="_blank" 
+          a#sp_header_privacy_statement_uri target="_blank" Privacy Statement
   br/
   - if @idps.any?
     form[id="idp_selection_form" action="" method="POST"]

@@ -87,10 +87,46 @@ $(document).ready(function () {
     $('#tab_menu .item:first').addClass('active');
   }
 
+  function getSP(spJson, initiatingSP) {
+    for (i = 0; i < spJson.length; i++) {
+      if (spJson[i].entity_id == initiatingSP) {
+        return spJson[i];
+      }
+    }
+  }
+
+  function renderSPHeader(sp) {
+    return 'Login to "<em>' + sp.name + '</em>"';
+  }
+
+  function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+      sParameterName = sURLVariables[i].split('=');
+
+      if (sParameterName[0] === sParam) {
+        return sParameterName[1] === undefined ? true : sParameterName[1];
+      }
+    }
+  }
+
   function loadInitiatingSPDetails() {
-    $('#sp_header').text('');             // TODO Set Initiating SP
-    $('#sp_header_logo').attr("src", ''); // TODO Set Initiating SP
-    $('#sp_header_logo').hide();          // TODO TEMP
+    var spJson = $.parseJSON($('#sps').html());
+    var initiatingSP = getUrlParameter('entityID');
+
+    if (initiatingSP) {
+      var sp = getSP(spJson, initiatingSP);
+      $('#sp_header').html(renderSPHeader(sp));
+      $('#sp_header_description').text(sp.description);
+      $('#sp_header_logo').attr("src", sp.logo_uri);
+      $('#sp_header_information_url').attr("href", sp.information_uri);
+      $('#sp_header_privacy_statement_uri').
+          attr("href", sp.privacy_statement_uri);
+    }
   }
 
   function setCursorToPointerOnIdPRows() {
