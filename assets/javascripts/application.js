@@ -13,6 +13,12 @@ $(document).ready(function () {
     });
   }
 
+  function makeMessagesClosable() {
+    $('.message .close').on('click', function () {
+      $(this).closest('.message').transition('fade');
+    });
+  }
+
   function focusSearchField() {
     $("#search_input").focus();
   }
@@ -40,17 +46,31 @@ $(document).ready(function () {
     });
   }
 
+  function displayErrorMessage(header, text) {
+    if ($('#error_message').is(":hidden")) {
+      $('#error_message').transition('fade');
+    }
+    $('#error_message_header').text(header);
+    $('#error_message_text').text(text);
+  }
+
   function appendIdPSelectionOnFormSubmit() {
     $("#idp_selection_form").submit(function () {
       var selectedIdPRowSelector = "#idp_selection_table tbody tr.active td"
           + " input.select_organisation_input";
       var selectedIdP = $(selectedIdPRowSelector).attr('name');
-      // TODO validation here
 
-      $('<input />').attr('type', 'hidden')
-          .attr('name', selectedIdP)
-          .appendTo('#idp_selection_form');
-      return true;
+      if (selectedIdP) {
+        $('<input />').attr('type', 'hidden')
+            .attr('name', selectedIdP)
+            .appendTo('#idp_selection_form');
+        return true;
+
+      } else {
+        displayErrorMessage('Error',
+            'You must select your organisation to continue');
+        return false;
+      }
     });
   }
 
@@ -203,7 +223,7 @@ $(document).ready(function () {
         {"bSearchable": false},
         {"bSearchable": true}
       ],
-      order: [[ 0, 'asc' ]],
+      order: [[0, 'asc']],
       bAutoWidth: false
     });
   }
@@ -233,6 +253,7 @@ $(document).ready(function () {
     clearSearchOnClearButtonClick();
     locateIdPsOnLocateButtonClick();
     performSearchOnIdPSearchKeyup();
+    makeMessagesClosable();
 
   }
 

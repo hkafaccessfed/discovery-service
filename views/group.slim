@@ -64,6 +64,10 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
                         td
                           input[type="submit" value="Select" name="#{idp[:entity_id]}" class="button ui floated right button small primary select_organisation_input"]
         .field
+          #error_message.ui.negative.message.hidden
+            i.close.icon
+            #error_message_header.header
+            p#error_message_text
           #select_organisation_button.ui.floated.right.button.large.primary
         .field
           .ui.checkbox
