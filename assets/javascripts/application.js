@@ -169,7 +169,7 @@ $(document).ready(function () {
       var idPDetails = {}
       idPDetails.name = idP.name;
       idPDetails.description = idP.description;
-      return [idP.logo_uri, idPDetails, idP.entity_id, idP.tags];
+      return [idPDetails, idP.logo_uri, idP.entity_id, idP.tags];
     });
   }
 
@@ -190,12 +190,12 @@ $(document).ready(function () {
       paging: false,
       sDom: '<"top">rt<"bottom"><"clear">',
       columnDefs: [
-        {render: renderLogo, targets: 0},
-        {render: renderIdPDetails, targets: 1},
+        {render: renderIdPDetails, targets: 0},
+        {render: renderLogo, targets: 1},
         {render: renderEntityIdInput, targets: 2},
         {visible: false, targets: 3}
       ],
-      order: [[ 1, 'asc' ]],
+      order: [[ 0, 'asc' ]],
       bAutoWidth: false
     });
   }

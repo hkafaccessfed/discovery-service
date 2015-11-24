@@ -55,13 +55,13 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
                     - @idps.each do |idp|
                       tr
                         td
-                          img.ui.image.tiny.bordered src="#{idp[:logo_uri]}" /
-                        td
                           strong #{idp[:name]}
-                          br/
-                          em #{idp[:description]}
-                          br/
-                          | #{idp[:domain]}
+                          - if idp[:description]
+                            br/
+                            em #{idp[:description]}
+                        td
+                          - if idp[:logo_uri]
+                            img.ui.image.tiny.bordered src="#{idp[:logo_uri]}" /
                         td
                           input[type="submit" value="Select" name="#{idp[:entity_id]}" class="button ui floated right button small primary select_organisation_input"]
         .field
