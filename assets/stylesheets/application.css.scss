@@ -22,6 +22,10 @@ $tablet-max-width: 767px;
   #sp_header {
     padding-left: 0px;
   }
+
+  #tab_menu a.can_hide {
+    display: none;
+  }
 }
 
 #search_options {
@@ -34,10 +38,6 @@ $tablet-max-width: 767px;
 
 #tab_menu {
   min-height: 0;
-}
-
-#tab_menu a {
-  display: none;
 }
 
 #organisations_near_me_column {

@@ -27,7 +27,7 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
         .field
           #tab_menu.ui.top.attached.tabular.menu
             - tag_groups.each do |tag_group|
-              a.item[data-tab="#{tag_group[:tag]}"]
+              a[data-tab="#{tag_group[:tag]}" class="item #{"can_hide" if tag_group != tag_groups.first && tag_group != tag_groups.last} #{"active" if tag_group[:tag] == '*'}"]
                 | #{tag_group[:name]}
           .ui.bottom.segment.attached
             #search_options.ui.mobile.stackable.padded.grid
