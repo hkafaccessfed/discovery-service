@@ -17,7 +17,7 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
         .item
           a#sp_header_information_url target="_blank"
         .item
-          a#sp_header_privacy_statement_uri target="_blank"
+          a#sp_header_privacy_statement_url target="_blank"
   br/
   - if @idps.any?
     form[id="idp_selection_form" action="" method="POST"]
@@ -59,8 +59,8 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
                             br/
                             em #{idp[:description]}
                         td
-                          - if idp[:logo_uri]
-                            img.ui.image.tiny.bordered src="#{idp[:logo_uri]}" /
+                          - if idp[:logo_url]
+                            img.ui.image.tiny.bordered src="#{idp[:logo_url]}" /
                         td
                           input[type="submit" value="Select" name="#{idp[:entity_id]}" class="button ui floated right button small primary select_organisation_input"]
         .field
@@ -89,4 +89,4 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
             | #{@environment[:name]}
     .four.wide.column
       .item
-        a href="#{@environment[:status_uri]}" target="_blank" Federation Status
+        a href="#{@environment[:status_url]}" target="_blank" Federation Status

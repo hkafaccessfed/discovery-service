@@ -146,12 +146,12 @@ $(document).ready(function () {
       var sp = getSP(spJson, initiatingSP);
       $('#sp_header_name').text('\"' + sp.name + '\"');
       $('#sp_header_description').text(sp.description);
-      $('#sp_header_logo').attr("src", sp.logo_uri);
-      $('#sp_header_information_url').attr("href", sp.information_uri);
+      $('#sp_header_logo').attr("src", sp.logo_url);
+      $('#sp_header_information_url').attr("href", sp.information_url);
       $('#sp_header_information_url').text('Service Information');
-      $('#sp_header_privacy_statement_uri').
-          attr("href", sp.privacy_statement_uri);
-      $('#sp_header_privacy_statement_uri').text('Privacy Statement');
+      $('#sp_header_privacy_statement_url').
+          attr("href", sp.privacy_statement_url);
+      $('#sp_header_privacy_statement_url').text('Privacy Statement');
     }
   }
 
@@ -163,9 +163,9 @@ $(document).ready(function () {
     $('.select_organisation_input').hide();
   }
 
-  function renderLogo(logoURI) {
-    if (logoURI) {
-      return '<img class="ui image tiny bordered" src="' + logoURI + '">';
+  function renderLogo(logoURL) {
+    if (logoURL) {
+      return '<img class="ui image tiny bordered" src="' + logoURL + '">';
     } else {
       return '';
     }
@@ -189,7 +189,7 @@ $(document).ready(function () {
       var idPDetails = {}
       idPDetails.name = idP.name;
       idPDetails.description = idP.description;
-      return [idPDetails, idP.logo_uri, idP.entity_id, idP.tags];
+      return [idPDetails, idP.logo_url, idP.entity_id, idP.tags];
     });
   }
 

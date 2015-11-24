@@ -8,7 +8,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
     end
 
     let(:environment) do
-      { name: Faker::Lorem.word, status_uri: Faker::Internet.url }
+      { name: Faker::Lorem.word, status_url: Faker::Internet.url }
     end
 
     let(:tag_groups) do
@@ -41,7 +41,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
     it 'includes the link to status' do
       expect(subject)
-        .to include("<a href=\"#{environment[:status_uri]}\""\
+        .to include("<a href=\"#{environment[:status_url]}\""\
                            " target=\"_blank\">Federation Status</a>")
     end
 

@@ -28,7 +28,7 @@ module DiscoveryService
 
       def update
         config = YAML.load_file('config/discovery_service.yml')
-        raw_entities = retrieve_entity_data(config[:saml_service][:uri])
+        raw_entities = retrieve_entity_data(config[:saml_service][:url])
         grouped_entities = filter(combine_sp_idp(raw_entities), config[:groups])
         save_entities(grouped_entities, config[:tag_groups],
                       config[:environment])

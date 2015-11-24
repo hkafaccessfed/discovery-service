@@ -10,7 +10,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     let(:environment) do
-      { name: Faker::Lorem.word, status_uri: Faker::Internet.url }
+      { name: Faker::Lorem.word, status_url: Faker::Internet.url }
     end
 
     let(:tag_groups) do
@@ -110,7 +110,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
           expect(subject).to eq([{ entity_id: idp[:entity_id],
                                    tags: idp[:tags],
                                    name: idp[:names].first[:value],
-                                   logo_uri: idp[:logos].first[:uri],
+                                   logo_url: idp[:logos].first[:url],
                                    description:
                                        idp[:descriptions].first[:value],
                                    geolocations: idp[:geolocations] }])
@@ -123,12 +123,12 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
           expect(subject).to eq([{ entity_id: sp[:entity_id],
                                    tags: sp[:tags],
                                    name: sp[:names].first[:value],
-                                   logo_uri: sp[:logos].first[:uri],
+                                   logo_url: sp[:logos].first[:url],
                                    description: sp[:descriptions].first[:value],
-                                   information_uri:
-                                       sp[:information_uris].first[:uri],
-                                   privacy_statement_uri:
-                                       sp[:privacy_statement_uris].first[:uri]
+                                   information_url:
+                                       sp[:information_urls].first[:url],
+                                   privacy_statement_url:
+                                       sp[:privacy_statement_urls].first[:url]
                                  }])
         end
       end
@@ -153,13 +153,13 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
             .to eq([{ entity_id: idp1[:entity_id],
                       tags: idp1[:tags],
                       name: idp1[:names].first[:value],
-                      logo_uri: idp1[:logos].first[:uri],
+                      logo_url: idp1[:logos].first[:url],
                       description: idp1[:descriptions].first[:value],
                       geolocations: idp1[:geolocations] },
                     { entity_id: idp2[:entity_id],
                       tags: idp2[:tags],
                       name: idp2[:names].first[:value],
-                      logo_uri: idp2[:logos].first[:uri],
+                      logo_url: idp2[:logos].first[:url],
                       description: idp2[:descriptions].first[:value],
                       geolocations: idp2[:geolocations] }])
         end
@@ -172,19 +172,19 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
             .to eq([{ entity_id: sp1[:entity_id],
                       tags: sp1[:tags],
                       name: sp1[:names].first[:value],
-                      logo_uri: sp1[:logos].first[:uri],
+                      logo_url: sp1[:logos].first[:url],
                       description: sp1[:descriptions].first[:value],
-                      information_uri: sp1[:information_uris].first[:uri],
-                      privacy_statement_uri:
-                          sp1[:privacy_statement_uris].first[:uri] },
+                      information_url: sp1[:information_urls].first[:url],
+                      privacy_statement_url:
+                          sp1[:privacy_statement_urls].first[:url] },
                     { entity_id: sp2[:entity_id],
                       tags: sp2[:tags],
                       name: sp2[:names].first[:value],
-                      logo_uri: sp2[:logos].first[:uri],
+                      logo_url: sp2[:logos].first[:url],
                       description: sp2[:descriptions].first[:value],
-                      information_uri: sp2[:information_uris].first[:uri],
-                      privacy_statement_uri:
-                          sp2[:privacy_statement_uris].first[:uri] }])
+                      information_url: sp2[:information_urls].first[:url],
+                      privacy_statement_url:
+                          sp2[:privacy_statement_urls].first[:url] }])
         end
       end
     end
@@ -209,7 +209,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
                     { entity_id: idp_with_matching_lang[:entity_id],
                       tags: idp_with_matching_lang[:tags],
                       name: idp_with_matching_lang[:names].first[:value],
-                      logo_uri: idp_with_matching_lang[:logos].first[:uri],
+                      logo_url: idp_with_matching_lang[:logos].first[:url],
                       description:
                           idp_with_matching_lang[:descriptions].first[:value],
                       geolocations: idp_with_matching_lang[:geolocations] }])

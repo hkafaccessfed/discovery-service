@@ -22,7 +22,7 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
               "\"names\":[{\"value\":\"#{entity[:names].first[:value]}\","\
                          "\"lang\":\"#{entity[:names].first[:lang]}\"}],"\
               "\"tags\":#{entity[:tags].to_json},"\
-              "\"logos\":[{\"uri\":\"#{entity[:logos].first[:uri]}\","\
+              "\"logos\":[{\"url\":\"#{entity[:logos].first[:url]}\","\
                          "\"lang\":\"#{entity[:logos].first[:lang]}\"}],"\
               "\"descriptions\""\
                 ":[{\"value\":\"#{entity[:descriptions].first[:value]}\","\
@@ -61,7 +61,7 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
               "\"names\":[{\"value\":\"#{entity[:names].first[:value]}\","\
                          "\"lang\":\"#{entity[:names].first[:lang]}\"}],"\
               "\"tags\":#{entity[:tags].to_json},"\
-              "\"logos\":[{\"uri\":\"#{entity[:logos].first[:uri]}\","\
+              "\"logos\":[{\"url\":\"#{entity[:logos].first[:url]}\","\
                          "\"lang\":\"#{entity[:logos].first[:lang]}\"}],"\
               "\"descriptions\":"\
                 "[{\"value\":\"#{entity[:descriptions].first[:value]}\","\

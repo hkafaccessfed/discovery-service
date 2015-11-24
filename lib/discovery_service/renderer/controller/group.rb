@@ -28,8 +28,8 @@ module DiscoveryService
         def entry(entity, lang, entity_type)
           entry = base_entry(entity, lang)
           if entity_type == :sps
-            set_information_uri(entity, entry, lang)
-            set_privacy_statement_uri(entity, entry, lang)
+            set_information_url(entity, entry, lang)
+            set_privacy_statement_url(entity, entry, lang)
           elsif entity_type == :idps
             entry[:geolocations] = entity[:geolocations]
           end
@@ -52,8 +52,8 @@ module DiscoveryService
         end
 
         def set_logo(entity, entry, lang)
-          logo_uri = value(:logos, :uri, entity, lang)
-          entry[:logo_uri] = logo_uri if logo_uri
+          logo_url = value(:logos, :url, entity, lang)
+          entry[:logo_url] = logo_url if logo_url
         end
 
         def set_name(entity, entry, lang)
@@ -61,16 +61,16 @@ module DiscoveryService
           entry[:name] = name.nil? ? entity[:entity_id] : name
         end
 
-        def set_privacy_statement_uri(entity, entry, lang)
-          privacy_statement_uri = value(:privacy_statement_uris, :uri,
+        def set_privacy_statement_url(entity, entry, lang)
+          privacy_statement_url = value(:privacy_statement_urls, :url,
                                         entity, lang)
-          entry[:privacy_statement_uri] =
-              privacy_statement_uri if privacy_statement_uri
+          entry[:privacy_statement_url] =
+              privacy_statement_url if privacy_statement_url
         end
 
-        def set_information_uri(entity, entry, lang)
-          information_uri = value(:information_uris, :uri, entity, lang)
-          entry[:information_uri] = information_uri if information_uri
+        def set_information_url(entity, entry, lang)
+          information_url = value(:information_urls, :url, entity, lang)
+          entry[:information_url] = information_url if information_url
         end
 
         def value(field, key, entity, lang)

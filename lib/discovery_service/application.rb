@@ -55,14 +55,14 @@ module DiscoveryService
     end
 
     def sp_response_url(return_url, param_key, selected_idp)
-      uri = URI.parse(return_url)
+      url = URI.parse(return_url)
       key = param_key || :entityID
-      query_opts = URI.decode_www_form(uri.query || '') << [key, selected_idp]
-      uri.query = URI.encode_www_form(query_opts)
-      uri.to_s
+      query_opts = URI.decode_www_form(url.query || '') << [key, selected_idp]
+      url.query = URI.encode_www_form(query_opts)
+      url.to_s
     end
 
-    def uri?(value)
+    def url?(value)
       value =~ /\A#{URI.regexp}\z/
     end
 
@@ -71,7 +71,7 @@ module DiscoveryService
     end
 
     def valid_post_params?
-      uri?(params[:entityID]) && uri?(user_idp) &&
+      url?(params[:entityID]) && url?(user_idp) &&
         params[:group] =~ URL_SAFE_BASE_64_ALPHABET &&
         valid_policy?(params[:policy])
     end

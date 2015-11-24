@@ -6,7 +6,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
     let(:url) { 'http://saml-service.example.com/entities' }
     let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
     let(:config) do
-      { saml_service: { uri: url },
+      { saml_service: { url: url },
         groups: { aaf: [%w(discovery aaf)],
                   edugain: [%w(discovery edugain)],
                   taukiri: [%w(discovery taukiri)] },
