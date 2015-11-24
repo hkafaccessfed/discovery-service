@@ -149,7 +149,7 @@ $(document).ready(function () {
 
   function renderIdPDetails(idPDetails) {
     return '<strong>' + idPDetails.name + '</strong><br><em>' +
-        idPDetails.description + '</em><br>' + idPDetails.domain;
+        idPDetails.description + '</em>';
   }
 
   function renderEntityIdInput(entityID) {
@@ -162,7 +162,6 @@ $(document).ready(function () {
       var idPDetails = {}
       idPDetails.name = idP.name;
       idPDetails.description = idP.description;
-      idPDetails.domain = idP.domain;
       return [idP.logo_uri, idPDetails, idP.entity_id, idP.tags];
     });
   }
