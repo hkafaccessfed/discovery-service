@@ -145,13 +145,21 @@ $(document).ready(function () {
     if (initiatingSP) {
       var sp = getSP(spJson, initiatingSP);
       $('#sp_header_name').text('\"' + sp.name + '\"');
-      $('#sp_header_description').text(sp.description);
-      $('#sp_header_logo').attr("src", sp.logo_url);
-      $('#sp_header_information_url').attr("href", sp.information_url);
-      $('#sp_header_information_url').text('Service Information');
-      $('#sp_header_privacy_statement_url').
-          attr("href", sp.privacy_statement_url);
-      $('#sp_header_privacy_statement_url').text('Privacy Statement');
+      if (sp.description) {
+        $('#sp_header_description').text(sp.description);
+      }
+      if (sp.logo_url) {
+        $('#sp_header_logo').attr("src", sp.logo_url);
+      }
+      if (sp.information_url) {
+        $('#sp_header_information_url').attr("href", sp.information_url);
+        $('#sp_header_information_url').text('Service Information');
+      }
+      if (sp.privacy_statement_url) {
+        $('#sp_header_privacy_statement_url').
+            attr("href", sp.privacy_statement_url);
+        $('#sp_header_privacy_statement_url').text('Privacy Statement');
+      }
     }
   }
 
