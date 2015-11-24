@@ -85,6 +85,7 @@ $(document).ready(function () {
   }
 
   function clearSearch() {
+    unselectIdP();
     $('#search_input').val('');
     $('#idp_selection_table').DataTable()
         .search('')
