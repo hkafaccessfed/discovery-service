@@ -21,11 +21,17 @@ module DiscoveryService
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
     CONFIG = 'config/discovery_service.yml'
 
-    set :assets_precompile, %w(application.js application.css)
+    set :assets_precompile,
+        %w(application.js application.css *.eot *.woff *.woff2 *.ttf)
+    set :assets_css_compressor, :sass
+    set :assets_js_compressor, :uglifier
+
     register Sinatra::AssetPipeline
+
     RailsAssets.load_paths.each { |path| settings.sprockets.append_path(path) }
     settings.sprockets.append_path('assets/javascripts')
     settings.sprockets.append_path('assets/stylesheets')
+
     helpers Sprockets::Helpers
 
     set :group_config, CONFIG

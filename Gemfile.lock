@@ -73,6 +73,7 @@ GEM
     i18n (0.7.0)
     json (1.8.3)
     kgio (2.10.0)
+    libv8 (3.16.14.11)
     listen (3.0.4)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9)
@@ -122,6 +123,7 @@ GEM
     redis (3.2.1)
     redis-namespace (1.5.2)
       redis (~> 3.0, >= 3.0.4)
+    ref (2.0.0)
     rspec (3.3.0)
       rspec-core (~> 3.3.0)
       rspec-expectations (~> 3.3.0)
@@ -179,6 +181,9 @@ GEM
       tilt (~> 1.1)
     temple (0.7.6)
     terminal-notifier-guard (1.6.4)
+    therubyracer (0.12.2)
+      libv8 (~> 3.16.14.0)
+      ref
     thor (0.19.1)
     thread_safe (0.3.5)
     tilt (1.4.1)
@@ -186,6 +191,9 @@ GEM
     tins (1.6.0)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    uglifier (2.7.2)
+      execjs (>= 0.3.0)
+      json (>= 1.8.0)
     unicorn (5.0.0)
       kgio (~> 2.6)
       rack
@@ -234,7 +242,9 @@ DEPENDENCIES
   slim
   sprockets-helpers
   terminal-notifier-guard
+  therubyracer
   timecop
+  uglifier
   unicorn
   webmock
 
