@@ -235,6 +235,7 @@ $(document).ready(function () {
       $('#idp_selection_table').DataTable().draw();
       clearSearch();
       unselectIdP();
+      setCursorToPointerOnIdPRows();
     });
   }
 
@@ -274,8 +275,8 @@ $(document).ready(function () {
     loadDataTable();
 
     hideButtonsAlongsideEachIdP();
-    setCursorToPointerOnIdPRows();
     initScroller();
+    setCursorToPointerOnIdPRows();
   }
 
   init();
