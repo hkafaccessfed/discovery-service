@@ -28,12 +28,14 @@ $(document).ready(function () {
   function makeIdPRowsSelectable() {
     $('#idp_selection_table tbody').on('click', 'tr', function () {
       var tr = $(this);
-      if (tr.hasClass('active')) {
-        tr.removeClass('active');
-      }
-      else {
-        unselectIdP();
-        tr.addClass('active');
+      if (tr.attr('role') == 'row') {
+        if (tr.hasClass('active')) {
+          tr.removeClass('active');
+        }
+        else {
+          unselectIdP();
+          tr.addClass('active');
+        }
       }
     });
   }
