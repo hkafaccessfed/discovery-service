@@ -100,12 +100,24 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
         expect(subject).to include(CGI.escapeHTML(idp_2[:name]))
       end
 
-      it 'includes all tabs' do
-        tag_groups.each do |tag_group|
-          expect(subject).to include('<a class="item" '\
-            "data-tab=\"#{tag_group[:tag]}\">"\
-            "#{CGI.escapeHTML(tag_group[:name])}")
+      it 'includes the first tab' do
+        expect(subject).to include("<a class=\"item\" "\
+          "data-tab=\"#{tag_groups.first[:tag]}\">"\
+          "#{CGI.escapeHTML(tag_groups.first[:name])}")
+      end
+
+      it 'includes the middle tabs (allowed to be hidden)' do
+        ts = tag_groups - [tag_groups.first, tag_groups.last]
+        ts.each do |t|
+          expect(subject).to include("<a class=\"item can_hide\" "\
+          "data-tab=\"#{t[:tag]}\">#{CGI.escapeHTML(t[:name])}")
         end
+      end
+
+      it 'includes the last tab (configured as "*")' do
+        t = tag_groups.find { |tag_group| tag_group[:tag] == '*' }
+        expect(subject).to include('<a class="item active" '\
+            "data-tab=\"#{t[:tag]}\">#{CGI.escapeHTML(t[:name])}")
       end
     end
   end
