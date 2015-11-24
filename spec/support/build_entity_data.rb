@@ -10,8 +10,10 @@ RSpec.shared_context 'build_entity_data' do
 
   def build_sp_data(tags = nil, lang = nil)
     entity_data = build_entity_data(tags, lang)
-    entity_data[:information_uri] = Faker::Internet.url
-    entity_data[:privacy_statement_uri] = Faker::Internet.url
+    entity_data[:discovery_response] = Faker::Internet.url
+    entity_data[:information_uris] = [{ uri: Faker::Internet.url, lang: lang }]
+    entity_data[:privacy_statement_uris] =
+        [{ uri: Faker::Internet.url, lang: lang }]
     entity_data
   end
 
@@ -19,18 +21,15 @@ RSpec.shared_context 'build_entity_data' do
     Hash[entities.map { |e| [e[:entity_id], e.except(:entity_id)] }]
   end
 
-  private
-
-  def build_entity_data(tags = nil, lang = nil)
+  def build_entity_data(tags = nil, specified_lang = nil)
+    lang = specified_lang ? specified_lang : Faker::Lorem.characters(2)
     {
       entity_id: Faker::Internet.url,
-      discovery_response: Faker::Internet.url,
-      names: [{ value: Faker::University.name,
-                lang: lang ? lang : Faker::Lorem.characters(2) }],
+      names: [{ value: Faker::University.name, lang: lang }],
       tags: tags.nil? ? [Faker::Lorem.word, Faker::Lorem.word] : tags,
-      logo_uri: Faker::Company.logo,
-      description: Faker::Lorem.sentence,
-      domain: Faker::Internet.domain_name
+      logos: [{ uri: Faker::Company.logo, lang: lang }],
+      descriptions: [{ value: Faker::Lorem.sentence, lang: lang }],
+      domains: [Faker::Internet.domain_name]
     }
   end
 end

@@ -9,7 +9,8 @@ module DiscoveryService
         def generate_group_model(entities, lang, tag_groups, environment)
           result = { idps: [], sps: [] }
           entities.nil? || entities.each_with_object(result) do |e, hash|
-            hash[group(e)] << entry(e, lang) if group(e)
+            entity_type = entity_type_from_tags(e)
+            hash[entity_type] << entry(e, lang, entity_type) if entity_type
           end
           DiscoveryService::Renderer::Model::Group.new(result[:idps],
                                                        result[:sps],
@@ -19,21 +20,63 @@ module DiscoveryService
 
         private
 
-        def group(entity)
+        def entity_type_from_tags(entity)
           return :sps if entity[:tags].include?('sp')
           return :idps if entity[:tags].include?('idp')
         end
 
-        def names_for_language(entity, lang)
-          return [] unless entity[:names]
-          entity[:names].select { |name| name[:lang] == lang }
+        def entry(entity, lang, entity_type)
+          entry = base_entry(entity, lang)
+          if entity_type == :sps
+            set_information_uri(entity, entry, lang)
+            set_privacy_statement_uri(entity, entry, lang)
+          elsif entity_type == :idps
+            entry[:geolocations] = entity[:geolocations]
+          end
+          entry
         end
 
-        def entry(entity, lang)
-          names = names_for_language(entity, lang)
-          entry = entity.deep_dup.except(:names)
-          entry[:name] = names.any? ? names.first[:value] : entity[:entity_id]
+        def base_entry(entity, lang)
+          entry = {}
+          entry[:entity_id] = entity[:entity_id]
+          entry[:tags] = entity[:tags]
+          set_name(entity, entry, lang)
+          set_logo(entity, entry, lang)
+          set_description(entity, entry, lang)
           entry
+        end
+
+        def set_description(entity, entry, lang)
+          description = value(:descriptions, :value, entity, lang)
+          entry[:description] = description if description
+        end
+
+        def set_logo(entity, entry, lang)
+          logo_uri = value(:logos, :uri, entity, lang)
+          entry[:logo_uri] = logo_uri if logo_uri
+        end
+
+        def set_name(entity, entry, lang)
+          name = value(:names, :value, entity, lang)
+          entry[:name] = name.nil? ? entity[:entity_id] : name
+        end
+
+        def set_privacy_statement_uri(entity, entry, lang)
+          privacy_statement_uri = value(:privacy_statement_uris, :uri,
+                                        entity, lang)
+          entry[:privacy_statement_uri] =
+              privacy_statement_uri if privacy_statement_uri
+        end
+
+        def set_information_uri(entity, entry, lang)
+          information_uri = value(:information_uris, :uri, entity, lang)
+          entry[:information_uri] = information_uri if information_uri
+        end
+
+        def value(field, key, entity, lang)
+          return nil unless entity[field]
+          values = entity[field].select { |value| value[:lang] == lang }
+          values.first[key] if values.any?
         end
       end
     end
