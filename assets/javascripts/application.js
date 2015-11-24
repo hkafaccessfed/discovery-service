@@ -144,12 +144,19 @@ $(document).ready(function () {
   }
 
   function renderLogo(logoURI) {
-    return '<img class="ui image tiny bordered" src="' + logoURI + '">';
+    if (logoURI) {
+      return '<img class="ui image tiny bordered" src="' + logoURI + '">';
+    } else {
+      return '';
+    }
   }
 
   function renderIdPDetails(idPDetails) {
-    return '<strong>' + idPDetails.name + '</strong><br><em>' +
-        idPDetails.description + '</em>';
+    var details = '<strong>' + idPDetails.name + '</strong><br/>';
+    if (idPDetails.description) {
+      details += '<em>' + idPDetails.description + '</em>';
+    }
+    return details;
   }
 
   function renderEntityIdInput(entityID) {
@@ -188,6 +195,7 @@ $(document).ready(function () {
         {render: renderEntityIdInput, targets: 2},
         {visible: false, targets: 3}
       ],
+      order: [[ 1, 'asc' ]],
       bAutoWidth: false
     });
   }
