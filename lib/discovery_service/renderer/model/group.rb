@@ -1,3 +1,5 @@
+require 'discovery_service/renderer/helpers/group'
+
 module DiscoveryService
   module Renderer
     module Model
@@ -7,6 +9,8 @@ module DiscoveryService
         attr_accessor :sps
         attr_accessor :tag_groups
         attr_accessor :environment
+
+        include DiscoveryService::Renderer::Helpers::Group
 
         def initialize(idps, sps, tag_groups, environment)
           @idps = idps
