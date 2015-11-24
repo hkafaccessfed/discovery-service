@@ -195,6 +195,12 @@ $(document).ready(function () {
         {render: renderEntityIdInput, targets: 2},
         {visible: false, targets: 3}
       ],
+      aoColumns: [
+        {"bSearchable": true},
+        {"bSearchable": false},
+        {"bSearchable": false},
+        {"bSearchable": true}
+      ],
       order: [[ 0, 'asc' ]],
       bAutoWidth: false
     });
