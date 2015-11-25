@@ -83,10 +83,12 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       end
 
       it 'includes a submit button for each idp' do
-        expect(subject).to include("<input class=\"#{select_button_class}\""\
-          " name=\"#{idp_1[:entity_id]}\" type=\"submit\" value=\"Select\" />")
-        expect(subject).to include("<input class=\"#{select_button_class}\""\
-          " name=\"#{idp_2[:entity_id]}\" type=\"submit\" value=\"Select\" />")
+        expect(subject).to include("<button class=\"#{select_button_class}\""\
+          " name=\"user_idp\" type=\"submit\" value=\"#{idp_1[:entity_id]}\">"\
+          'Select</button>')
+        expect(subject).to include("<button class=\"#{select_button_class}\""\
+          " name=\"user_idp\" type=\"submit\" value=\"#{idp_2[:entity_id]}\">"\
+          'Select</button>')
       end
 
       it 'includes the main (javascript enabled) idp selection button' do

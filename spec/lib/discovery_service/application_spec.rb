@@ -94,7 +94,7 @@ RSpec.describe DiscoveryService::Application do
 
     let(:group_name) { Faker::Lorem.word }
     let(:selected_idp) { Faker::Internet.url }
-    let(:form_content) { { selected_idp => '' } }
+    let(:form_content) { { user_idp: selected_idp } }
     let(:requesting_sp) { Faker::Internet.url }
     let(:sp_return_url) { Faker::Internet.url }
 

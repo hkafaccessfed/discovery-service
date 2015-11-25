@@ -61,7 +61,7 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
                           - if idp[:logo_url]
                             img.ui.image.tiny.bordered src="#{idp[:logo_url]}" /
                         td
-                          input[type="submit" value="Select" name="#{idp[:entity_id]}" class="button ui floated right button small primary select_organisation_input"]
+                          button[type="submit" name="user_idp" value="#{idp[:entity_id]}" class="button ui floated right button small primary select_organisation_input"] Select
         .field
           #error_message.ui.negative.message.hidden
             i.close.icon

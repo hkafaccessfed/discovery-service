@@ -62,7 +62,8 @@ $(document).ready(function () {
 
       if (selectedIdP) {
         $('<input />').attr('type', 'hidden')
-            .attr('name', selectedIdP)
+            .attr('name', 'user_idp')
+            .attr('value', selectedIdP)
             .appendTo('#idp_selection_form');
         return true;
 

@@ -71,13 +71,9 @@ module DiscoveryService
     end
 
     def valid_post_params?
-      url?(params[:entityID]) && url?(user_idp) &&
+      url?(params[:entityID]) && url?(params[:user_idp]) &&
         params[:group] =~ URL_SAFE_BASE_64_ALPHABET &&
         valid_policy?(params[:policy])
-    end
-
-    def user_idp
-      request.POST.keys[0] if request.POST.any?
     end
 
     get '/discovery/:group' do
@@ -98,12 +94,12 @@ module DiscoveryService
         redirect to(params[:return])
       elsif params[:return]
         redirect to(sp_response_url(params[:return], params[:returnIDParam],
-                                    user_idp))
+                                    params[:user_idp]))
       elsif @entity_cache.discovery_response(params[:group], params[:entityID])
         redirect to(sp_response_url(@entity_cache.discovery_response(
                                       params[:group], params[:entityID]),
                                     params[:returnIDParam],
-                                    user_idp))
+                                    params[:user_idp]))
       else
         status 404
       end
