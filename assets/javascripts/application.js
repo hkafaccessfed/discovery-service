@@ -251,9 +251,18 @@ $(document).ready(function () {
     })
   }
 
-  function initHandlers() {
-    makeTabsClickable();
+  function preventEnterKey() {
+    $(window).keydown(function (event) {
+      if (event.keyCode == 13) {
+        event.preventDefault();
+        return false;
+      }
+    });
+  }
 
+  function initHandlers() {
+    preventEnterKey();
+    makeTabsClickable();
     makeIdPRowsSelectable();
     appendIdPSelectionOnFormSubmit();
     submitFormOnSelectIdPButtonClick();
