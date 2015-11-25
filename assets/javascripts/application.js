@@ -144,7 +144,7 @@ $(document).ready(function () {
 
     if (initiatingSP) {
       var sp = getSP(spJson, initiatingSP);
-      $('#sp_header_name').text('\"' + sp.name + '\"');
+      $('#sp_header_name').text(sp.name);
       if (sp.description) {
         $('#sp_header_description').text(sp.description);
       }
