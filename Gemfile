@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'sinatra', require: false
 gem 'unicorn', require: false
+gem 'god', require: false
 
 gem 'slim'
 gem 'redis'
@@ -12,6 +13,9 @@ gem 'hashdiff'
 
 gem 'sinatra-asset-pipeline'
 gem 'sprockets-helpers'
+
+gem 'therubyracer', require: false
+gem 'uglifier', require: false
 
 source 'https://rails-assets.org' do
   gem 'rails-assets-jquery'
