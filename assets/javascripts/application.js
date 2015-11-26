@@ -111,6 +111,10 @@ $(document).ready(function () {
     $('#select_organisation_button').text('Select');
   }
 
+  function showTabs() {
+    $('#tab_menu').css('height', '100%');
+  }
+
   function setFirstTabAsActive() {
     $('#tab_menu .item').removeClass('active');
     $('#tab_menu .item:first').addClass('active');
@@ -275,6 +279,7 @@ $(document).ready(function () {
   }
 
   function showJSEnabledElements() {
+    showTabs();
     setFirstTabAsActive();
     showSearchOptions();
     displayMainIdPSelectButton();
