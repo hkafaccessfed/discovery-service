@@ -82,6 +82,10 @@ $tablet-max-width: 767px;
   padding-top: 0px;
 }
 
+.ui.table:not(.unstackable) td:first-child em {
+  font-weight: initial;
+}
+
 .distance {
   display: none;
 }
