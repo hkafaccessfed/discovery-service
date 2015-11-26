@@ -1,12 +1,17 @@
 //= require semantic-ui/dist/semantic
 
 $form_left_padding: 0px !important;
+$form_right_padding: 0px !important;
 $mobile-max-width: 420px;
 $tablet-max-width: 767px;
 
 @media only screen and (max-width: $tablet-max-width) {
   #organisations_near_me_column {
     padding-top: $form_left_padding;
+  }
+
+  #search_column {
+    padding-right: $form_right_padding;
   }
 }
 
@@ -25,6 +30,10 @@ $tablet-max-width: 767px;
 
   #tab_menu a.can_hide {
     display: none;
+  }
+
+  #search_column {
+    padding-right: $form_right_padding;
   }
 }
 
@@ -48,6 +57,9 @@ $tablet-max-width: 767px;
   padding-left: $form_left_padding
 }
 
+#organisations_near_me_column {
+  padding-right: $form_right_padding
+}
 
 #idp_selection_table {
   border: 0px !important;
