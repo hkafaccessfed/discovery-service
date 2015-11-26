@@ -71,6 +71,37 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       end
     end
 
+    context 'with entities containing only mandatory fields' do
+      let(:lang) { Faker::Lorem.characters(2) }
+      let(:idp) do
+        { entity_id: Faker::Internet.url, tags: ['idp', Faker::Lorem.word] }
+      end
+      let(:sp) do
+        { entity_id: Faker::Internet.url, tags: ['sp', Faker::Lorem.word] }
+      end
+      let(:entities) { [idp, sp] }
+
+      it { is_expected.to_not be_nil }
+
+      context 'generated idps' do
+        subject { run.idps }
+        it 'builds idp as expected' do
+          expect(subject).to eq([{ entity_id: idp[:entity_id],
+                                   tags: idp[:tags],
+                                   name: idp[:entity_id] }])
+        end
+      end
+
+      context 'generated sps' do
+        subject { run.sps }
+        it 'builds sp as expected' do
+          expect(subject).to eq([{ entity_id: sp[:entity_id],
+                                   tags: sp[:tags],
+                                   name: sp[:entity_id] }])
+        end
+      end
+    end
+
     context 'with entities without names' do
       let(:lang) { Faker::Lorem.characters(2) }
       let(:idp_without_names) { build_idp_data(['idp'], lang).except(:names) }
@@ -109,10 +140,12 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         it 'builds idp as expected' do
           expect(subject).to eq([{ entity_id: idp[:entity_id],
                                    tags: idp[:tags],
-                                   name: idp[:names].first[:value],
+                                   name: CGI.escapeHTML(
+                                     idp[:names].first[:value]),
                                    logo_url: idp[:logos].first[:url],
                                    description:
-                                       idp[:descriptions].first[:value],
+                                       CGI.escapeHTML(
+                                         idp[:descriptions].first[:value]),
                                    geolocations: idp[:geolocations] }])
         end
       end
@@ -122,9 +155,11 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
         it 'builds sp as expected' do
           expect(subject).to eq([{ entity_id: sp[:entity_id],
                                    tags: sp[:tags],
-                                   name: sp[:names].first[:value],
+                                   name: CGI.escapeHTML(
+                                     sp[:names].first[:value]),
                                    logo_url: sp[:logos].first[:url],
-                                   description: sp[:descriptions].first[:value],
+                                   description: CGI.escapeHTML(
+                                     sp[:descriptions].first[:value]),
                                    information_url:
                                        sp[:information_urls].first[:url],
                                    privacy_statement_url:
@@ -152,15 +187,17 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
           expect(subject)
             .to eq([{ entity_id: idp1[:entity_id],
                       tags: idp1[:tags],
-                      name: idp1[:names].first[:value],
+                      name: CGI.escapeHTML(idp1[:names].first[:value]),
                       logo_url: idp1[:logos].first[:url],
-                      description: idp1[:descriptions].first[:value],
+                      description: CGI.escapeHTML(
+                        idp1[:descriptions].first[:value]),
                       geolocations: idp1[:geolocations] },
                     { entity_id: idp2[:entity_id],
                       tags: idp2[:tags],
-                      name: idp2[:names].first[:value],
+                      name: CGI.escapeHTML(idp2[:names].first[:value]),
                       logo_url: idp2[:logos].first[:url],
-                      description: idp2[:descriptions].first[:value],
+                      description: CGI.escapeHTML(
+                        idp2[:descriptions].first[:value]),
                       geolocations: idp2[:geolocations] }])
         end
       end
@@ -171,17 +208,19 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
           expect(subject)
             .to eq([{ entity_id: sp1[:entity_id],
                       tags: sp1[:tags],
-                      name: sp1[:names].first[:value],
+                      name: CGI.escapeHTML(sp1[:names].first[:value]),
                       logo_url: sp1[:logos].first[:url],
-                      description: sp1[:descriptions].first[:value],
+                      description: CGI.escapeHTML(
+                        sp1[:descriptions].first[:value]),
                       information_url: sp1[:information_urls].first[:url],
                       privacy_statement_url:
                           sp1[:privacy_statement_urls].first[:url] },
                     { entity_id: sp2[:entity_id],
                       tags: sp2[:tags],
-                      name: sp2[:names].first[:value],
+                      name: CGI.escapeHTML(sp2[:names].first[:value]),
                       logo_url: sp2[:logos].first[:url],
-                      description: sp2[:descriptions].first[:value],
+                      description: CGI.escapeHTML(
+                        sp2[:descriptions].first[:value]),
                       information_url: sp2[:information_urls].first[:url],
                       privacy_statement_url:
                           sp2[:privacy_statement_urls].first[:url] }])
@@ -208,16 +247,84 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
                       geolocations: idp[:geolocations] },
                     { entity_id: idp_with_matching_lang[:entity_id],
                       tags: idp_with_matching_lang[:tags],
-                      name: idp_with_matching_lang[:names].first[:value],
+                      name: CGI.escapeHTML(
+                        idp_with_matching_lang[:names].first[:value]),
                       logo_url: idp_with_matching_lang[:logos].first[:url],
-                      description:
-                          idp_with_matching_lang[:descriptions].first[:value],
+                      description: CGI.escapeHTML(
+                        idp_with_matching_lang[:descriptions]
+                            .first[:value]),
                       geolocations: idp_with_matching_lang[:geolocations] }])
         end
       end
       context 'generated sps' do
         subject { run.sps }
         it { is_expected.to eq([]) }
+      end
+    end
+
+    context 'with fields requiring escaping' do
+      let(:lang) { Faker::Lorem.characters(2) }
+
+      let(:idp) do
+        { entity_id: '<onerror=\"javascript:alert(\'Oh, hello there!\')\"/>',
+          tags: ['\'', 'idp'],
+          names: [{ value: '&', lang: lang }],
+          logos: [{ url: '"', lang: lang }],
+          descriptions: [{ value: '\\', lang: lang }],
+          geolocations: [{ longitude: '>', latitude: '<' }] }
+      end
+      let(:sp) do
+        { entity_id: '<body onload=\"javascript:alert(\'Oh, bye.\')\"/>',
+          tags: ['&', 'sp'],
+          names: [{ value: '\'', lang: lang }],
+          information_urls: [{ url: '—', lang: lang }],
+          privacy_statement_urls: [{ url: '&', lang: lang }],
+          logos: [{ url: '\'', lang: lang }],
+          descriptions: [{ value: '>', lang: lang }],
+          discovery_response: ['<http:.[[±>'] }
+      end
+
+      let(:entities) { [idp, sp] }
+
+      it { is_expected.to_not be_nil }
+
+      context 'generated idps' do
+        subject { run.idps }
+        it 'builds idp with all fields escaped' do
+          expect(subject)
+            .to eq([{ entity_id: CGI.escapeHTML(idp[:entity_id]),
+                      tags: idp[:tags].map { |t| CGI.escapeHTML(t) },
+                      name: CGI.escapeHTML(idp[:names].first[:value]),
+                      logo_url: CGI.escapeHTML(idp[:logos].first[:url]),
+                      description:
+                           CGI.escapeHTML(idp[:descriptions].first[:value]),
+                      geolocations:
+                           [{ longitude: CGI.escapeHTML(
+                             idp[:geolocations].first[:longitude]),
+                              latitude: CGI.escapeHTML(
+                                idp[:geolocations].first[:latitude]) }]
+                    }])
+        end
+      end
+
+      context 'generated sps' do
+        subject { run.sps }
+        it 'builds sp with all fields escaped' do
+          expect(subject)
+            .to eq([{ entity_id: CGI.escapeHTML(sp[:entity_id]),
+                      tags: sp[:tags].map { |t| CGI.escapeHTML(t) },
+                      name: CGI.escapeHTML(
+                        sp[:names].first[:value]),
+                      logo_url: CGI.escapeHTML(sp[:logos].first[:url]),
+                      description: CGI.escapeHTML(
+                        sp[:descriptions].first[:value]),
+                      information_url:
+                             CGI.escapeHTML(sp[:information_urls].first[:url]),
+                      privacy_statement_url:
+                             CGI.escapeHTML(
+                               sp[:privacy_statement_urls].first[:url])
+                       }])
+        end
       end
     end
   end
