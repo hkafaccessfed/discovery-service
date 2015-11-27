@@ -8,14 +8,15 @@ module DiscoveryService
       module Group
         def generate_group_model(entities, lang, tag_groups, environment)
           result = { idps: [], sps: [] }
+          tag_set = Set.new
           entities.nil? || entities.each_with_object(result) do |e, hash|
             entity_type = entity_type_from_tags(e)
-            hash[entity_type] << entry(e, lang, entity_type) if entity_type
+            next unless entity_type
+            entry = build_entry(e, lang, entity_type)
+            hash[entity_type] << entry
+            tag_set.merge(entry[:tags])
           end
-          DiscoveryService::Renderer::Model::Group.new(result[:idps],
-                                                       result[:sps],
-                                                       tag_groups,
-                                                       environment)
+          build_model(environment, result, tag_groups, tag_set)
         end
 
         private
@@ -25,7 +26,7 @@ module DiscoveryService
           return :idps if entity[:tags].include?('idp')
         end
 
-        def entry(entity, lang, entity_type)
+        def build_entry(entity, lang, entity_type)
           entry = base_entry(entity, lang)
           if entity_type == :sps
             set_information_url(entity, entry, lang)
@@ -44,6 +45,20 @@ module DiscoveryService
           set_logo(entity, entry, lang)
           set_description(entity, entry, lang)
           entry
+        end
+
+        def build_model(environment, result, tag_groups, tag_set)
+          filtered_tag_groups = filter_tag_groups(tag_groups, tag_set)
+          DiscoveryService::Renderer::Model::Group.new(result[:idps],
+                                                       result[:sps],
+                                                       filtered_tag_groups,
+                                                       environment)
+        end
+
+        def filter_tag_groups(tag_groups, tag_set)
+          tag_groups.select do |tag_group|
+            tag_set.include?(tag_group[:tag]) || tag_group[:tag] == '*'
+          end
         end
 
         def geolocation(entity)

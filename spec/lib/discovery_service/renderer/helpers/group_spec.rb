@@ -5,10 +5,12 @@ RSpec.describe DiscoveryService::Renderer::Helpers::Group do
     Class.new { include DiscoveryService::Renderer::Helpers::Group }
   end
 
+  let(:all_group) { { name: 'International', tag: '*' } }
+
   let(:tag_groups) do
     [{ name: Faker::Address.country, tag: Faker::Address.country_code },
      { name: Faker::Address.country, tag: Faker::Address.country_code },
-     { name: Faker::Address.country, tag: '*' }]
+     all_group]
   end
 
   let(:instance) do
@@ -21,6 +23,13 @@ RSpec.describe DiscoveryService::Renderer::Helpers::Group do
     context 'the first tag group' do
       subject { instance.can_hide?(tag_groups.first) }
       it 'can not be hidden' do
+        expect(subject).to be_falsey
+      end
+    end
+
+    context 'the all group' do
+      subject { instance.can_hide?(all_group) }
+      it 'can never be hidden' do
         expect(subject).to be_falsey
       end
     end

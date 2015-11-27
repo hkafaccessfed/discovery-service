@@ -13,11 +13,17 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       { name: Faker::Lorem.word, status_url: Faker::Internet.url }
     end
 
-    let(:tag_groups) do
-      [{ name: Faker::Address.country, tag: Faker::Address.country_code },
-       { name: Faker::Address.country, tag: Faker::Address.country_code },
-       { name: Faker::Address.country, tag: '*' }]
+    let(:tag_group_1) do
+      { name: Faker::Address.country, tag: Faker::Address.country_code }
     end
+
+    let(:tag_group_2) do
+      { name: Faker::Address.country, tag: Faker::Address.country_code }
+    end
+
+    let(:all_tag_group) { { name: 'International', tag: '*' } }
+    let(:tag_groups) { [tag_group_1, tag_group_2, all_tag_group] }
+    let(:lang) { Faker::Lorem.characters(2) }
 
     def run
       klass.new.generate_group_model(entities, lang, tag_groups, environment)
@@ -27,7 +33,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
 
     context 'with nil entities' do
       let(:entities) { nil }
-      let(:lang) { Faker::Lorem.characters(2) }
       it { is_expected.to_not be_nil }
 
       context 'generated idps' do
@@ -49,7 +54,45 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
 
       context 'the tag groups' do
         subject { run.tag_groups }
-        it 'are passed along' do
+        it 'contains only the \'all\' tag group' do
+          expect(subject).to eq([all_tag_group])
+        end
+      end
+    end
+
+    context 'with no entities belonging in tag group' do
+      let(:idp) { build_idp_data(['idp']) }
+      let(:sp) { build_sp_data(['sp']) }
+      let(:entities) { [idp, sp] }
+      context 'the tag groups' do
+        subject { run.tag_groups }
+        it 'contains only the \'all\' tag group' do
+          expect(subject).to eq([all_tag_group])
+        end
+      end
+    end
+
+    context 'with entities belonging in a tag group' do
+      let(:idp) { build_idp_data(['idp', tag_group_1[:tag]]) }
+      let(:sp) { build_idp_data(['sp', tag_group_1[:tag]]) }
+      let(:entities) { [idp, sp] }
+      context 'the tag groups' do
+        subject { run.tag_groups }
+        it 'get filtered' do
+          expect(subject).to eq([tag_group_1, all_tag_group])
+        end
+      end
+    end
+
+    context 'with multiple entities belonging in multiple tag groups' do
+      let(:idp1) { build_idp_data(['idp', tag_group_1[:tag]]) }
+      let(:idp2) { build_idp_data(['idp', tag_group_2[:tag]]) }
+      let(:sp1) { build_idp_data(['sp', tag_group_1[:tag]]) }
+      let(:sp2) { build_idp_data(['sp', tag_group_2[:tag]]) }
+      let(:entities) { [idp1, sp1, idp2, sp2] }
+      context 'the tag groups' do
+        subject { run.tag_groups }
+        it 'get filtered' do
           expect(subject).to eq(tag_groups)
         end
       end
@@ -57,7 +100,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
 
     context 'with empty entities' do
       let(:entities) { [] }
-      let(:lang) { Faker::Lorem.characters(2) }
       it { is_expected.to_not be_nil }
 
       context 'generated idps' do
@@ -72,7 +114,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     context 'with entities containing only mandatory fields' do
-      let(:lang) { Faker::Lorem.characters(2) }
       let(:idp) do
         { entity_id: Faker::Internet.url, tags: ['idp', Faker::Lorem.word] }
       end
@@ -103,7 +144,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     context 'with entities without names' do
-      let(:lang) { Faker::Lorem.characters(2) }
       let(:idp_without_names) { build_idp_data(['idp'], lang).except(:names) }
       let(:sp_without_names) { build_sp_data(['sp'], lang).except(:names) }
       let(:entities) { [idp_without_names, sp_without_names] }
@@ -126,8 +166,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     context 'with one idp and one sp' do
-      let(:lang) { Faker::Lorem.characters(2) }
-
       let(:idp) { build_idp_data(['idp'], lang) }
       let(:sp) { build_sp_data(['sp'], lang) }
 
@@ -170,8 +208,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     context 'multiple idps and sps' do
-      let(:lang) { Faker::Lorem.characters(2) }
-
       let(:idp1) { build_idp_data(['idp'], lang) }
       let(:idp2) { build_idp_data(['idp'], lang) }
       let(:sp1) { build_sp_data(['sp'], lang) }
@@ -263,8 +299,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     context 'with fields requiring escaping' do
-      let(:lang) { Faker::Lorem.characters(2) }
-
       let(:idp) do
         { entity_id: '<onerror=\"javascript:alert(\'Oh, hello there!\')\"/>',
           tags: ['\'', 'idp'],
