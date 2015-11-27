@@ -100,12 +100,6 @@ $(document).ready(function () {
     });
   }
 
-  function locateIdPsOnLocateButtonClick() {
-    $('#organisations_near_me_button').on('click', function () {
-      // TODO
-    });
-  }
-
   function displayMainIdPSelectButton() {
     $('#select_organisation_button').css("display", "inline-block");
     $('#select_organisation_button').text('Select');
@@ -272,7 +266,6 @@ $(document).ready(function () {
     appendIdPSelectionOnFormSubmit();
     submitFormOnSelectIdPButtonClick();
     clearSearchOnClearButtonClick();
-    locateIdPsOnLocateButtonClick();
     performSearchOnIdPSearchKeyup();
     makeMessagesClosable();
 

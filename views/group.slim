@@ -30,16 +30,12 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
                 | #{tag_group[:name]}
           .ui.bottom.segment.attached
             #search_options.ui.mobile.stackable.padded.grid
-              #search_column.ten.wide.column
+              #search_column.sixteen.wide.column
                 .ui.left.icon.right.action.input.fluid
                   i.search.icon
                   input#search_input placeholder=("Search for your organisation") type="text" /
                   #search_clear_button.ui.basic.floating.icon.button
                     i.remove.icon
-              #organisations_near_me_column.six.wide.column
-                #organisations_near_me_button.ui.right.labeled.icon.fluid.button
-                  i.marker.icon
-                  | Organisations near me
             #message
             .ui.active.tab
               #scroller.ui.segment
