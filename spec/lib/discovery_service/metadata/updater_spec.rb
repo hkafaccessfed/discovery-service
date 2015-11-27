@@ -6,11 +6,14 @@ RSpec.describe DiscoveryService::Metadata::Updater do
     let(:url) { 'http://saml-service.example.com/entities' }
     let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
     let(:config) do
-      { saml_service: { uri: url },
+      { saml_service: { url: url },
         groups: { aaf: [%w(discovery aaf)],
                   edugain: [%w(discovery edugain)],
                   taukiri: [%w(discovery taukiri)] },
-        environment: { name: Faker::Lorem.word, status: Faker::Internet.url } }
+        environment: { name: Faker::Lorem.word, status: Faker::Internet.url },
+        tag_groups:  [{ name: 'Australia', tag: 'au' },
+                      { name: 'New Zealand', tag: 'nz' },
+                      { name: 'International', tag: '*' }] }
     end
 
     before do
@@ -102,14 +105,14 @@ RSpec.describe DiscoveryService::Metadata::Updater do
 
         context 'nothing stored in redis' do
           let(:aaf_idp) do
-            build_entity_data(%w(discovery aaf vho), 'en')
+            build_idp_data(%w(discovery aaf vho), 'en')
           end
 
           let(:edugain_sp) do
-            build_entity_data(%w(discovery edugain), 'en')
+            build_sp_data(%w(discovery edugain), 'en')
           end
           let(:non_matching_tuakiri_idp) do
-            build_entity_data(%w(discovery tuakiri vho))
+            build_idp_data(%w(discovery tuakiri vho))
           end
 
           let(:response_body) do
@@ -155,14 +158,14 @@ RSpec.describe DiscoveryService::Metadata::Updater do
 
         context 'entities already stored in redis' do
           let(:original_ttl) { 10 }
-          let(:aaf_idp) { build_entity_data(%w(discovery aaf), 'en') }
+          let(:aaf_idp) { build_idp_data(%w(discovery aaf), 'en') }
 
           let(:edugain_idp) do
-            build_entity_data(%w(discovery edugain vho), 'en')
+            build_idp_data(%w(discovery edugain vho), 'en')
           end
 
           let(:unchanged_taukiri_idp) do
-            build_entity_data(%w(discovery taukiri vho), 'en')
+            build_idp_data(%w(discovery taukiri vho), 'en')
           end
 
           let(:aaf_idp_tagged) { add_tag(aaf_idp, 'idp') }
@@ -193,7 +196,7 @@ RSpec.describe DiscoveryService::Metadata::Updater do
           end
 
           let(:new_aaf_idp) do
-            build_entity_data(%w(discovery aaf vho), 'en')
+            build_idp_data(%w(discovery aaf vho), 'en')
           end
 
           let(:response_body) do

@@ -1,18 +1,22 @@
+script#idps(type='application/json')== JSON.generate(@idps)
+script#sps(type='application/json')== JSON.generate(@sps)
+script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
+
 .ui.text.container
   .ui.mobile.stackable.padded.grid
-    .ten.wide.column
+    .twelve.wide.column
       h2.ui.header
         img#sp_header_logo.ui.image src="/aaf_logo.png" /
         #sp_header.content
-          | Login to service
+          | Login to 
+          span#sp_header_name  Service
           #sp_header_description.sub.header
-            | Select your organisation to continue
-    .six.wide.column
+    .four.wide.column
       .ui.list
         .item
-          a#sp_header_information_url target="_blank" 
+          a#sp_header_information_url target="_blank"
         .item
-          a#sp_header_privacy_url target="_blank" 
+          a#sp_header_privacy_statement_url target="_blank"
   br/
   - if @idps.any?
     form[id="idp_selection_form" action="" method="POST"]
@@ -21,23 +25,20 @@
           .ui.text.loader
         .field
           #tab_menu.ui.top.attached.tabular.menu
-            a.item.active data-tab="tab_data_international"
-              | International
+            - tag_groups.each do |tag_group|
+              a[data-tab="#{tag_group[:tag]}" class="item#{" can_hide" if can_hide?(tag_group)}#{" active" if all_tag?(tag_group)}"]
+                | #{tag_group[:name]}
           .ui.bottom.segment.attached
             #search_options.ui.mobile.stackable.padded.grid
-              #search_column.ten.wide.column
+              #search_column.sixteen.wide.column
                 .ui.left.icon.right.action.input.fluid
                   i.search.icon
                   input#search_input placeholder=("Search for your organisation") type="text" /
-                  .ui.basic.floating.icon.button
-                    i#search_clear_button.remove.icon
-              #organisations_near_me_column.six.wide.column
-                #organisations_near_me_button.ui.right.labeled.icon.button
-                  i.marker.icon
-                  | Organisations near me
+                  #search_clear_button.ui.basic.floating.icon.button
+                    i.remove.icon
             #message
-            .ui.active.tab data-tab="international"
-              #international_scroll.ui.scrollable.segment
+            .ui.active.tab
+              #scroller.ui.segment
                 table[id="idp_selection_table" class="ui celled table datatable"]
                   thead
                     tr
@@ -48,16 +49,20 @@
                     - @idps.each do |idp|
                       tr
                         td
-                          img.ui.image.tiny.bordered src="#{idp[:logo_uri]}" /
-                        td
                           strong #{idp[:name]}
-                          br/
-                          em #{idp[:description]}
-                          br/
-                          | #{idp[:domain]}
+                          - if idp[:description]
+                            br/
+                            em #{idp[:description]}
                         td
-                          input[type="submit" value="Select" name="#{idp[:entity_id]}" class="button ui floated right button small primary select_organisation_button"]
+                          - if idp[:logo_url]
+                            img.ui.image.tiny.bordered src="#{idp[:logo_url]}" /
+                        td
+                          button[type="submit" name="user_idp" value="#{idp[:entity_id]}" class="button ui floated right button small primary select_organisation_input"] Select
         .field
+          #error_message.ui.negative.message.hidden
+            i.close.icon
+            #error_message_header.header
+            p#error_message_text
           #select_organisation_button.ui.floated.right.button.large.primary
         .field
           .ui.checkbox
@@ -79,4 +84,4 @@
             | #{@environment[:name]}
     .four.wide.column
       .item
-        a href="#{@environment[:status_uri]}" target="_blank" Federation Status
+        a href="#{@environment[:status_url]}" target="_blank" Federation Status

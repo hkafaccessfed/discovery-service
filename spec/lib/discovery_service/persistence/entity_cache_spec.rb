@@ -19,13 +19,15 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
       it 'returns the entities as json string' do
         expect(subject)
           .to eq("{\"#{entity[:entity_id]}\":{"\
-              "\"discovery_response\":\"#{entity[:discovery_response]}\","\
               "\"names\":[{\"value\":\"#{entity[:names].first[:value]}\","\
                          "\"lang\":\"#{entity[:names].first[:lang]}\"}],"\
               "\"tags\":#{entity[:tags].to_json},"\
-              "\"logo_uri\":\"#{entity[:logo_uri]}\","\
-              "\"description\":\"#{entity[:description]}\","\
-              "\"domain\":\"#{entity[:domain]}\"}}")
+              "\"logos\":[{\"url\":\"#{entity[:logos].first[:url]}\","\
+                         "\"lang\":\"#{entity[:logos].first[:lang]}\"}],"\
+              "\"descriptions\""\
+                ":[{\"value\":\"#{entity[:descriptions].first[:value]}\","\
+                   "\"lang\":\"#{entity[:descriptions].first[:lang]}\"}],"\
+              "\"domains\":#{entity[:domains]}}}")
       end
     end
   end
@@ -56,13 +58,15 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
       it 'is a json string' do
         expect(subject)
           .to eq("{\"#{entity[:entity_id]}\":{"\
-              "\"discovery_response\":\"#{entity[:discovery_response]}\","\
               "\"names\":[{\"value\":\"#{entity[:names].first[:value]}\","\
                          "\"lang\":\"#{entity[:names].first[:lang]}\"}],"\
               "\"tags\":#{entity[:tags].to_json},"\
-              "\"logo_uri\":\"#{entity[:logo_uri]}\","\
-              "\"description\":\"#{entity[:description]}\","\
-              "\"domain\":\"#{entity[:domain]}\"}}")
+              "\"logos\":[{\"url\":\"#{entity[:logos].first[:url]}\","\
+                         "\"lang\":\"#{entity[:logos].first[:lang]}\"}],"\
+              "\"descriptions\":"\
+                "[{\"value\":\"#{entity[:descriptions].first[:value]}\","\
+                  "\"lang\":\"#{entity[:descriptions].first[:lang]}\"}],"\
+              "\"domains\":#{entity[:domains]}}}")
       end
     end
   end
@@ -144,16 +148,15 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
       [{ value: "#{entity[:names].first[:value]} Version 2",
          lang: entity[:names].first[:lang] }]
     end
-    let(:updated_discovery_response) { "#{entity[:discovery_response]}/v2" }
+
     let(:updated_entity) do
       {
         entity_id: entity[:entity_id],
-        discovery_response: updated_discovery_response,
         names: updated_names,
         tags: entity[:tags],
-        logo_uri: entity[:logo_uri],
-        description: entity[:description],
-        domain: entity[:domain]
+        logos: entity[:logos],
+        descriptions: entity[:descriptions],
+        domains: entity[:domains]
       }
     end
 
@@ -163,21 +166,18 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
 
     it 'returns a diff of the updated and new entity' do
       expect(subject)
-        .to eq([['~', "#{entity[:entity_id]}.discovery_response",
-                 entity[:discovery_response], updated_discovery_response],
-                ['-', "#{entity[:entity_id]}.names[0]",
+        .to eq([['-', "#{entity[:entity_id]}.names[0]",
                  { value: entity[:names].first[:value],
                    lang: entity[:names].first[:lang] }],
                 ['+', "#{entity[:entity_id]}.names[0]",
                  { value: updated_entity[:names].first[:value],
                    lang: updated_entity[:names].first[:lang] }],
                 ['+', new_entity[:entity_id],
-                 { discovery_response: new_entity[:discovery_response],
-                   names: new_entity[:names],
+                 { names: new_entity[:names],
                    tags: new_entity[:tags],
-                   logo_uri: new_entity[:logo_uri],
-                   description: new_entity[:description],
-                   domain: new_entity[:domain] }]])
+                   logos: new_entity[:logos],
+                   descriptions: new_entity[:descriptions],
+                   domains: new_entity[:domains] }]])
     end
   end
 

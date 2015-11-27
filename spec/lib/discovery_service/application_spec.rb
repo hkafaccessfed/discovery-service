@@ -94,7 +94,7 @@ RSpec.describe DiscoveryService::Application do
 
     let(:group_name) { Faker::Lorem.word }
     let(:selected_idp) { Faker::Internet.url }
-    let(:form_content) { { selected_idp => '' } }
+    let(:form_content) { { user_idp: selected_idp } }
     let(:requesting_sp) { Faker::Internet.url }
     let(:sp_return_url) { Faker::Internet.url }
 
@@ -182,7 +182,7 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with an entity id parameter, no return parameter but discovery'\
               ' response stored' do
-        let(:existing_entity) { build_entity_data(['sp', group_name]) }
+        let(:existing_entity) { build_sp_data(['sp', group_name]) }
         let(:requesting_sp) { existing_entity[:entity_id] }
 
         let(:path) { "/discovery/#{group_name}?entityID=#{requesting_sp}" }
@@ -324,7 +324,7 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with entity id parameter, return parameter and also a'\
               ' discovery response' do
-        let(:existing_entity) { build_entity_data(['sp', group_name]) }
+        let(:existing_entity) { build_sp_data(['sp', group_name]) }
 
         let(:path) do
           "/discovery/#{group_name}?entityID=#{requesting_sp}"\

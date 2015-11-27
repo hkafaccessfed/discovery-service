@@ -8,7 +8,13 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
     end
 
     let(:environment) do
-      { name: Faker::Lorem.word, status_uri: Faker::Internet.url }
+      { name: Faker::Lorem.word, status_url: Faker::Internet.url }
+    end
+
+    let(:tag_groups) do
+      [{ name: Faker::Address.country, tag: Faker::Address.country_code },
+       { name: Faker::Address.country, tag: Faker::Address.country_code },
+       { name: Faker::Address.country, tag: '*' }]
     end
 
     let(:idps) { [] }
@@ -17,7 +23,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
     subject do
       klass.new.render(:group,
                        DiscoveryService::Renderer::Model::Group.new(
-                         idps, sps, environment))
+                         idps, sps, tag_groups, environment))
     end
 
     it 'includes the layout' do
@@ -35,7 +41,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
     it 'includes the link to status' do
       expect(subject)
-        .to include("<a href=\"#{environment[:status_uri]}\""\
+        .to include("<a href=\"#{environment[:status_url]}\""\
                            " target=\"_blank\">Federation Status</a>")
     end
 
@@ -47,7 +53,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       let(:group_name) { Faker::Lorem.word }
       let(:select_button_class) do
         'button ui floated right button small primary'\
-        ' select_organisation_button'
+        ' select_organisation_input'
       end
 
       let(:idp_1) do
@@ -77,16 +83,43 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       end
 
       it 'includes a submit button for each idp' do
-        expect(subject).to include("<input class=\"#{select_button_class}\""\
-          " name=\"#{idp_1[:entity_id]}\" type=\"submit\" value=\"Select\" />")
-        expect(subject).to include("<input class=\"#{select_button_class}\""\
-          " name=\"#{idp_2[:entity_id]}\" type=\"submit\" value=\"Select\" />")
+        expect(subject).to include("<button class=\"#{select_button_class}\""\
+          " name=\"user_idp\" type=\"submit\" value=\"#{idp_1[:entity_id]}\">"\
+          'Select</button>')
+        expect(subject).to include("<button class=\"#{select_button_class}\""\
+          " name=\"user_idp\" type=\"submit\" value=\"#{idp_2[:entity_id]}\">"\
+          'Select</button>')
       end
 
       it 'includes the main (javascript enabled) idp selection button' do
         expect(subject)
           .to include("<div class=\"ui floated right button large primary\""\
             " id=\"select_organisation_button\">")
+      end
+
+      it 'includes the organisations to select' do
+        expect(subject).to include(CGI.escapeHTML(idp_1[:name]))
+        expect(subject).to include(CGI.escapeHTML(idp_2[:name]))
+      end
+
+      it 'includes the first tab' do
+        expect(subject).to include("<a class=\"item\" "\
+          "data-tab=\"#{tag_groups.first[:tag]}\">"\
+          "#{CGI.escapeHTML(tag_groups.first[:name])}")
+      end
+
+      it 'includes the middle tabs (allowed to be hidden)' do
+        ts = tag_groups - [tag_groups.first, tag_groups.last]
+        ts.each do |t|
+          expect(subject).to include("<a class=\"item can_hide\" "\
+          "data-tab=\"#{t[:tag]}\">#{CGI.escapeHTML(t[:name])}")
+        end
+      end
+
+      it 'includes the last tab (configured as "*")' do
+        t = tag_groups.find { |tag_group| tag_group[:tag] == '*' }
+        expect(subject).to include('<a class="item active" '\
+            "data-tab=\"#{t[:tag]}\">#{CGI.escapeHTML(t[:name])}")
       end
     end
   end
