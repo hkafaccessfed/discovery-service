@@ -1,5 +1,6 @@
 require 'discovery_service/persistence/entity_cache'
 require 'sinatra/base'
+require 'sinatra/cookies'
 require 'sinatra/asset_pipeline'
 require 'rails-assets-jquery'
 require 'rails-assets-semantic-ui'
