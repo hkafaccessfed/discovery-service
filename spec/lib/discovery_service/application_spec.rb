@@ -119,46 +119,71 @@ RSpec.describe DiscoveryService::Application do
       end
 
       it 'resets the idp selection cookies' do
-        rack_mock_session.cookie_jar['selected_organisations'] =
-            JSON.generate(group_name => originally_selected_idp)
         run
         expect(last_response['Set-Cookie']).to eq(reset_cookie)
+      end
+
+      it 'shows that there are no organisations selected' do
+        run
+        expect(last_response.body)
+          .to include('You have no saved organisations.')
       end
     end
 
     context 'when one idp selection is already set' do
+      def set_cookie
+        rack_mock_session.cookie_jar['selected_organisations'] =
+            JSON.generate(group_name => originally_selected_idp)
+      end
+
       it 'returns a status 200' do
         run
         expect(last_response.status).to eq(200)
       end
 
       it 'resets the idp selection cookies' do
-        rack_mock_session.cookie_jar['selected_organisations'] =
-            JSON.generate(group_name => originally_selected_idp)
-
+        set_cookie
         run
         expect(last_response['Set-Cookie']).to eq(reset_cookie)
+      end
+
+      it 'shows that there are no organisations selected' do
+        set_cookie
+        run
+        expect(last_response.body)
+          .to include('You have no saved organisations.')
       end
     end
 
     context 'when multiple idp selections are already set' do
+      def set_cookie
+        rack_mock_session.cookie_jar['selected_organisations'] =
+            JSON.generate(group_name => originally_selected_idp,
+                          other_group_name => other_selected_idp)
+      end
+
       let(:other_group_name) do
         "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-"
       end
 
       let(:other_selected_idp) { Faker::Internet.url }
+
       it 'returns a status 200' do
         run
         expect(last_response.status).to eq(200)
       end
 
       it 'resets the idp selection cookies' do
+        set_cookie
         run
-        rack_mock_session.cookie_jar['selected_organisations'] =
-            JSON.generate(group_name => originally_selected_idp,
-                          other_group_name => other_selected_idp)
-
         expect(last_response['Set-Cookie']).to eq(reset_cookie)
+      end
+
+      it 'shows that there are no organisations selected' do
+        set_cookie
+        run
+        expect(last_response.body)
+          .to include('You have no saved organisations.')
       end
     end
   end

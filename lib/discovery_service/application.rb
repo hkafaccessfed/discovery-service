@@ -85,6 +85,7 @@ module DiscoveryService
 
     post '/discovery' do
       delete_idp_selection(response)
+      slim :selected_idps
     end
 
     get '/discovery/:group' do

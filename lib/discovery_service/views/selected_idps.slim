@@ -16,7 +16,7 @@ html lang='en'
               sub.header
         .four.wide.column
 
-      - if @idps.any?
+      - if @idps && @idps.any?
         | Your saved organisations:
         br /
         - @idps.each do |idp|
