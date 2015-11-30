@@ -1,4 +1,6 @@
 require 'discovery_service/persistence/entity_cache'
+require 'discovery_service/cookie/store'
+require 'discovery_service/response/handler'
 require 'sinatra/base'
 require 'sinatra/cookies'
 require 'sinatra/asset_pipeline'
@@ -15,9 +17,8 @@ require 'uri'
 module DiscoveryService
   # Web application to allow users to select their IdP
   class Application < Sinatra::Base
-    IDP_DISCOVERY_SINGLE_PROTOCOL =
-        'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol:single'
-    URL_SAFE_BASE_64_ALPHABET = /^[a-zA-Z0-9_-]+$/
+    include DiscoveryService::Cookie::Store
+    include DiscoveryService::Response::Handler
 
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
     CONFIG = 'config/discovery_service.yml'
@@ -55,54 +56,43 @@ module DiscoveryService
       @groups.key?(group.to_sym)
     end
 
-    def sp_response_url(return_url, param_key, selected_idp)
-      url = URI.parse(return_url)
-      key = param_key || :entityID
-      query_opts = URI.decode_www_form(url.query || '') << [key, selected_idp]
-      url.query = URI.encode_www_form(query_opts)
-      url.to_s
-    end
-
     def url?(value)
       value =~ /\A#{URI.regexp}\z/
     end
 
-    def valid_policy?(policy)
-      policy.nil? || policy == IDP_DISCOVERY_SINGLE_PROTOCOL
+    def group_exists?(group)
+      group_configured?(group) && @entity_cache.group_page_exists?(group)
     end
 
-    def valid_post_params?
-      url?(params[:entityID]) && url?(params[:user_idp]) &&
-        params[:group] =~ URL_SAFE_BASE_64_ALPHABET &&
-        valid_policy?(params[:policy])
+    def passive?(params)
+      params[:isPassive] && params[:isPassive] == 'true'
     end
 
     get '/discovery/:group' do
-      group = params[:group]
-      return 400 unless group =~ URL_SAFE_BASE_64_ALPHABET
-      if group_configured?(group) && @entity_cache.group_page_exists?(group)
-        @entity_cache.group_page(group)
+      return 400 unless params[:group] =~ URL_SAFE_BASE_64_ALPHABET
+      saved_user_idp = current_cookies(request)[params[:group]]
+      if url?(saved_user_idp) && params[:entityID]
+        params[:user_idp] = saved_user_idp
+        handle_response(params)
+      elsif group_exists?(params[:group])
+        @entity_cache.group_page(params[:group])
       else
         status 404
       end
     end
 
     post '/discovery/:group' do
-      return status 400 unless valid_post_params?
-      return status 404 unless group_configured?(params[:group])
-      if params[:isPassive] && params[:isPassive] == 'true'
-        # TODO: Resolve IdP selection from cookies/storage if possible
-        redirect to(params[:return])
-      elsif params[:return]
-        redirect to(sp_response_url(params[:return], params[:returnIDParam],
-                                    params[:user_idp]))
-      elsif @entity_cache.discovery_response(params[:group], params[:entityID])
-        redirect to(sp_response_url(@entity_cache.discovery_response(
-                                      params[:group], params[:entityID]),
-                                    params[:returnIDParam],
-                                    params[:user_idp]))
+      return 400 unless params[:group] =~ URL_SAFE_BASE_64_ALPHABET
+      return 400 if params[:user_idp] && !url?(params[:user_idp])
+
+      if params[:remember]
+        save_idp_selection(params[:group], params[:user_idp], request, response)
+      end
+
+      if passive?(params)
+        handle_passive_response(params)
       else
-        status 404
+        handle_response(params)
       end
     end
   end
