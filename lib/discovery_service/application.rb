@@ -96,7 +96,7 @@ module DiscoveryService
       slim :selected_idps
     end
 
-    get '/discovery/:group' do
+    get '/discovery/:group/:unique_id' do
       group = params[:group]
       return 400 unless valid_group_name?(group)
       saved_user_idp = idp_selections(request)[group]
@@ -110,7 +110,7 @@ module DiscoveryService
       end
     end
 
-    post '/discovery/:group' do
+    post '/discovery/:group/:unique_id' do
       return 400 unless valid_params?
 
       if params[:remember]
