@@ -32,6 +32,22 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
     end
   end
 
+  describe '#entities_as_hash(group)' do
+    subject { instance.entities_as_hash(group) }
+    context 'when entities do not exist for group' do
+      it { is_expected.to be_nil }
+    end
+
+    context 'when entities exist for group' do
+      let(:entity) { build_entity_data }
+      let(:entities) { to_hash([entity]).to_json }
+      before { redis.set("entities:#{group}", entities) }
+      it 'returns the entities as hash with key as entity id' do
+        expect(subject).to eq(to_hash([entity]))
+      end
+    end
+  end
+
   describe '#entities_exist?(group)' do
     subject { instance.entities(group) }
     context 'when entities do not exist for group' do

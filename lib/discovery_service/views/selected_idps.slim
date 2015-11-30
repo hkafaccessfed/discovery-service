@@ -1,0 +1,37 @@
+doctype html
+html lang='en'
+  head profile='http://www.w3.org/2005/10/profile'
+    meta charset='utf-8'
+    meta http-equiv='X-UA-Compatible' content='IE=Edge,chrome=1'
+    meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no'
+    title AAF Discovery Service
+  body
+    .ui.text.container
+      .ui.mobile.stackable.padded.grid
+        .twelve.wide.column
+          h2.ui.header
+            img.ui.image src="/aaf_logo.png" /
+            .content
+              | Discovery Service
+              sub.header
+        .four.wide.column
+
+      - if @idps.any?
+        | Your saved organisations:
+        - @idps.each do |idp|
+          | #{idp}
+      - else
+        | You have no saved organisations.
+
+      .ui.divider
+      .ui.mobile.stackable.grid
+        .twelve.wide.column
+          .ui.horizontal.list
+            .item
+              img.ui.mini.circular.image src="/aaf_logo.png" /
+              .content
+                .ui.sub.header Australian Access Federation
+                |
+        .four.wide.column
+          .item
+            a href="" target="_blank" Federation Status

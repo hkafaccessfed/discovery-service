@@ -68,9 +68,24 @@ module DiscoveryService
       params[:isPassive] && params[:isPassive] == 'true'
     end
 
+    get '/discovery' do
+      @idps = []
+      idp_selections(request).each do |idp_selection|
+        group = idp_selection[0]
+        entity_id = idp_selection[1]
+        next unless group =~ URL_SAFE_BASE_64_ALPHABET &&
+                    group_configured?(group) && url?(entity_id) &&
+                    @entity_cache.entities_exist?(group)
+        entity = @entity_cache.entities_as_hash(group)[entity_id]
+        names = entity[:names].select { |n| n[:lang] == 'en' }
+        @idps << (names.any? ? names.first[:value] : entity_id)
+      end
+      slim :selected_idps
+    end
+
     get '/discovery/:group' do
       return 400 unless params[:group] =~ URL_SAFE_BASE_64_ALPHABET
-      saved_user_idp = current_cookies(request)[params[:group]]
+      saved_user_idp = idp_selections(request)[params[:group]]
       if url?(saved_user_idp) && params[:entityID]
         params[:user_idp] = saved_user_idp
         handle_response(params)

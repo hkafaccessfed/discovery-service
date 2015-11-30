@@ -97,6 +97,78 @@ RSpec.describe DiscoveryService::Application do
     end
   end
 
+  describe 'GET /discovery' do
+    let(:path) { '/discovery' }
+    let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }
+    let(:config) { { groups: {} } }
+
+    def run
+      get path
+    end
+
+    context 'with no idps previously selected' do
+      it 'shows that there are no organisations selected' do
+        run
+        expect(last_response.body)
+          .to include('You have no saved organisations.')
+      end
+    end
+
+    context 'with idps previously selected' do
+      context 'and the idp\'s group is gone' do
+        let(:entity_id) { Faker::Internet.url }
+        it 'shows that there are no organisations selected' do
+          configure_group
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate('other_group' => entity_id)
+          run
+          expect(last_response.body)
+            .to include('You have no saved organisations.')
+        end
+      end
+
+      context 'and the idp does not exist anymore' do
+        let(:entity_id) { Faker::Internet.url }
+        it 'shows that there are no organisations selected' do
+          configure_group
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate(group_name => entity_id)
+          run
+          expect(last_response.body)
+            .to include('You have no saved organisations.')
+        end
+      end
+
+      context 'and the idp and group do exist' do
+        let(:existing_entity) { build_idp_data(['idp', group_name], 'en') }
+        it 'shows the organisation' do
+          configure_group
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_entity]).to_json)
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate(group_name => existing_entity[:entity_id])
+          run
+          expect(last_response.body)
+            .to include(CGI.escapeHTML(existing_entity[:names].first[:value]))
+        end
+      end
+
+      context 'and the idp and group do exist but non \'en\' language' do
+        let(:existing_entity) { build_idp_data(['idp', group_name]) }
+        it 'shows the organisation (entity id)' do
+          configure_group
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_entity]).to_json)
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate(group_name => existing_entity[:entity_id])
+          run
+          expect(last_response.body)
+            .to include(CGI.escapeHTML(existing_entity[:entity_id]))
+        end
+      end
+    end
+  end
+
   describe 'POST /discovery/:group' do
     def actual_params
       Rack::Utils.parse_nested_query(URI.parse(last_response.location).query)

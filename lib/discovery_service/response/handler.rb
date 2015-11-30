@@ -17,7 +17,7 @@ module DiscoveryService
       end
 
       def handle_passive_response(params)
-        idp_selection = current_cookies(request)[params[:group]]
+        idp_selection = idp_selections(request)[params[:group]]
         if url?(idp_selection)
           params[:user_idp] = idp_selection
           handle_response(params)
