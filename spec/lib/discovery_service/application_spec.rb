@@ -97,8 +97,8 @@ RSpec.describe DiscoveryService::Application do
     end
   end
 
-  describe 'GET /discovery' do
-    let(:path) { '/discovery' }
+  describe 'GET /' do
+    let(:path) { '/' }
     let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }
     let(:config) { { groups: {} } }
 

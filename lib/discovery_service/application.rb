@@ -68,7 +68,7 @@ module DiscoveryService
       params[:isPassive] && params[:isPassive] == 'true'
     end
 
-    get '/discovery' do
+    get '/' do
       @idps = []
       idp_selections(request).each do |idp_selection|
         group = idp_selection[0]
