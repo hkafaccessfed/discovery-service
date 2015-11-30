@@ -41,8 +41,8 @@ RSpec.describe DiscoveryService::Auditing do
 
     it 'records the request' do
       value = nil
-      expect { value = run }.to change { redis.llen('ds:audit') }.by(1)
-      json = redis.lindex('ds:audit', 0)
+      expect { value = run }.to change { redis.llen('audit') }.by(1)
+      json = redis.lindex('audit', 0)
       recorded = JSON.parse(json, symbolize_names: true)
 
       expect(recorded).to eq(data.merge(unique_id: value, phase: 'request'))
@@ -74,8 +74,8 @@ RSpec.describe DiscoveryService::Auditing do
 
     it 'records the response' do
       value = nil
-      expect { value = run }.to change { redis.llen('ds:audit') }.by(1)
-      json = redis.lindex('ds:audit', 0)
+      expect { value = run }.to change { redis.llen('audit') }.by(1)
+      json = redis.lindex('audit', 0)
       recorded = JSON.parse(json, symbolize_names: true)
 
       expect(recorded).to eq(data.merge(phase: 'response'))
@@ -107,8 +107,8 @@ RSpec.describe DiscoveryService::Auditing do
 
     it 'records the response' do
       value = nil
-      expect { value = run }.to change { redis.llen('ds:audit') }.by(1)
-      json = redis.lindex('ds:audit', 0)
+      expect { value = run }.to change { redis.llen('audit') }.by(1)
+      json = redis.lindex('audit', 0)
       recorded = JSON.parse(json, symbolize_names: true)
 
       expect(recorded).to eq(data.merge(phase: 'response'))

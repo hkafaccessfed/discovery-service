@@ -268,12 +268,60 @@ RSpec.describe DiscoveryService::Application do
   end
 
   describe 'GET /discovery/:group' do
-    let(:path_for_group) { "/discovery/#{group_name}" }
+    let(:path_for_group) { "/discovery/#{group_name}?entityID=#{entity_id}" }
+    let(:entity_id) { Faker::Internet.url }
+    let(:group_name) { Faker::Lorem.word }
 
     def run
       get path_for_group
     end
 
+    context 'with an non url-safe base64 alphabet group name' do
+      let(:group_name) { '@*!' }
+
+      it 'returns http status code 400' do
+        run
+        expect(last_response.status).to eq(400)
+      end
+    end
+
+    context 'with a non-configured group' do
+      it 'returns http status code 404' do
+        run
+        expect(last_response.status).to eq(404)
+      end
+    end
+
+    context 'with a configured group' do
+      let(:id) { SecureRandom.urlsafe_base64 }
+
+      before do
+        configure_group
+        expect(SecureRandom).to receive(:urlsafe_base64).and_return(id)
+      end
+
+      it 'redirects to a unique url' do
+        run
+        expect(last_response.status).to eq(302)
+        uri = URI.parse(last_response.location)
+        expect(uri.path).to match(%r{/discovery/#{group_name}/[a-zA-Z0-9_-]+})
+      end
+
+      it 'stores the id in redis' do
+        Timecop.freeze do
+          run
+          expect(redis.get("id:#{id}").to_s).to eq('1')
+          expect(redis.ttl("id:#{id}")).to eq(3600)
+        end
+      end
+
+      it 'writes an audit log entry' do
+        expect { run }.to change { redis.llen('audit') }.by(1)
+        json = redis.lindex('audit', 0)
+        data = JSON.parse(json, symbolize_names: true)
+        expect(data[:unique_id]).to eq(id)
+      end
+    end
   end
 
   describe 'GET /discovery/:group/:unique_id' do
@@ -347,14 +395,25 @@ RSpec.describe DiscoveryService::Application do
           "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"
         end
 
-        it 'handles the response' do
+        before do
           allow_any_instance_of(DiscoveryService::Application)
             .to receive(:handle_response).and_return('stubbed')
           rack_mock_session.cookie_jar['selected_organisations'] =
               JSON.generate(group_name => originally_selected_idp)
+        end
+
+        it 'handles the response' do
           run
 
           expect(last_response.body).to eq('stubbed')
+        end
+
+        it 'records an audit entry' do
+          expect { run }.to change { redis.llen('audit') }.by(1)
+          json = redis.lindex('audit', 0)
+          data = JSON.parse(json, symbolize_names: true)
+          expect(data).to include(unique_id: unique_id,
+                                  selection_method: 'cookie')
         end
       end
     end
@@ -605,6 +664,13 @@ RSpec.describe DiscoveryService::Application do
                                    'entityID' => selected_idp,
                                    'a' => 'b',
                                    'c' => 'd')
+        end
+
+        it 'records an audit entry' do
+          json = redis.lindex('audit', 0)
+          data = JSON.parse(json, symbolize_names: true)
+          expect(data).to include(unique_id: unique_id,
+                                  selection_method: 'manual')
         end
       end
 

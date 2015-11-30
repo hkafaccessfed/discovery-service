@@ -33,7 +33,7 @@ module DiscoveryService
 
     def record_entry(data)
       json = JSON.generate(data)
-      redis.lpush('ds:audit', json)
+      redis.lpush('audit', json)
     end
 
     def base_data(request, params)

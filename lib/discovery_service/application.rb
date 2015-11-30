@@ -3,6 +3,7 @@ require 'discovery_service/cookie/store'
 require 'discovery_service/response/handler'
 require 'discovery_service/entity/builder'
 require 'discovery_service/validation/request_validations'
+require 'discovery_service/auditing'
 require 'sinatra/base'
 require 'sinatra/cookies'
 require 'sinatra/asset_pipeline'
@@ -23,6 +24,7 @@ module DiscoveryService
     include DiscoveryService::Entity::Builder
     include DiscoveryService::Response::Handler
     include DiscoveryService::Validation::RequestValidations
+    include DiscoveryService::Auditing
 
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
     CONFIG = 'config/discovery_service.yml'
@@ -57,6 +59,7 @@ module DiscoveryService
       @environment = cfg[:environment]
       @logger.info('Initialised with group configuration: '\
         "#{JSON.pretty_generate(@groups)}")
+      @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)
     end
 
     def group_configured?(group)
@@ -96,12 +99,23 @@ module DiscoveryService
       slim :selected_idps
     end
 
+    get '/discovery/:group' do |group|
+      return 400 unless params[:group] =~ URL_SAFE_BASE_64_ALPHABET
+      return 404 unless group_configured?(group)
+
+      id = record_request(request, params)
+      @redis.set("id:#{id}", '1', ex: 3600)
+      redirect to("/discovery/#{group}/#{id}")
+    end
+
     get '/discovery/:group/:unique_id' do
       group = params[:group]
       return 400 unless valid_group_name?(group)
       saved_user_idp = idp_selections(request)[group]
       if uri?(saved_user_idp) && uri?(params[:entityID])
         params[:user_idp] = saved_user_idp
+        record_cookie_selection(request, params, params[:unique_id],
+                                saved_user_idp)
         handle_response(params)
       elsif group_exists?(group)
         @entity_cache.group_page(group)
@@ -116,6 +130,8 @@ module DiscoveryService
       if params[:remember]
         save_idp_selection(params[:group], params[:user_idp], request, response)
       end
+
+      record_manual_selection(request, params, params[:unique_id])
 
       idp_selection = idp_selections(request)[params[:group]]
       params[:user_idp] = idp_selection if idp_selection
