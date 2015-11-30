@@ -18,8 +18,11 @@ html lang='en'
 
       - if @idps.any?
         | Your saved organisations:
+        br /
         - @idps.each do |idp|
           | #{idp}
+          form[action="" method="POST"]
+            button[type="submit" name="reset" class="button ui floated right button small primary select_organisation_input"] Reset
       - else
         | You have no saved organisations.
 

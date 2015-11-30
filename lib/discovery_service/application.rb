@@ -68,7 +68,7 @@ module DiscoveryService
       params[:isPassive] && params[:isPassive] == 'true'
     end
 
-    get '/' do
+    get '/discovery' do
       @idps = []
       idp_selections(request).each do |idp_selection|
         group = idp_selection[0]
@@ -81,6 +81,10 @@ module DiscoveryService
         @idps << (names.any? ? names.first[:value] : entity_id)
       end
       slim :selected_idps
+    end
+
+    post '/discovery' do
+      delete_idp_selection(response)
     end
 
     get '/discovery/:group' do

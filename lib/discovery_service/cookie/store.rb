@@ -11,7 +11,12 @@ module DiscoveryService
         cookies[group] = user_idp
         response.set_cookie(SELECTED_ORGANISATIONS_KEY,
                             value: JSON.generate(cookies),
+                            path: '/',
                             expires: Time.now + 3.months)
+      end
+
+      def delete_idp_selection(response)
+        response.delete_cookie(SELECTED_ORGANISATIONS_KEY)
       end
 
       def idp_selections(request)
