@@ -77,6 +77,11 @@ module DiscoveryService
       redirect to('/discovery')
     end
 
+    get '/health' do
+      Redis.new.ping
+      'ok'
+    end
+
     get '/discovery' do
       @idps = []
       idp_selections(request).each do |idp_selection|

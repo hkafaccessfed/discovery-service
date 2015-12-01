@@ -37,6 +37,17 @@ RSpec.describe DiscoveryService::Application do
     end
   end
 
+  describe 'GET /health' do
+    def run
+      get '/health'
+    end
+
+    it 'responds with status code 200' do
+      run
+      expect(last_response.status).to eq(200)
+    end
+  end
+
   describe 'GET /discovery' do
     let(:path) { '/discovery' }
     let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }
