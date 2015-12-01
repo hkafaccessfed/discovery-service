@@ -18,6 +18,10 @@ module DiscoveryService
         @redis.get(entities_key(group))
       end
 
+      def entities_as_hash(group)
+        build_entities(entities(group)) if entities_exist?(group)
+      end
+
       def entities_exist?(group)
         @redis.exists(entities_key(group))
       end

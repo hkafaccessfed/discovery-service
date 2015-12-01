@@ -6,12 +6,265 @@ RSpec.describe DiscoveryService::Application do
 
   let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
   let(:app) { DiscoveryService::Application.new }
-  let(:config) { { groups: {} } }
+  let(:environment_name) { Faker::Lorem.word }
+  let(:environment_status_url) { Faker::Internet.url }
+
+  let(:config) do
+    { groups: {}, environment:
+        { name: environment_name, status_url: environment_status_url } }
+  end
 
   before { allow(YAML).to receive(:load_file).and_return(config) }
 
   def configure_group
     config[:groups][group_name.to_sym] = []
+  end
+
+  describe 'GET /' do
+    let(:path) { '/' }
+    def run
+      get path
+    end
+
+    it 'responds with status code 302' do
+      run
+      expect(last_response.status).to eq(302)
+    end
+
+    it 'redirects to /discovery' do
+      run
+      expect(last_response.location).to eq('http://example.org/discovery')
+    end
+  end
+
+  describe 'GET /health' do
+    def run
+      get '/health'
+    end
+
+    it 'responds with status code 200' do
+      run
+      expect(last_response.status).to eq(200)
+    end
+  end
+
+  describe 'GET /discovery' do
+    let(:path) { '/discovery' }
+    let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }
+
+    def run
+      get path
+    end
+
+    context 'with no idps previously selected' do
+      it 'shows that there are no organisations selected' do
+        run
+        expect(last_response.body)
+          .to include('You have no saved organisations.')
+      end
+
+      it 'shows the environment name' do
+        run
+        expect(last_response.body).to include(environment_name)
+      end
+
+      it 'shows the status url' do
+        run
+        expect(last_response.body).to include(environment_status_url)
+      end
+    end
+
+    context 'with idps previously selected' do
+      context 'and the idp\'s group is gone' do
+        let(:entity_id) { Faker::Internet.url }
+        it 'shows that there are no organisations selected' do
+          configure_group
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate('other_group' => entity_id)
+          run
+          expect(last_response.body)
+            .to include('You have no saved organisations.')
+        end
+      end
+
+      context 'and the idp does not exist anymore' do
+        let(:entity_id) { Faker::Internet.url }
+        it 'shows that there are no organisations selected' do
+          configure_group
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate(group_name => entity_id)
+          run
+          expect(last_response.body)
+            .to include('You have no saved organisations.')
+        end
+      end
+
+      context 'and the idp and group do exist' do
+        let(:existing_entity) { build_idp_data(['idp', group_name], 'en') }
+
+        before do
+          configure_group
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_entity]).to_json)
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate(group_name => existing_entity[:entity_id])
+          run
+        end
+
+        it 'shows the idp name' do
+          expect(last_response.body)
+            .to include(CGI.escapeHTML(existing_entity[:names].first[:value]))
+        end
+
+        it 'shows the idp description' do
+          expect(last_response.body)
+            .to include(CGI.escapeHTML(
+                          existing_entity[:descriptions].first[:value]))
+        end
+
+        it 'shows the idp logo' do
+          expect(last_response.body)
+            .to include(existing_entity[:logos].first[:url])
+        end
+
+        it 'contains a form to reset idps' do
+          expect(last_response.body).to include("<form action=\"\" "\
+            "method=\"POST\">")
+        end
+
+        it 'shows the reset button' do
+          expect(last_response.body).to include('Reset')
+        end
+      end
+
+      context 'and the idp and group do exist but non \'en\' language' do
+        let(:existing_entity) { build_idp_data(['idp', group_name]) }
+
+        before do
+          configure_group
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_entity]).to_json)
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate(group_name => existing_entity[:entity_id])
+          run
+        end
+
+        it 'shows the organisation (entity id)' do
+          expect(last_response.body)
+            .to include(CGI.escapeHTML(existing_entity[:entity_id]))
+        end
+
+        it 'does not show the idp description' do
+          expect(last_response.body)
+            .to_not include(CGI.escapeHTML(
+                              existing_entity[:descriptions].first[:value]))
+        end
+
+        it 'does not show the idp logo' do
+          expect(last_response.body)
+            .to_not include(existing_entity[:logos].first[:url])
+        end
+      end
+    end
+  end
+
+  describe 'POST /discovery' do
+    let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }
+    let(:originally_selected_idp) { Faker::Internet.url }
+
+    let(:reset_cookie) do
+      'selected_organisations=; max-age=0; '\
+      'expires=Thu, 01 Jan 1970 00:00:00 -0000'
+    end
+
+    def run
+      post '/discovery'
+    end
+
+    context 'when no idp selections are set' do
+      it 'returns a status 200' do
+        run
+        expect(last_response.status).to eq(200)
+      end
+
+      it 'resets the idp selection cookies' do
+        run
+        expect(last_response['Set-Cookie']).to eq(reset_cookie)
+      end
+
+      it 'shows that there are no organisations selected' do
+        run
+        expect(last_response.body)
+          .to include('You have no saved organisations.')
+      end
+
+      it 'shows the environment name' do
+        run
+        expect(last_response.body).to include(environment_name)
+      end
+
+      it 'shows the status url' do
+        run
+        expect(last_response.body).to include(environment_status_url)
+      end
+    end
+
+    context 'when one idp selection is already set' do
+      def set_cookie
+        rack_mock_session.cookie_jar['selected_organisations'] =
+            JSON.generate(group_name => originally_selected_idp)
+      end
+
+      it 'returns a status 200' do
+        run
+        expect(last_response.status).to eq(200)
+      end
+
+      it 'resets the idp selection cookies' do
+        set_cookie
+        run
+        expect(last_response['Set-Cookie']).to eq(reset_cookie)
+      end
+
+      it 'shows that there are no organisations selected' do
+        set_cookie
+        run
+        expect(last_response.body)
+          .to include('You have no saved organisations.')
+      end
+    end
+
+    context 'when multiple idp selections are already set' do
+      def set_cookie
+        rack_mock_session.cookie_jar['selected_organisations'] =
+            JSON.generate(group_name => originally_selected_idp,
+                          other_group_name => other_selected_idp)
+      end
+
+      let(:other_group_name) do
+        "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-"
+      end
+
+      let(:other_selected_idp) { Faker::Internet.url }
+
+      it 'returns a status 200' do
+        run
+        expect(last_response.status).to eq(200)
+      end
+
+      it 'resets the idp selection cookies' do
+        set_cookie
+        run
+        expect(last_response['Set-Cookie']).to eq(reset_cookie)
+      end
+
+      it 'shows that there are no organisations selected' do
+        set_cookie
+        run
+        expect(last_response.body)
+          .to include('You have no saved organisations.')
+      end
+    end
   end
 
   describe 'GET /discovery/:group' do
@@ -73,6 +326,25 @@ RSpec.describe DiscoveryService::Application do
         it 'returns http status code 404' do
           run
           expect(last_response.status).to eq(404)
+        end
+      end
+
+      context 'with the idp selection set and entity id passed' do
+        let(:entity_id) { Faker::Internet.url }
+        let(:originally_selected_idp) { Faker::Internet.url }
+
+        let(:path_for_group) do
+          "/discovery/#{group_name}?entityID=#{entity_id}"
+        end
+
+        it 'handles the response' do
+          allow_any_instance_of(DiscoveryService::Application)
+            .to receive(:handle_response).and_return('stubbed')
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate(group_name => originally_selected_idp)
+          run
+
+          expect(last_response.body).to eq('stubbed')
         end
       end
     end
@@ -220,6 +492,88 @@ RSpec.describe DiscoveryService::Application do
         end
       end
 
+      context 'with the option to remember organisation on' do
+        let(:path) do
+          "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+          "&return=#{sp_return_url}"
+        end
+
+        def date_in_3_months
+          (DateTime.now + 3.months).in_time_zone('UTC')
+            .strftime('%a, %d %b %Y %H:%M:%S -0000')
+        end
+
+        def expected_cookie
+          "selected_organisations=#{encoded_cookie};"\
+                " path=/; expires=#{date_in_3_months}"
+        end
+
+        let(:form_content) { { user_idp: selected_idp, remember: 'on' } }
+        let(:cookie_as_hash) { { group_name => selected_idp } }
+
+        let(:encoded_cookie) do
+          URI.encode_www_form_component(JSON.generate(cookie_as_hash))
+        end
+
+        context 'no idp selection previously' do
+          it 'returns http status code 302' do
+            run
+            expect(last_response.status).to eq(302)
+          end
+
+          it 'redirects back to sp using return url value' do
+            run
+            expect_matching_response(sp_return_url, 'entityID' => selected_idp)
+          end
+
+          it 'sets a cookie for the selected idp' do
+            Timecop.freeze do
+              run
+              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+            end
+          end
+        end
+
+        context 'with a idp selection already saved' do
+          let(:originally_selected_idp) { Faker::Internet.url }
+
+          it 'overwrites the cookie for the selected idp' do
+            Timecop.freeze do
+              rack_mock_session.cookie_jar['selected_organisations'] =
+                  JSON.generate(group_name => originally_selected_idp)
+              run
+              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+            end
+          end
+        end
+
+        context 'with a idp selection already saved for another group' do
+          let(:other_idp) { Faker::Internet.url }
+          let(:other_group) do
+            "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-"
+          end
+
+          let(:other_selected_organisation_hash) do
+            { other_group => other_idp }
+          end
+
+          let(:encoded_cookie) do
+            URI.encode_www_form_component(
+              JSON.generate(other_selected_organisation_hash.merge(
+                              cookie_as_hash)))
+          end
+
+          it 'maintains the idp for the other group' do
+            Timecop.freeze do
+              rack_mock_session.cookie_jar['selected_organisations'] =
+                  JSON.generate(other_selected_organisation_hash)
+              run
+              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+            end
+          end
+        end
+      end
+
       context 'with entity id and return parameter containing a query' do
         let(:return_query) { CGI.escape('?a=b&c=d') }
         let(:sp_return_url_with_query) { "#{sp_return_url}#{return_query}" }
@@ -296,28 +650,35 @@ RSpec.describe DiscoveryService::Application do
           "&return=#{sp_return_url}&isPassive=#{passive}"
         end
 
-        before { run }
+        let(:form_content) { {} }
 
-        context 'with passive set to true' do
+        context 'with passive set to true and cookie set' do
+          before do
+            rack_mock_session.cookie_jar['selected_organisations'] =
+                JSON.generate(group_name => selected_idp)
+            run
+          end
+
           let(:passive) { 'true' }
           it 'returns http status code 302' do
             expect(last_response.status).to eq(302)
           end
 
-          it 'redirects back to sp without entity id because'\
-             ' idp cannot be resolved from cookies/storage' do
-            expect(last_response.location).to eq(sp_return_url)
+          it 'redirects back to sp with entity id because'\
+             ' idp is resolved from cookies' do
+            expect_matching_response(sp_return_url, 'entityID' => selected_idp)
           end
         end
 
-        context 'with passive set to false' do
-          let(:passive) { 'false' }
+        context 'with passive set to true but no cookie set' do
+          before { run }
+          let(:passive) { 'true' }
           it 'returns http status code 302' do
             expect(last_response.status).to eq(302)
           end
 
-          it 'redirects back to sp using return url value and entity id' do
-            expect_matching_response(sp_return_url, 'entityID' => selected_idp)
+          it 'redirects back to sp using return url value no entity id' do
+            expect_matching_response(sp_return_url, {})
           end
         end
       end

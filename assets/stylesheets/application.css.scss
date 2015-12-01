@@ -9,6 +9,10 @@ $mobile-max-width: 420px;
     width: 100%;
   }
 
+  #reset_idp_selection_button {
+    width: 100%;
+  }
+
   #sp_header {
     padding-left: 0px;
   }
@@ -63,6 +67,18 @@ $mobile-max-width: 420px;
 #idp_selection_table tbody td {
   border-right: 0 !important;
   border-left: 0 !important;
+}
+
+#idp_reset_selection_table tbody tr {
+  border-right: 0 !important;
+  border-left: 0 !important;
+}
+
+#idp_reset_selection_table tbody td {
+  border-right: 0 !important;
+  border-left: 0 !important;
+  padding-left: 1em;
+  padding-right: 1em;
 }
 
 #scroller {
