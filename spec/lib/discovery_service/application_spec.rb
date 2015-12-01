@@ -6,7 +6,13 @@ RSpec.describe DiscoveryService::Application do
 
   let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
   let(:app) { DiscoveryService::Application.new }
-  let(:config) { { groups: {} } }
+  let(:environment_name) { Faker::Lorem.word }
+  let(:environment_status_url) { Faker::Internet.url }
+
+  let(:config) do
+    { groups: {}, environment:
+        { name: environment_name, status_url: environment_status_url } }
+  end
 
   before { allow(YAML).to receive(:load_file).and_return(config) }
 
@@ -17,7 +23,6 @@ RSpec.describe DiscoveryService::Application do
   describe 'GET /discovery' do
     let(:path) { '/discovery' }
     let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }
-    let(:config) { { groups: {} } }
 
     def run
       get path
@@ -28,6 +33,16 @@ RSpec.describe DiscoveryService::Application do
         run
         expect(last_response.body)
           .to include('You have no saved organisations.')
+      end
+
+      it 'shows the environment name' do
+        run
+        expect(last_response.body).to include(environment_name)
+      end
+
+      it 'shows the status url' do
+        run
+        expect(last_response.body).to include(environment_status_url)
       end
     end
 

@@ -48,7 +48,9 @@ module DiscoveryService
       super
       @logger = Logger.new("log/#{settings.environment}.log")
       @entity_cache = DiscoveryService::Persistence::EntityCache.new
-      @groups = YAML.load_file(settings.group_config)[:groups]
+      cfg = YAML.load_file(settings.group_config)
+      @groups = cfg[:groups]
+      @environment = cfg[:environment]
       @logger.info('Initialised with group configuration: '\
         "#{JSON.pretty_generate(@groups)}")
     end

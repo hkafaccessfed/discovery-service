@@ -36,7 +36,7 @@ html lang='en'
               img.ui.mini.circular.image src="/aaf_logo.png" /
               .content
                 .ui.sub.header Australian Access Federation
-                |
+                | #{@environment[:name]}
         .four.wide.column
           .item
-            a href="" target="_blank" Federation Status
+            a href="#{@environment[:status_url]}" target="_blank" Federation Status
