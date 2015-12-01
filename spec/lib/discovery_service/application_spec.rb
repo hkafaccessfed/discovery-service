@@ -20,6 +20,23 @@ RSpec.describe DiscoveryService::Application do
     config[:groups][group_name.to_sym] = []
   end
 
+  describe 'GET /' do
+    let(:path) { '/' }
+    def run
+      get path
+    end
+
+    it 'responds with status code 302' do
+      run
+      expect(last_response.status).to eq(302)
+    end
+
+    it 'redirects to /discovery' do
+      run
+      expect(last_response.location).to eq('http://example.org/discovery')
+    end
+  end
+
   describe 'GET /discovery' do
     let(:path) { '/discovery' }
     let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }

@@ -71,6 +71,10 @@ module DiscoveryService
       params[:isPassive] && params[:isPassive] == 'true'
     end
 
+    get '/' do
+      redirect to('/discovery')
+    end
+
     get '/discovery' do
       @idps = []
       idp_selections(request).each do |idp_selection|
