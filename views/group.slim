@@ -1,3 +1,8 @@
+javascript:
+  $(document).ready(function () {
+    initGroupPage();
+  });
+
 script#idps(type='application/json')== JSON.generate(@idps)
 script#sps(type='application/json')== JSON.generate(@sps)
 script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
