@@ -143,6 +143,16 @@ RSpec.describe DiscoveryService::Application do
         expect(last_response.body)
           .to include('You have no saved organisations.')
       end
+
+      it 'shows the environment name' do
+        run
+        expect(last_response.body).to include(environment_name)
+      end
+
+      it 'shows the status url' do
+        run
+        expect(last_response.body).to include(environment_status_url)
+      end
     end
 
     context 'when one idp selection is already set' do
