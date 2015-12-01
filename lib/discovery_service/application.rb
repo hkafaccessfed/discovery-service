@@ -36,6 +36,7 @@ module DiscoveryService
 
     helpers Sprockets::Helpers
 
+    set :root, File.expand_path('../..', File.dirname(__FILE__))
     set :group_config, CONFIG
     set :public_folder, 'public'
 
