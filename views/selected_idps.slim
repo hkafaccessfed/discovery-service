@@ -19,15 +19,31 @@ html lang='en'
         .four.wide.column
 
       - if @idps && @idps.any?
-        | Your saved organisations:
-        br /
-        - @idps.each do |idp|
-          | #{idp}
+        .ui.attached.message
+          .header
+            | Your saved organisations:
+          p These organisations will be selected automatically for you
+        attached.fluid.segment
+          table[id="idp_reset_selection_table" class="ui celled table"]
+            tbody
+              - @idps.each do |idp|
+                tr
+                  td
+                    strong #{idp[:name]}
+                    - if idp[:description]
+                      br/
+                      em #{idp[:description]}
+                  td
+                    - if idp[:logo_url]
+                      img.ui.image.tiny.bordered src="#{idp[:logo_url]}" /
           form[action="" method="POST"]
-            button[type="submit" name="reset" class="button ui floated right button small primary select_organisation_input"] Reset
+            button[type="submit" id="reset_idp_selection_button" class="button ui floated button large primary"] Reset
       - else
-        | You have no saved organisations.
-
+        .ui.info.message
+          .header
+            | You have no saved organisations.
+          | Next login, select <em>"Remember this selection permanently"</em> to save your organisation.
+        br /
       .ui.divider
       .ui.mobile.stackable.grid
         .twelve.wide.column

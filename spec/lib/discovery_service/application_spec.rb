@@ -100,9 +100,20 @@ RSpec.describe DiscoveryService::Application do
           run
         end
 
-        it 'shows the organisation' do
+        it 'shows the idp name' do
           expect(last_response.body)
             .to include(CGI.escapeHTML(existing_entity[:names].first[:value]))
+        end
+
+        it 'shows the idp description' do
+          expect(last_response.body)
+            .to include(CGI.escapeHTML(
+                          existing_entity[:descriptions].first[:value]))
+        end
+
+        it 'shows the idp logo' do
+          expect(last_response.body)
+            .to include(existing_entity[:logos].first[:url])
         end
 
         it 'contains a form to reset idps' do
@@ -117,15 +128,30 @@ RSpec.describe DiscoveryService::Application do
 
       context 'and the idp and group do exist but non \'en\' language' do
         let(:existing_entity) { build_idp_data(['idp', group_name]) }
-        it 'shows the organisation (entity id)' do
+
+        before do
           configure_group
           redis.set("entities:#{group_name}",
                     to_hash([existing_entity]).to_json)
           rack_mock_session.cookie_jar['selected_organisations'] =
               JSON.generate(group_name => existing_entity[:entity_id])
           run
+        end
+
+        it 'shows the organisation (entity id)' do
           expect(last_response.body)
             .to include(CGI.escapeHTML(existing_entity[:entity_id]))
+        end
+
+        it 'does not show the idp description' do
+          expect(last_response.body)
+            .to_not include(CGI.escapeHTML(
+                              existing_entity[:descriptions].first[:value]))
+        end
+
+        it 'does not show the idp logo' do
+          expect(last_response.body)
+            .to_not include(existing_entity[:logos].first[:url])
         end
       end
     end

@@ -1,6 +1,7 @@
 require 'discovery_service/persistence/entity_cache'
 require 'discovery_service/cookie/store'
 require 'discovery_service/response/handler'
+require 'discovery_service/entity/builder'
 require 'sinatra/base'
 require 'sinatra/cookies'
 require 'sinatra/asset_pipeline'
@@ -18,6 +19,7 @@ module DiscoveryService
   # Web application to allow users to select their IdP
   class Application < Sinatra::Base
     include DiscoveryService::Cookie::Store
+    include DiscoveryService::Entity::Builder
     include DiscoveryService::Response::Handler
 
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
@@ -84,8 +86,9 @@ module DiscoveryService
                     group_configured?(group) && url?(entity_id) &&
                     @entity_cache.entities_exist?(group)
         entity = @entity_cache.entities_as_hash(group)[entity_id]
-        names = entity[:names].select { |n| n[:lang] == 'en' }
-        @idps << (names.any? ? names.first[:value] : entity_id)
+        entity[:entity_id] = entity_id
+        entry = build_entry(entity, 'en', :idp)
+        @idps << entry
       end
       slim :selected_idps
     end
