@@ -300,11 +300,12 @@ RSpec.describe DiscoveryService::Application do
         expect(SecureRandom).to receive(:urlsafe_base64).and_return(id)
       end
 
-      it 'redirects to a unique url' do
+      it 'redirects to a unique url with the query string' do
         run
         expect(last_response.status).to eq(302)
         uri = URI.parse(last_response.location)
         expect(uri.path).to match(%r{/discovery/#{group_name}/[a-zA-Z0-9_-]+})
+        expect(URI.unescape(uri.query)).to eq("entityID=#{entity_id}")
       end
 
       it 'stores the id in redis' do

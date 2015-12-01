@@ -105,7 +105,9 @@ module DiscoveryService
 
       id = record_request(request, params)
       @redis.set("id:#{id}", '1', ex: 3600)
-      redirect to("/discovery/#{group}/#{id}")
+      path = "/discovery/#{group}/#{id}"
+      path += "?#{request.query_string}" if request.query_string != ''
+      redirect to(path)
     end
 
     get '/discovery/:group/:unique_id' do
