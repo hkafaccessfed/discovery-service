@@ -83,8 +83,9 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
     .twelve.wide.column
       .ui.horizontal.list
         .item
-          img.ui.mini.circular.image src="/aaf_logo.png" /
-          .content
+          a[href="http://www.aaf.edu.au" target="_blank" id="aaf_logo"]
+            img.ui.mini.circular.image src="/aaf_logo.png" /
+          .content[id="aaf_logo_content"]
             .ui.sub.header Australian Access Federation
             | #{@environment[:name]}
     .four.wide.column

@@ -98,6 +98,15 @@ $mobile-max-width: 420px;
   vertical-align: top;
 }
 
+#aaf_logo {
+  float: left;
+  padding-right: 0.5em;
+}
+
+#aaf_logo_content {
+  white-space: nowrap;
+}
+
 .ui.table:not(.unstackable) td:first-child em {
   font-weight: initial;
 }
