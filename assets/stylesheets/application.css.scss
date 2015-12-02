@@ -64,6 +64,11 @@ $mobile-max-width: 420px;
   border-left: 0 !important;
 }
 
+#idp_selection_table tbody tr.active {
+  background-color: #F0F0F0 !important;
+}
+
+
 #idp_selection_table tbody td {
   border-right: 0 !important;
   border-left: 0 !important;
