@@ -25,6 +25,14 @@ function initialiseCheckbox() {
   $('.ui.checkbox').checkbox();
 }
 
+function disableSelectOrganisationButton() {
+  $('#select_organisation_button').addClass('disabled');
+}
+
+function enableSelectOrganisationButton() {
+  $('#select_organisation_button').removeClass('disabled');
+}
+
 function unselectIdP() {
   $('#idp_selection_table tbody tr').removeClass('active');
 }
@@ -35,21 +43,15 @@ function makeIdPRowsSelectable() {
     if (tr.attr('role') == 'row') {
       if (tr.hasClass('active')) {
         tr.removeClass('active');
+        disableSelectOrganisationButton();
       }
       else {
         unselectIdP();
         tr.addClass('active');
+        enableSelectOrganisationButton();
       }
     }
   });
-}
-
-function displayErrorMessage(header, text) {
-  if ($('#error_message').is(":hidden")) {
-    $('#error_message').transition('fade');
-  }
-  $('#error_message_header').text(header);
-  $('#error_message_text').text(text);
 }
 
 function appendIdPSelectionOnFormSubmit() {
@@ -65,10 +67,6 @@ function appendIdPSelectionOnFormSubmit() {
           .appendTo('#idp_selection_form');
       return true;
 
-    } else {
-      displayErrorMessage('Error',
-          'You must select your organisation to continue');
-      return false;
     }
   });
 }
@@ -85,6 +83,7 @@ function submitFormOnSelectIdPButtonClick() {
 
 function clearSearch() {
   unselectIdP();
+  disableSelectOrganisationButton();
   $('#search_input').val('');
   $('#idp_selection_table').DataTable()
       .search('')
@@ -99,6 +98,7 @@ function clearSearchOnClearButtonClick() {
 }
 
 function displayMainIdPSelectButton() {
+  $('#select_organisation_button').addClass('disabled');
   $('#select_organisation_button').css("display", "inline-block");
   $('#select_organisation_button').text('Select');
 }
