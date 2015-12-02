@@ -22,7 +22,8 @@ html lang='en'
         .ui.attached.message
           .header
             | Your saved organisations
-        attached.fluid.segment
+          p These organisations will be selected automatically for you
+        .ui.attached.fluid.segment
           table[id="idp_reset_selection_table" class="ui celled table"]
             tbody
               - @idps.each do |idp|
