@@ -2,6 +2,7 @@ require 'discovery_service/persistence/entity_cache'
 require 'discovery_service/cookie/store'
 require 'discovery_service/response/handler'
 require 'discovery_service/entity/builder'
+require 'discovery_service/validation/request_validations'
 require 'sinatra/base'
 require 'sinatra/cookies'
 require 'sinatra/asset_pipeline'
@@ -21,6 +22,7 @@ module DiscoveryService
     include DiscoveryService::Cookie::Store
     include DiscoveryService::Entity::Builder
     include DiscoveryService::Response::Handler
+    include DiscoveryService::Validation::RequestValidations
 
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
     CONFIG = 'config/discovery_service.yml'
@@ -61,16 +63,8 @@ module DiscoveryService
       @groups.key?(group.to_sym)
     end
 
-    def url?(value)
-      value =~ /\A#{URI.regexp}\z/
-    end
-
     def group_exists?(group)
       group_configured?(group) && @entity_cache.group_page_exists?(group)
-    end
-
-    def passive?(params)
-      params[:isPassive] && params[:isPassive] == 'true'
     end
 
     get '/' do
@@ -87,9 +81,8 @@ module DiscoveryService
       idp_selections(request).each do |idp_selection|
         group = idp_selection[0]
         entity_id = idp_selection[1]
-        next unless group =~ URL_SAFE_BASE_64_ALPHABET &&
-                    group_configured?(group) && url?(entity_id) &&
-                    @entity_cache.entities_exist?(group)
+        next unless valid_group_name?(group) && group_configured?(group) &&
+                    url?(entity_id) && @entity_cache.entities_exist?(group)
         entity = @entity_cache.entities_as_hash(group)[entity_id]
         entity[:entity_id] = entity_id
         entry = build_entry(entity, 'en', :idp)
@@ -104,28 +97,31 @@ module DiscoveryService
     end
 
     get '/discovery/:group' do
-      return 400 unless params[:group] =~ URL_SAFE_BASE_64_ALPHABET
-      saved_user_idp = idp_selections(request)[params[:group]]
-      if url?(saved_user_idp) && params[:entityID]
+      group = params[:group]
+      return 400 unless valid_group_name?(group)
+      saved_user_idp = idp_selections(request)[group]
+      if url?(saved_user_idp) && url?(params[:entityID])
         params[:user_idp] = saved_user_idp
         handle_response(params)
-      elsif group_exists?(params[:group])
-        @entity_cache.group_page(params[:group])
+      elsif group_exists?(group)
+        @entity_cache.group_page(group)
       else
         status 404
       end
     end
 
     post '/discovery/:group' do
-      return 400 unless params[:group] =~ URL_SAFE_BASE_64_ALPHABET
-      return 400 if params[:user_idp] && !url?(params[:user_idp])
+      return 400 unless valid_params?
 
       if params[:remember]
         save_idp_selection(params[:group], params[:user_idp], request, response)
       end
 
-      if passive?(params)
-        handle_passive_response(params)
+      idp_selection = idp_selections(request)[params[:group]]
+      params[:user_idp] = idp_selection if idp_selection
+
+      if passive?(params) && idp_selection.nil?
+        redirect to(params[:return])
       else
         handle_response(params)
       end
