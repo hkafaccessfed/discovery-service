@@ -85,6 +85,14 @@ $mobile-max-width: 420px;
   padding-top: 0px;
 }
 
+#sp_header_description {
+  max-width: 26em;
+}
+
+#sp_header_logo {
+  vertical-align: top;
+}
+
 .ui.table:not(.unstackable) td:first-child em {
   font-weight: initial;
 }
