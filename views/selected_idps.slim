@@ -10,14 +10,12 @@ html lang='en'
   body
     .ui.text.container
       .ui.mobile.stackable.padded.grid
-        .twelve.wide.column
+        .sixteen.wide.column
           h2.ui.header
             img.ui.image src="/aaf_logo.png" /
             .content
               | Discovery Service
-              sub.header
-        .four.wide.column
-
+              .sub.header
       - if @idps && @idps.any?
         .ui.attached.message
           .header
@@ -54,6 +52,6 @@ html lang='en'
               .content[id="aaf_logo_content"]
                 .ui.sub.header Australian Access Federation
                 | #{@environment[:name]}
-        .four.wide.column
+        #status_links_column.four.wide.column
           .item
             a href="#{@environment[:status_url]}" target="_blank" Federation Status

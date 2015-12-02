@@ -148,6 +148,11 @@ function loadInitiatingSPDetails() {
     if (sp.logo_url) {
       $('#sp_header_logo').attr("src", sp.logo_url);
     }
+
+    if (sp.information_url || sp.privacy_statement_url) {
+      $('#sp_header_links_column').show();
+    }
+
     if (sp.information_url) {
       $('#sp_header_information_url').attr("href", sp.information_url);
       $('#sp_header_information_url').text('Service Information');

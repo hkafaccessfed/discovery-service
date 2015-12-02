@@ -3,6 +3,7 @@
 $form_left_padding: 0px !important;
 $form_right_padding: 0px !important;
 $mobile-max-width: 420px;
+$tablet-max-width: 767px;
 
 @media only screen and (max-width: $mobile-max-width) {
   #select_organisation_button {
@@ -17,8 +18,30 @@ $mobile-max-width: 420px;
     padding-left: 0px;
   }
 
+  #sp_header_logo {
+    padding-right: 0.5em;
+  }
+
   #tab_menu a.can_hide {
     display: none;
+  }
+
+  #sp_header_links_column {
+    padding-top: 0px !important;
+  }
+
+  #status_links_column {
+    padding-top: 0px !important;
+  }
+}
+
+@media only screen and (max-width: $tablet-max-width) {
+  #sp_header_links_column {
+    padding-top: 0px !important;
+  }
+
+  #status_links_column {
+    padding-top: 0px !important;
   }
 }
 
@@ -68,7 +91,6 @@ $mobile-max-width: 420px;
   background-color: #F0F0F0 !important;
 }
 
-
 #idp_selection_table tbody td {
   border-right: 0 !important;
   border-left: 0 !important;
@@ -105,6 +127,10 @@ $mobile-max-width: 420px;
 
 #aaf_logo_content {
   white-space: nowrap;
+}
+
+#sp_header_links_column {
+  display: none;
 }
 
 .ui.table:not(.unstackable) td:first-child em {

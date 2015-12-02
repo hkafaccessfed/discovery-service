@@ -16,13 +16,12 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
           | Login to 
           span#sp_header_name  Service
           #sp_header_description.sub.header
-    .four.wide.column
+    #sp_header_links_column.four.wide.column
       .ui.list
         .item
           a#sp_header_information_url target="_blank"
         .item
           a#sp_header_privacy_statement_url target="_blank"
-  br/
   - if @idps.any?
     form[id="idp_selection_form" action="" method="POST"]
       .ui.form.attached.fluid
@@ -73,7 +72,6 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
     .ui.negative.message
       .header Error
       p No organisations to select
-  br/
   .ui.divider
   .ui.mobile.stackable.grid
     .twelve.wide.column
@@ -84,6 +82,6 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
           .content[id="aaf_logo_content"]
             .ui.sub.header Australian Access Federation
             | #{@environment[:name]}
-    .four.wide.column
+    #status_links_column.four.wide.column
       .item
         a href="#{@environment[:status_url]}" target="_blank" Federation Status
