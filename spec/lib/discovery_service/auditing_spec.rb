@@ -83,8 +83,7 @@ RSpec.describe DiscoveryService::Auditing do
     end
 
     it 'records the response' do
-      value = nil
-      expect { value = run }.to change { redis.llen('audit') }.by(1)
+      expect { run }.to change { redis.llen('audit') }.by(1)
       json = redis.lindex('audit', 0)
       recorded = JSON.parse(json, symbolize_names: true)
 
@@ -116,8 +115,7 @@ RSpec.describe DiscoveryService::Auditing do
     end
 
     it 'records the response' do
-      value = nil
-      expect { value = run }.to change { redis.llen('audit') }.by(1)
+      expect { run }.to change { redis.llen('audit') }.by(1)
       json = redis.lindex('audit', 0)
       recorded = JSON.parse(json, symbolize_names: true)
 
