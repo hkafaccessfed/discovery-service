@@ -112,13 +112,11 @@ module DiscoveryService
       redirect to(path)
     end
 
-    get '/discovery/:group/:unique_id' do |group|
-      group = params[:group]
+    get '/discovery/:group/:unique_id' do |group, unique_id|
       saved_user_idp = idp_selections(request)[group]
       if uri?(saved_user_idp) && uri?(params[:entityID])
         params[:user_idp] = saved_user_idp
-        record_cookie_selection(request, params, params[:unique_id],
-                                saved_user_idp)
+        record_cookie_selection(request, params, unique_id, saved_user_idp)
         handle_response(params)
       elsif group_exists?(group)
         @entity_cache.group_page(group)
@@ -127,16 +125,16 @@ module DiscoveryService
       end
     end
 
-    post '/discovery/:group/:unique_id' do
+    post '/discovery/:group/:unique_id' do |group, unique_id|
       return 400 unless valid_params?
 
       if params[:remember]
-        save_idp_selection(params[:group], params[:user_idp], request, response)
+        save_idp_selection(group, params[:user_idp], request, response)
       end
 
-      record_manual_selection(request, params, params[:unique_id])
+      record_manual_selection(request, params, unique_id)
 
-      idp_selection = idp_selections(request)[params[:group]]
+      idp_selection = idp_selections(request)[group]
       params[:user_idp] = idp_selection if idp_selection
 
       if passive?(params) && idp_selection.nil?
