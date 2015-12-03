@@ -27,10 +27,6 @@ module DiscoveryService
 
     private
 
-    def redis
-      @redis ||= Redis.new
-    end
-
     def record_entry(data)
       json = JSON.generate(data)
       redis.lpush('audit', json)

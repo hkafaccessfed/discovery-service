@@ -26,6 +26,8 @@ module DiscoveryService
     include DiscoveryService::Validation::RequestValidations
     include DiscoveryService::Auditing
 
+    attr_reader :redis
+
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
     CONFIG = 'config/discovery_service.yml'
 

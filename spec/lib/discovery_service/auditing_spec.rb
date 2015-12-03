@@ -1,9 +1,19 @@
 require 'discovery_service/auditing'
 
 RSpec.describe DiscoveryService::Auditing do
-  let(:klass) { Class.new { include DiscoveryService::Auditing } }
+  let(:klass) do
+    Class.new do
+      include DiscoveryService::Auditing
+      attr_reader :redis
+
+      def initialize(redis)
+        @redis = redis
+      end
+    end
+  end
+
   let(:redis) { Redis.new }
-  subject { klass.new }
+  subject { klass.new(redis) }
 
   let(:base_data) do
     {
