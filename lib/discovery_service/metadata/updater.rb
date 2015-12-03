@@ -22,7 +22,7 @@ module DiscoveryService
       include DiscoveryService::Renderer::Controller::Group
 
       def initialize
-        @logger = Logger.new($stderr)
+        @logger = Logger.new('log/updater.log')
         @entity_cache = DiscoveryService::Persistence::EntityCache.new
       end
 
