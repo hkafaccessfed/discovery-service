@@ -19,8 +19,8 @@ html lang='en'
       - if @idps && @idps.any?
         .ui.attached.message
           .header
-            | Your saved organisations
-          p These organisations will be selected automatically for you
+            | Your saved organisation#{@idps.length > 1 ? 's' : ''}
+          p When you access a service, you will be automatically sent to #{@idps.length > 1 ? 'one of these organisations' : 'this organisation'} to log in. You can reset this, and you'll be asked to select your organisation next time you access a service.
         .ui.attached.fluid.segment
           table[id="idp_reset_selection_table" class="ui celled table"]
             tbody

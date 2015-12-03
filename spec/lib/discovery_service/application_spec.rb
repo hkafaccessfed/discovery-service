@@ -132,8 +132,69 @@ RSpec.describe DiscoveryService::Application do
             "method=\"POST\">")
         end
 
+        it 'shows the help text header (singular)' do
+          expect(last_response.body).to include('Your saved organisation')
+        end
+
+        it 'shows the help text body (singular)' do
+          expect(last_response.body).to include('When you access a service, '\
+          'you will be automatically sent to this organisation to log in.'\
+          ' You can reset this, and you\'ll be asked to select your'\
+          ' organisation next time you access a service.')
+        end
+
         it 'shows the reset button' do
           expect(last_response.body).to include('Reset')
+        end
+      end
+
+      context 'and multiple idp selections exist' do
+        let(:other_group_name) do
+          "#{Faker::Lorem.word}_#{Faker::Number.number(3)}-"
+        end
+
+        let(:existing_entity) { build_idp_data(['idp', group_name], 'en') }
+        let(:other_entity) do
+          build_idp_data(['idp', other_group_name], 'en')
+        end
+
+        before do
+          configure_group
+          config[:groups][other_group_name.to_sym] = []
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_entity]).to_json)
+          redis.set("entities:#{other_group_name}",
+                    to_hash([other_entity]).to_json)
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate(group_name => existing_entity[:entity_id],
+                            other_group_name => other_entity[:entity_id])
+          run
+        end
+
+        it 'shows the idp names' do
+          expect(last_response.body)
+            .to include(CGI.escapeHTML(
+                          existing_entity[:names].first[:value]))
+          expect(last_response.body)
+            .to include(CGI.escapeHTML(other_entity[:names].first[:value]))
+        end
+
+        it 'shows the idp logos' do
+          expect(last_response.body)
+            .to include(existing_entity[:logos].first[:url])
+          expect(last_response.body)
+            .to include(other_entity[:logos].first[:url])
+        end
+
+        it 'shows the help text header (plural)' do
+          expect(last_response.body).to include('Your saved organisations')
+        end
+
+        it 'shows the help text body (plural)' do
+          expect(last_response.body).to include('When you access a service, '\
+          'you will be automatically sent to one of these organisations to'\
+          ' log in. You can reset this, and you\'ll be asked to select your'\
+          ' organisation next time you access a service.')
         end
       end
 
