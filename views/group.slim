@@ -32,7 +32,7 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
             - tag_groups.each do |tag_group|
               a[data-tab="#{tag_group[:tag]}" class="item#{" can_hide" if can_hide?(tag_group)}#{" active" if all_tag?(tag_group)}"]
                 | #{tag_group[:name]}
-          .ui.bottom.segment.attached
+          #tab_content.ui.bottom.segment.attached
             #search_options.ui.mobile.stackable.padded.grid
               #search_column.sixteen.wide.column
                 .ui.left.icon.right.action.input.fluid

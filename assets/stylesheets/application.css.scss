@@ -134,6 +134,10 @@ $tablet-max-width: 767px;
   display: none;
 }
 
+#tab_content {
+  padding-top: 0em;
+}
+
 .ui.table:not(.unstackable) td:first-child em {
   font-weight: initial;
 }
