@@ -82,7 +82,7 @@ module DiscoveryService
         group = idp_selection[0]
         entity_id = idp_selection[1]
         next unless valid_group_name?(group) && group_configured?(group) &&
-                    url?(entity_id) && @entity_cache.entities_exist?(group)
+                    uri?(entity_id) && @entity_cache.entities_exist?(group)
         entity = @entity_cache.entities_as_hash(group)[entity_id]
         entity[:entity_id] = entity_id
         entry = build_entry(entity, 'en', :idp)
@@ -100,7 +100,7 @@ module DiscoveryService
       group = params[:group]
       return 400 unless valid_group_name?(group)
       saved_user_idp = idp_selections(request)[group]
-      if url?(saved_user_idp) && url?(params[:entityID])
+      if uri?(saved_user_idp) && uri?(params[:entityID])
         params[:user_idp] = saved_user_idp
         handle_response(params)
       elsif group_exists?(group)

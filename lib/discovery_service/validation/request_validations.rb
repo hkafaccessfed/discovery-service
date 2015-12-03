@@ -3,11 +3,12 @@ module DiscoveryService
     # Module to handle request validation
     module RequestValidations
       URL_SAFE_BASE_64_ALPHABET = /^[a-zA-Z0-9_-]+$/
+      VALID_URI_REGEX = /\A#{URI.regexp}\z/
       IDP_DISCOVERY_SINGLE_PROTOCOL =
           'urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol:single'
 
-      def url?(value)
-        !value.nil? && value =~ /\A#{URI.regexp}\z/
+      def uri?(value)
+        value && value =~ VALID_URI_REGEX
       end
 
       def passive?(params)
@@ -24,8 +25,8 @@ module DiscoveryService
 
       def valid_params?
         valid_group_name?(params[:group]) &&
-          (passive?(params) || url?(params[:user_idp])) &&
-          url?(params[:entityID]) &&
+          (passive?(params) || uri?(params[:user_idp])) &&
+          uri?(params[:entityID]) &&
           valid_policy?(params[:policy])
       end
     end
