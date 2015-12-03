@@ -268,7 +268,66 @@ RSpec.describe DiscoveryService::Application do
   end
 
   describe 'GET /discovery/:group' do
-    let(:path_for_group) { "/discovery/#{group_name}" }
+    let(:path_for_group) { "/discovery/#{group_name}?entityID=#{entity_id}" }
+    let(:entity_id) { Faker::Internet.url }
+    let(:group_name) { Faker::Lorem.word }
+
+    def run
+      get path_for_group
+    end
+
+    context 'with an non url-safe base64 alphabet group name' do
+      let(:group_name) { '@*!' }
+
+      it 'returns http status code 400' do
+        run
+        expect(last_response.status).to eq(400)
+      end
+    end
+
+    context 'with a non-configured group' do
+      it 'returns http status code 404' do
+        run
+        expect(last_response.status).to eq(404)
+      end
+    end
+
+    context 'with a configured group' do
+      let(:id) { SecureRandom.urlsafe_base64 }
+
+      before do
+        configure_group
+        expect(SecureRandom).to receive(:urlsafe_base64).and_return(id)
+      end
+
+      it 'redirects to a unique url with the query string' do
+        run
+        expect(last_response.status).to eq(302)
+        uri = URI.parse(last_response.location)
+        expect(uri.path).to match(%r{/discovery/#{group_name}/[a-zA-Z0-9_-]+})
+        expect(URI.unescape(uri.query)).to eq("entityID=#{entity_id}")
+      end
+
+      it 'stores the id in redis' do
+        Timecop.freeze do
+          run
+          expect(redis.get("id:#{id}").to_s).to eq('1')
+          expect(redis.ttl("id:#{id}")).to eq(3600)
+        end
+      end
+
+      it 'writes an audit log entry' do
+        expect { run }.to change { redis.llen('audit') }.by(1)
+        json = redis.lindex('audit', 0)
+        data = JSON.parse(json, symbolize_names: true)
+        expect(data[:unique_id]).to eq(id)
+      end
+    end
+  end
+
+  describe 'GET /discovery/:group/:unique_id' do
+    let(:unique_id) { Faker::Lorem.words(2).join('-') }
+    let(:path_for_group) { "/discovery/#{group_name}/#{unique_id}" }
 
     def run
       get path_for_group
@@ -276,7 +335,7 @@ RSpec.describe DiscoveryService::Application do
 
     context 'with an non url-safe base64 alphabet group name' do
       before { run }
-      let(:group_name) { '@#!' }
+      let(:group_name) { '@*!' }
       it 'returns http status code 400' do
         expect(last_response.status).to eq(400)
       end
@@ -334,23 +393,35 @@ RSpec.describe DiscoveryService::Application do
         let(:originally_selected_idp) { Faker::Internet.url }
 
         let(:path_for_group) do
-          "/discovery/#{group_name}?entityID=#{entity_id}"
+          "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"
         end
 
-        it 'handles the response' do
+        before do
+          configure_group
           allow_any_instance_of(DiscoveryService::Application)
             .to receive(:handle_response).and_return('stubbed')
           rack_mock_session.cookie_jar['selected_organisations'] =
               JSON.generate(group_name => originally_selected_idp)
+        end
+
+        it 'handles the response' do
           run
 
           expect(last_response.body).to eq('stubbed')
+        end
+
+        it 'records an audit entry' do
+          expect { run }.to change { redis.llen('audit') }.by(1)
+          json = redis.lindex('audit', 0)
+          data = JSON.parse(json, symbolize_names: true)
+          expect(data).to include(unique_id: unique_id,
+                                  selection_method: 'cookie')
         end
       end
     end
   end
 
-  describe 'POST /discovery/:group' do
+  describe 'POST /discovery/:group/:unique_id' do
     def actual_params
       Rack::Utils.parse_nested_query(URI.parse(last_response.location).query)
     end
@@ -369,6 +440,8 @@ RSpec.describe DiscoveryService::Application do
     let(:form_content) { { user_idp: selected_idp } }
     let(:requesting_sp) { Faker::Internet.url }
     let(:sp_return_url) { Faker::Internet.url }
+    let(:unique_id) { SecureRandom.urlsafe_base64 }
+    let(:base_path) { "/discovery/#{group_name}/#{unique_id}" }
 
     def run
       post path, form_content
@@ -376,7 +449,7 @@ RSpec.describe DiscoveryService::Application do
 
     context 'when group is not configured' do
       before { run }
-      let(:path) { "/discovery/#{group_name}?entityID=#{requesting_sp}" }
+      let(:path) { "#{base_path}?entityID=#{requesting_sp}" }
 
       it 'returns http status code 404' do
         expect(last_response.status).to eq(404)
@@ -387,7 +460,7 @@ RSpec.describe DiscoveryService::Application do
       before { configure_group }
 
       context 'without mandatory entity id parameter' do
-        let(:path) { "/discovery/#{group_name}" }
+        let(:path) { "#{base_path}" }
 
         before { run }
 
@@ -397,7 +470,7 @@ RSpec.describe DiscoveryService::Application do
       end
 
       context 'without mandatory user idp form field' do
-        let(:path) { "/discovery/#{group_name}?entityID=#{requesting_sp}" }
+        let(:path) { "#{base_path}?entityID=#{requesting_sp}" }
         let(:form_content) { {} }
 
         before { run }
@@ -408,7 +481,7 @@ RSpec.describe DiscoveryService::Application do
       end
 
       context 'with an invalid (non url) idp selection (form field)' do
-        let(:path) { "/discovery/#{group_name}?entityID=#{requesting_sp}" }
+        let(:path) { "#{base_path}?entityID=#{requesting_sp}" }
         let(:form_content) { { user_idp: '!@#ASDJK~##@!' } }
 
         before { run }
@@ -419,7 +492,7 @@ RSpec.describe DiscoveryService::Application do
       end
 
       context 'with invalid (non url) entity id' do
-        let(:path) { "/discovery/#{group_name}?entityID=!ASDASDJTK@" }
+        let(:path) { "#{base_path}?entityID=!ASDASDJTK@" }
 
         before { run }
 
@@ -429,9 +502,9 @@ RSpec.describe DiscoveryService::Application do
       end
 
       context 'with an non url-safe base64 alphabet group name' do
-        let(:group_name) { '@#!' }
+        let(:group_name) { '@*!' }
         let(:path) do
-          "/discovery/#{group_name}?entityID=#{requesting_sp}"
+          "#{base_path}?entityID=#{requesting_sp}"
         end
 
         before { run }
@@ -443,7 +516,7 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with an entity id parameter, no return parameter and no'\
               ' discovery response stored' do
-        let(:path) { "/discovery/#{group_name}?entityID=#{requesting_sp}" }
+        let(:path) { "#{base_path}?entityID=#{requesting_sp}" }
 
         before { run }
 
@@ -457,7 +530,7 @@ RSpec.describe DiscoveryService::Application do
         let(:existing_entity) { build_sp_data(['sp', group_name]) }
         let(:requesting_sp) { existing_entity[:entity_id] }
 
-        let(:path) { "/discovery/#{group_name}?entityID=#{requesting_sp}" }
+        let(:path) { "#{base_path}?entityID=#{requesting_sp}" }
 
         before do
           redis.set("entities:#{group_name}",
@@ -477,7 +550,7 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with entity id and return parameter' do
         let(:path) do
-          "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+          "#{base_path}?entityID=#{requesting_sp}"\
           "&return=#{sp_return_url}"
         end
 
@@ -494,7 +567,7 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with the option to remember organisation on' do
         let(:path) do
-          "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+          "#{base_path}?entityID=#{requesting_sp}"\
           "&return=#{sp_return_url}"
         end
 
@@ -578,7 +651,7 @@ RSpec.describe DiscoveryService::Application do
         let(:return_query) { CGI.escape('?a=b&c=d') }
         let(:sp_return_url_with_query) { "#{sp_return_url}#{return_query}" }
         let(:path) do
-          "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+          "#{base_path}?entityID=#{requesting_sp}"\
           "&return=#{sp_return_url_with_query}"
         end
 
@@ -594,11 +667,18 @@ RSpec.describe DiscoveryService::Application do
                                    'a' => 'b',
                                    'c' => 'd')
         end
+
+        it 'records an audit entry' do
+          json = redis.lindex('audit', 0)
+          data = JSON.parse(json, symbolize_names: true)
+          expect(data).to include(unique_id: unique_id,
+                                  selection_method: 'manual')
+        end
       end
 
       context 'with entity id, return and return id parameter' do
         let(:path) do
-          "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+          "#{base_path}?entityID=#{requesting_sp}"\
           "&return=#{sp_return_url}&returnIDParam=myCustomEntityID"
         end
 
@@ -616,7 +696,7 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with entity id, return and policy parameter' do
         let(:path) do
-          "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+          "#{base_path}?entityID=#{requesting_sp}"\
           "&return=#{sp_return_url}&policy=#{policy}"
         end
 
@@ -646,7 +726,7 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with entity id, return and passive parameter' do
         let(:path) do
-          "/discovery/#{group_name}?entityID=#{requesting_sp}"\
+          "#{base_path}?entityID=#{requesting_sp}"\
           "&return=#{sp_return_url}&isPassive=#{passive}"
         end
 
@@ -688,8 +768,7 @@ RSpec.describe DiscoveryService::Application do
         let(:existing_entity) { build_sp_data(['sp', group_name]) }
 
         let(:path) do
-          "/discovery/#{group_name}?entityID=#{requesting_sp}"\
-          "&return=#{sp_return_url}"
+          "#{base_path}?entityID=#{requesting_sp}&return=#{sp_return_url}"
         end
 
         before do

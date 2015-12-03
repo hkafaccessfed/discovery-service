@@ -3,6 +3,7 @@ require 'discovery_service/cookie/store'
 require 'discovery_service/response/handler'
 require 'discovery_service/entity/builder'
 require 'discovery_service/validation/request_validations'
+require 'discovery_service/auditing'
 require 'sinatra/base'
 require 'sinatra/cookies'
 require 'sinatra/asset_pipeline'
@@ -23,6 +24,9 @@ module DiscoveryService
     include DiscoveryService::Entity::Builder
     include DiscoveryService::Response::Handler
     include DiscoveryService::Validation::RequestValidations
+    include DiscoveryService::Auditing
+
+    attr_reader :redis
 
     TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
     CONFIG = 'config/discovery_service.yml'
@@ -57,6 +61,7 @@ module DiscoveryService
       @environment = cfg[:environment]
       @logger.info('Initialised with group configuration: '\
         "#{JSON.pretty_generate(@groups)}")
+      @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)
     end
 
     def group_configured?(group)
@@ -78,9 +83,7 @@ module DiscoveryService
 
     get '/discovery' do
       @idps = []
-      idp_selections(request).each do |idp_selection|
-        group = idp_selection[0]
-        entity_id = idp_selection[1]
+      idp_selections(request).each do |group, entity_id|
         next unless valid_group_name?(group) && group_configured?(group) &&
                     uri?(entity_id) && @entity_cache.entities_exist?(group)
         entity = @entity_cache.entities_as_hash(group)[entity_id]
@@ -96,12 +99,24 @@ module DiscoveryService
       slim :selected_idps
     end
 
-    get '/discovery/:group' do
-      group = params[:group]
-      return 400 unless valid_group_name?(group)
+    before %r{\A/discovery/([^/]+)(/.+)?\z} do |group, _|
+      halt 400 unless valid_group_name?(group)
+      halt 404 unless group_configured?(group)
+    end
+
+    get '/discovery/:group' do |group|
+      id = record_request(request, params)
+      @redis.set("id:#{id}", '1', ex: 3600)
+      path = "/discovery/#{group}/#{id}"
+      path += "?#{request.query_string}" if request.query_string != ''
+      redirect to(path)
+    end
+
+    get '/discovery/:group/:unique_id' do |group, unique_id|
       saved_user_idp = idp_selections(request)[group]
       if uri?(saved_user_idp) && uri?(params[:entityID])
         params[:user_idp] = saved_user_idp
+        record_cookie_selection(request, params, unique_id, saved_user_idp)
         handle_response(params)
       elsif group_exists?(group)
         @entity_cache.group_page(group)
@@ -110,14 +125,16 @@ module DiscoveryService
       end
     end
 
-    post '/discovery/:group' do
+    post '/discovery/:group/:unique_id' do |group, unique_id|
       return 400 unless valid_params?
 
       if params[:remember]
-        save_idp_selection(params[:group], params[:user_idp], request, response)
+        save_idp_selection(group, params[:user_idp], request, response)
       end
 
-      idp_selection = idp_selections(request)[params[:group]]
+      record_manual_selection(request, params, unique_id)
+
+      idp_selection = idp_selections(request)[group]
       params[:user_idp] = idp_selection if idp_selection
 
       if passive?(params) && idp_selection.nil?
