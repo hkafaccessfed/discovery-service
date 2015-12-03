@@ -81,9 +81,7 @@ module DiscoveryService
 
     get '/discovery' do
       @idps = []
-      idp_selections(request).each do |idp_selection|
-        group = idp_selection[0]
-        entity_id = idp_selection[1]
+      idp_selections(request).each do |group, entity_id|
         next unless valid_group_name?(group) && group_configured?(group) &&
                     uri?(entity_id) && @entity_cache.entities_exist?(group)
         entity = @entity_cache.entities_as_hash(group)[entity_id]
