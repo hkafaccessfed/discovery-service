@@ -99,10 +99,12 @@ module DiscoveryService
       slim :selected_idps
     end
 
-    get '/discovery/:group' do |group|
-      return 400 unless params[:group] =~ URL_SAFE_BASE_64_ALPHABET
-      return 404 unless group_configured?(group)
+    before %r{\A/discovery/([^/]+)(/.+)?\z} do |group, _|
+      halt 400 unless valid_group_name?(group)
+      halt 404 unless group_configured?(group)
+    end
 
+    get '/discovery/:group' do |group|
       id = record_request(request, params)
       @redis.set("id:#{id}", '1', ex: 3600)
       path = "/discovery/#{group}/#{id}"
@@ -110,9 +112,8 @@ module DiscoveryService
       redirect to(path)
     end
 
-    get '/discovery/:group/:unique_id' do
+    get '/discovery/:group/:unique_id' do |group|
       group = params[:group]
-      return 400 unless valid_group_name?(group)
       saved_user_idp = idp_selections(request)[group]
       if uri?(saved_user_idp) && uri?(params[:entityID])
         params[:user_idp] = saved_user_idp

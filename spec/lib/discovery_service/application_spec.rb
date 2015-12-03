@@ -397,6 +397,7 @@ RSpec.describe DiscoveryService::Application do
         end
 
         before do
+          configure_group
           allow_any_instance_of(DiscoveryService::Application)
             .to receive(:handle_response).and_return('stubbed')
           rack_mock_session.cookie_jar['selected_organisations'] =
