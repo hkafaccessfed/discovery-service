@@ -54,9 +54,6 @@ script#tag_groups(type='application/json')== JSON.generate(@tag_groups)
                       tr
                         td
                           strong #{idp[:name]}
-                          - if idp[:description]
-                            br/
-                            em #{idp[:description]}
                         td
                           - if idp[:logo_url]
                             img.ui.image.tiny.bordered src="#{idp[:logo_url]}" /

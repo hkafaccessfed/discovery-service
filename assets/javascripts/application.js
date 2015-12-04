@@ -181,12 +181,8 @@ function renderLogo(logoURL) {
   }
 }
 
-function renderIdPDetails(idPDetails) {
-  var details = '<strong>' + idPDetails.name + '</strong><br/>';
-  if (idPDetails.description) {
-    details += '<em>' + idPDetails.description + '</em>';
-  }
-  return details;
+function renderIdPDetails(idPName) {
+  return '<strong>' + idPName + '</strong><br/>';
 }
 
 function renderEntityIdInput(entityID) {
@@ -196,10 +192,7 @@ function renderEntityIdInput(entityID) {
 
 function buildDataset(idPData) {
   return idPData.map(function (idP) {
-    var idPDetails = {}
-    idPDetails.name = idP.name;
-    idPDetails.description = idP.description;
-    return [idPDetails, idP.logo_url, idP.entity_id, idP.tags];
+    return [idP.name, idP.logo_url, idP.entity_id, idP.tags];
   });
 }
 
@@ -220,7 +213,9 @@ function loadDataTable() {
     paging: false,
     sDom: '<"top">rt<"bottom"><"clear">',
     columnDefs: [
+      {sClass: "idp_selection_table_name_column", targets: 0 },
       {render: renderIdPDetails, targets: 0},
+      {sClass: "idp_selection_logo_column", targets: 1 },
       {render: renderLogo, targets: 1},
       {render: renderEntityIdInput, targets: 2},
       {visible: false, targets: 3}

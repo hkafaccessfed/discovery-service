@@ -26,12 +26,9 @@ html lang='en'
             tbody
               - @idps.each do |idp|
                 tr
-                  td
+                  td.idp_selection_table_name_column
                     strong #{idp[:name]}
-                    - if idp[:description]
-                      br/
-                      em #{idp[:description]}
-                  td
+                  td.idp_selection_logo_column
                     - if idp[:logo_url]
                       img.ui.image.tiny.bordered src="#{idp[:logo_url]}" /
           form[action="" method="POST"]

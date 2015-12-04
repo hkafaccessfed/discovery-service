@@ -116,12 +116,6 @@ RSpec.describe DiscoveryService::Application do
             .to include(CGI.escapeHTML(existing_entity[:names].first[:value]))
         end
 
-        it 'shows the idp description' do
-          expect(last_response.body)
-            .to include(CGI.escapeHTML(
-                          existing_entity[:descriptions].first[:value]))
-        end
-
         it 'shows the idp logo' do
           expect(last_response.body)
             .to include(existing_entity[:logos].first[:url])
@@ -213,12 +207,6 @@ RSpec.describe DiscoveryService::Application do
         it 'shows the organisation (entity id)' do
           expect(last_response.body)
             .to include(CGI.escapeHTML(existing_entity[:entity_id]))
-        end
-
-        it 'does not show the idp description' do
-          expect(last_response.body)
-            .to_not include(CGI.escapeHTML(
-                              existing_entity[:descriptions].first[:value]))
         end
 
         it 'does not show the idp logo' do

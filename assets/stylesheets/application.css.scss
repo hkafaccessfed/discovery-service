@@ -138,6 +138,14 @@ $tablet-max-width: 767px;
   padding-top: 0em;
 }
 
+.idp_selection_table_name_column {
+  width: 80%;
+}
+
+.idp_selection_logo_column {
+  width: 20%;
+}
+
 .ui.table:not(.unstackable) td:first-child em {
   font-weight: initial;
 }

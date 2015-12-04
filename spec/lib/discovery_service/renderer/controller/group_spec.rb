@@ -181,9 +181,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
                                    name: CGI.escapeHTML(
                                      idp[:names].first[:value]),
                                    logo_url: idp[:logos].first[:url],
-                                   description:
-                                       CGI.escapeHTML(
-                                         idp[:descriptions].first[:value]),
                                    geolocations: idp[:geolocations] }])
         end
       end
@@ -225,15 +222,11 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
                       tags: idp1[:tags],
                       name: CGI.escapeHTML(idp1[:names].first[:value]),
                       logo_url: idp1[:logos].first[:url],
-                      description: CGI.escapeHTML(
-                        idp1[:descriptions].first[:value]),
                       geolocations: idp1[:geolocations] },
                     { entity_id: idp2[:entity_id],
                       tags: idp2[:tags],
                       name: CGI.escapeHTML(idp2[:names].first[:value]),
                       logo_url: idp2[:logos].first[:url],
-                      description: CGI.escapeHTML(
-                        idp2[:descriptions].first[:value]),
                       geolocations: idp2[:geolocations] }])
         end
       end
@@ -286,9 +279,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
                       name: CGI.escapeHTML(
                         idp_with_matching_lang[:names].first[:value]),
                       logo_url: idp_with_matching_lang[:logos].first[:url],
-                      description: CGI.escapeHTML(
-                        idp_with_matching_lang[:descriptions]
-                            .first[:value]),
                       geolocations: idp_with_matching_lang[:geolocations] }])
         end
       end
@@ -304,7 +294,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
           tags: ['\'', 'idp'],
           names: [{ value: '&', lang: lang }],
           logos: [{ url: '"', lang: lang }],
-          descriptions: [{ value: '\\', lang: lang }],
           geolocations: [{ longitude: '>', latitude: '<' }] }
       end
       let(:sp) do
@@ -330,8 +319,6 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
                       tags: idp[:tags].map { |t| CGI.escapeHTML(t) },
                       name: CGI.escapeHTML(idp[:names].first[:value]),
                       logo_url: CGI.escapeHTML(idp[:logos].first[:url]),
-                      description:
-                           CGI.escapeHTML(idp[:descriptions].first[:value]),
                       geolocations:
                            [{ longitude: CGI.escapeHTML(
                              idp[:geolocations].first[:longitude]),

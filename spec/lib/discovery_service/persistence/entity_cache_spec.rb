@@ -24,9 +24,6 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
               "\"tags\":#{entity[:tags].to_json},"\
               "\"logos\":[{\"url\":\"#{entity[:logos].first[:url]}\","\
                          "\"lang\":\"#{entity[:logos].first[:lang]}\"}],"\
-              "\"descriptions\""\
-                ":[{\"value\":\"#{entity[:descriptions].first[:value]}\","\
-                   "\"lang\":\"#{entity[:descriptions].first[:lang]}\"}],"\
               "\"domains\":#{entity[:domains]}}}")
       end
     end
@@ -79,9 +76,6 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
               "\"tags\":#{entity[:tags].to_json},"\
               "\"logos\":[{\"url\":\"#{entity[:logos].first[:url]}\","\
                          "\"lang\":\"#{entity[:logos].first[:lang]}\"}],"\
-              "\"descriptions\":"\
-                "[{\"value\":\"#{entity[:descriptions].first[:value]}\","\
-                  "\"lang\":\"#{entity[:descriptions].first[:lang]}\"}],"\
               "\"domains\":#{entity[:domains]}}}")
       end
     end
@@ -171,7 +165,6 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
         names: updated_names,
         tags: entity[:tags],
         logos: entity[:logos],
-        descriptions: entity[:descriptions],
         domains: entity[:domains]
       }
     end
@@ -192,7 +185,6 @@ RSpec.describe DiscoveryService::Persistence::EntityCache do
                  { names: new_entity[:names],
                    tags: new_entity[:tags],
                    logos: new_entity[:logos],
-                   descriptions: new_entity[:descriptions],
                    domains: new_entity[:domains] }]])
     end
   end
