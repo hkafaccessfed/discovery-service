@@ -10,29 +10,25 @@ html lang='en'
   body
     .ui.text.container
       .ui.mobile.stackable.padded.grid
-        .twelve.wide.column
+        .sixteen.wide.column
           h2.ui.header
             img.ui.image src="/aaf_logo.png" /
             .content
               | Discovery Service
-              sub.header
-        .four.wide.column
-
+              .sub.header
       - if @idps && @idps.any?
         .ui.attached.message
           .header
-            | Your saved organisations
-        attached.fluid.segment
+            | Your saved organisation#{@idps.length > 1 ? 's' : ''}
+          p When you access a service, you will be automatically sent to #{@idps.length > 1 ? 'one of these organisations' : 'this organisation'} to log in. You can reset this, and you'll be asked to select your organisation next time you access a service.
+        .ui.attached.fluid.segment
           table[id="idp_reset_selection_table" class="ui celled table"]
             tbody
               - @idps.each do |idp|
                 tr
-                  td
+                  td.idp_selection_table_name_column
                     strong #{idp[:name]}
-                    - if idp[:description]
-                      br/
-                      em #{idp[:description]}
-                  td
+                  td.idp_selection_logo_column
                     - if idp[:logo_url]
                       img.ui.image.tiny.bordered src="#{idp[:logo_url]}" /
           form[action="" method="POST"]
@@ -48,10 +44,11 @@ html lang='en'
         .twelve.wide.column
           .ui.horizontal.list
             .item
-              img.ui.mini.circular.image src="/aaf_logo.png" /
-              .content
+              a[href="http://www.aaf.edu.au" target="_blank" id="aaf_logo"]
+                img.ui.mini.circular.image src="/aaf_logo.png" /
+              .content[id="aaf_logo_content"]
                 .ui.sub.header Australian Access Federation
                 | #{@environment[:name]}
-        .four.wide.column
+        #status_links_column.four.wide.column
           .item
             a href="#{@environment[:status_url]}" target="_blank" Federation Status

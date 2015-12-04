@@ -5,6 +5,7 @@ module DiscoveryService
       def build_entry(entity, lang, entity_type)
         entry = base_entry(entity, lang)
         if entity_type == :sps
+          set_description(entity, entry, lang)
           set_information_url(entity, entry, lang)
           set_privacy_statement_url(entity, entry, lang)
         elsif entity_type == :idps
@@ -21,7 +22,6 @@ module DiscoveryService
         entry[:tags] = entity[:tags].map { |t| CGI.escapeHTML(t) }
         set_name(entity, entry, lang)
         set_logo(entity, entry, lang)
-        set_description(entity, entry, lang)
         entry
       end
 
