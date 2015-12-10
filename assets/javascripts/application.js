@@ -100,7 +100,7 @@ function clearSearchOnClearButtonClick() {
 function displayMainIdPSelectButton() {
   $('#select_organisation_button').addClass('disabled');
   $('#select_organisation_button').css("display", "inline-block");
-  $('#select_organisation_button').text('Select');
+  $('#select_organisation_button').text('Continue to your organisation');
 }
 
 function enableTabs() {
