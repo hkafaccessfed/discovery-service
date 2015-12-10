@@ -6,13 +6,6 @@ $mobile-max-width: 420px;
 $tablet-max-width: 767px;
 
 @media only screen and (max-width: $mobile-max-width) {
-  #select_organisation_button {
-    width: 100%;
-  }
-
-  #reset_idp_selection_button {
-    width: 100%;
-  }
 
   #sp_header {
     padding-left: 0px;
