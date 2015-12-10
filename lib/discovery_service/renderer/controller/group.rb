@@ -38,8 +38,12 @@ module DiscoveryService
         end
 
         def filter_tag_groups(tag_groups, tag_set)
-          tag_groups.select do |tag_group|
-            tag_set.include?(tag_group[:tag]) || tag_group[:tag] == '*'
+          if tag_groups
+            tag_groups.select do |tag_group|
+              tag_set.include?(tag_group[:tag]) || tag_group[:tag] == '*'
+            end
+          else
+            []
           end
         end
       end

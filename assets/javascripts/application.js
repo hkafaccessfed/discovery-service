@@ -103,8 +103,19 @@ function displayMainIdPSelectButton() {
   $('#select_organisation_button').text('Select');
 }
 
-function showTabs() {
-  $('#tab_menu').css('height', '100%');
+function enableTabs() {
+  $('#tab_content').css('padding-top', '0');
+  if ($('#tab_menu').children().length > 0) {
+    $('#tab_menu').css('height', '100%');
+    setFirstTabAsActive();
+    $.fn.dataTable.ext.search.push(
+        function (settings, data) {
+          var tagsForIdP = data[3];
+          var selectedTab = $('#tab_menu a.active').attr('data-tab');
+          return tagsForIdP.indexOf(selectedTab) != -1 || selectedTab == '*'
+        }
+    );
+  }
 }
 
 function setFirstTabAsActive() {
@@ -196,14 +207,6 @@ function buildDataset(idPData) {
   });
 }
 
-$.fn.dataTable.ext.search.push(
-    function (settings, data) {
-      var tagsForIdP = data[3];
-      var selectedTab = $('#tab_menu a.active').attr('data-tab');
-      return tagsForIdP.indexOf(selectedTab) != -1 || selectedTab == '*'
-    }
-);
-
 function loadDataTable() {
   var idpJson = $.parseJSON($('#idps').html());
 
@@ -270,8 +273,7 @@ function initHandlers() {
 }
 
 function showJSEnabledElements() {
-  showTabs();
-  setFirstTabAsActive();
+  enableTabs();
   showSearchOptions();
   displayMainIdPSelectButton();
   loadInitiatingSPDetails();

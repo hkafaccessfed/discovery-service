@@ -7,13 +7,22 @@ RSpec.describe DiscoveryService::Metadata::Updater do
     let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
     let(:config) do
       { saml_service: { url: url },
-        groups: { aaf: [%w(discovery aaf)],
-                  edugain: [%w(discovery edugain)],
-                  taukiri: [%w(discovery taukiri)] },
-        environment: { name: Faker::Lorem.word, status: Faker::Internet.url },
-        tag_groups:  [{ name: 'Australia', tag: 'au' },
-                      { name: 'New Zealand', tag: 'nz' },
-                      { name: 'International', tag: '*' }] }
+        groups: { aaf:
+                      { filters: [%w(discovery aaf)],
+                        tag_groups:
+                              [{ name: 'Australia', tag: 'aaf' },
+                               { name: 'New Zealand', tag: 'tuakiri' }] },
+                  edugain:
+                      { filters: [%w(discovery edugain)],
+                        tag_groups:
+                                  [{ name: 'International', tag: '*' },
+                                   { name: 'Australia', tag: 'aaf' },
+                                   { name: 'New Zealand', tag: 'tuakiri' }] },
+                  taukiri:
+                      { filters: [%w(discovery taukiri)],
+                        tag_groups:  false } },
+        environment: { name: Faker::Lorem.word, status: Faker::Internet.url }
+      }
     end
 
     before do
