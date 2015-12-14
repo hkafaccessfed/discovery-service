@@ -94,16 +94,18 @@ script#sps(type='application/json')== JSON.generate(@sps)
       | You tried to access&nbsp;
       strong
         span.sp_header_name
-      | &nbsp;which requires you to login to your organisation.
-    p
-      | Your organisation could be:
-      ul
-        li Your University
-        li Your Research Organisation
-        li Your Research Support Organisation
-        li The AAF Virtual Home Organisation
-    p
-      | Once you've selected your organisation, you'll be taken to its log in page. When you've logged in, you'll be taken back to view the content or service you originally clicked on.
+      | &nbsp;which requires you to log in to your organisation.
+
+    | Your organisation could be:
+    ul.list
+      li Your University
+      li Your Research Organisation
+      li Your Research Support Organisation
+      li AAF Virtual Home Organisation
+    strong How to login
+    ol.list
+      li Select your organisation and you will be taken to their login page.
+      li Log in to your organisation and then you will be redirected back to the content or service you originally tried to access.
     strong What if I don't see my organisation in the list?
     p
       | Your organisation may not be a subscriber to the Australian Access Federation. For a complete list of subscribing organisations see the
