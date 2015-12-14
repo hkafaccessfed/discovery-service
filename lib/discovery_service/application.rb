@@ -118,6 +118,8 @@ module DiscoveryService
         params[:user_idp] = saved_user_idp
         record_cookie_selection(request, params, unique_id, saved_user_idp)
         handle_response(params)
+      elsif passive?(params) && params[:return]
+        redirect to(params[:return])
       elsif group_exists?(group)
         @entity_cache.group_page(group)
       else
@@ -137,11 +139,7 @@ module DiscoveryService
       idp_selection = idp_selections(request)[group]
       params[:user_idp] = idp_selection if idp_selection
 
-      if passive?(params) && idp_selection.nil?
-        redirect to(params[:return])
-      else
-        handle_response(params)
-      end
+      handle_response(params)
     end
   end
 end

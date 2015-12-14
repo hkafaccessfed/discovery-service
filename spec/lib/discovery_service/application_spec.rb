@@ -4,6 +4,19 @@ RSpec.describe DiscoveryService::Application do
   include Rack::Test::Methods
   include_context 'build_entity_data'
 
+  def actual_params
+    Rack::Utils.parse_nested_query(URI.parse(last_response.location).query)
+  end
+
+  def actual_location
+    last_response.location.split('?').first
+  end
+
+  def expect_matching_response(expected_location, expected_params)
+    expect(actual_location).to eq(expected_location)
+    expect(actual_params).to eq(expected_params)
+  end
+
   let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
   let(:app) { DiscoveryService::Application.new }
   let(:environment_name) { Faker::Lorem.word }
@@ -455,7 +468,6 @@ RSpec.describe DiscoveryService::Application do
 
         it 'handles the response' do
           run
-
           expect(last_response.body).to eq('stubbed')
         end
 
@@ -467,23 +479,114 @@ RSpec.describe DiscoveryService::Application do
                                   selection_method: 'cookie')
         end
       end
+
+      context 'with passive and return parameters' do
+        let(:entity_id) { Faker::Internet.url }
+        let(:sp_return_url) { Faker::Internet.url }
+        let(:selected_idp) { Faker::Internet.url }
+        let(:passive) { 'true' }
+
+        let(:path_for_group) do
+          "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"\
+          "&isPassive=#{passive}&return=#{sp_return_url}"
+        end
+
+        context 'without cookies' do
+          before do
+            configure_group
+            run
+          end
+
+          it 'returns http status code 302' do
+            expect(last_response.status).to eq(302)
+          end
+
+          it 'redirects back to sp using return url and no entity id' do
+            expect_matching_response(sp_return_url, {})
+          end
+        end
+
+        context 'with cookies' do
+          before do
+            configure_group
+            rack_mock_session.cookie_jar['selected_organisations'] =
+                JSON.generate(group_name => selected_idp)
+            run
+          end
+
+          it 'returns http status code 302' do
+            expect(last_response.status).to eq(302)
+          end
+
+          it 'redirects back to sp with entity id because'\
+             ' idp is resolved from cookies' do
+            expect_matching_response(sp_return_url,
+                                     'entityID' => selected_idp)
+          end
+        end
+      end
+
+      context 'with passive parameter but no return' do
+        let(:entity_id) { Faker::Internet.url }
+        let(:sp_return_url) { Faker::Internet.url }
+        let(:selected_idp) { Faker::Internet.url }
+        let(:passive) { 'true' }
+
+        let(:path_for_group) do
+          "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"\
+          "&isPassive=#{passive}"
+        end
+
+        context 'without cookies' do
+          before do
+            configure_group
+            run
+          end
+
+          it 'returns http status code 404 as no return found' do
+            expect(last_response.status).to eq(404)
+          end
+        end
+
+        context 'with cookies' do
+          before do
+            configure_group
+            rack_mock_session.cookie_jar['selected_organisations'] =
+                JSON.generate(group_name => selected_idp)
+            run
+          end
+
+          it 'returns http status code 404 as no return found' do
+            expect(last_response.status).to eq(404)
+          end
+        end
+
+        context 'with cookies and discovery response stored' do
+          let(:existing_entity) { build_sp_data(['sp', group_name]) }
+          let(:entity_id) { existing_entity[:entity_id] }
+          before do
+            configure_group
+            redis.set("entities:#{group_name}",
+                      to_hash([existing_entity]).to_json)
+            rack_mock_session.cookie_jar['selected_organisations'] =
+                JSON.generate(group_name => existing_entity[:entity_id])
+            run
+          end
+
+          it 'returns http status code 302 as discovery response is used' do
+            expect(last_response.status).to eq(302)
+          end
+
+          it 'redirects back to sp using discovery response value' do
+            expect_matching_response(existing_entity[:discovery_response],
+                                     'entityID' => existing_entity[:entity_id])
+          end
+        end
+      end
     end
   end
 
   describe 'POST /discovery/:group/:unique_id' do
-    def actual_params
-      Rack::Utils.parse_nested_query(URI.parse(last_response.location).query)
-    end
-
-    def actual_location
-      last_response.location.split('?').first
-    end
-
-    def expect_matching_response(expected_location, expected_params)
-      expect(actual_location).to eq(expected_location)
-      expect(actual_params).to eq(expected_params)
-    end
-
     let(:group_name) { Faker::Lorem.word }
     let(:selected_idp) { Faker::Internet.url }
     let(:form_content) { { user_idp: selected_idp } }
@@ -769,45 +872,6 @@ RSpec.describe DiscoveryService::Application do
 
           it 'redirects back to sp using return url value' do
             expect_matching_response(sp_return_url, 'entityID' => selected_idp)
-          end
-        end
-      end
-
-      context 'with entity id, return and passive parameter' do
-        let(:path) do
-          "#{base_path}?entityID=#{requesting_sp}"\
-          "&return=#{sp_return_url}&isPassive=#{passive}"
-        end
-
-        let(:form_content) { {} }
-
-        context 'with passive set to true and cookie set' do
-          before do
-            rack_mock_session.cookie_jar['selected_organisations'] =
-                JSON.generate(group_name => selected_idp)
-            run
-          end
-
-          let(:passive) { 'true' }
-          it 'returns http status code 302' do
-            expect(last_response.status).to eq(302)
-          end
-
-          it 'redirects back to sp with entity id because'\
-             ' idp is resolved from cookies' do
-            expect_matching_response(sp_return_url, 'entityID' => selected_idp)
-          end
-        end
-
-        context 'with passive set to true but no cookie set' do
-          before { run }
-          let(:passive) { 'true' }
-          it 'returns http status code 302' do
-            expect(last_response.status).to eq(302)
-          end
-
-          it 'redirects back to sp using return url value no entity id' do
-            expect_matching_response(sp_return_url, {})
           end
         end
       end
