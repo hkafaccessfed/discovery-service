@@ -3,6 +3,13 @@
 //= require datatables/jquery.dataTables
 //= require slimscroll/jquery.slimscroll
 
+function enableHelpLink() {
+  $('#help_link').show();
+  $('#help_link').on('click', function () {
+    $('.ui.modal').modal().modal('show');
+  });
+}
+
 function initScroller() {
   $('#scroller').slimScroll({
     height: '250px',
@@ -152,18 +159,14 @@ function loadInitiatingSPDetails() {
 
   if (initiatingSP) {
     var sp = getSP(spJson, initiatingSP);
-    $('#sp_header_name').text(sp.name);
+    $('.sp_header_name').text(sp.name);
+
     if (sp.description) {
       $('#sp_header_description').text(sp.description);
     }
     if (sp.logo_url) {
       $('#sp_header_logo').attr("src", sp.logo_url);
     }
-
-    if (sp.information_url || sp.privacy_statement_url) {
-      $('#sp_header_links_column').show();
-    }
-
     if (sp.information_url) {
       $('#sp_header_information_url').attr("href", sp.information_url);
       $('#sp_header_information_url').text('Service Information');
@@ -279,6 +282,7 @@ function showJSEnabledElements() {
   loadInitiatingSPDetails();
   initialiseCheckbox();
   focusSearchField();
+  enableHelpLink();
 }
 
 function initGroupPage() {

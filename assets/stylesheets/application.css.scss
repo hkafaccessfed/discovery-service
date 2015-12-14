@@ -123,7 +123,13 @@ $tablet-max-width: 767px;
   white-space: nowrap;
 }
 
-#sp_header_links_column {
+#sp_header_links {
+  margin-top: 0em;
+  padding-bottom: 0.3em;
+}
+
+#help_link {
+  outline: 0;
   display: none;
 }
 

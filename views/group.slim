@@ -13,14 +13,18 @@ script#sps(type='application/json')== JSON.generate(@sps)
         img#sp_header_logo.ui.image src="/aaf_logo.png" /
         #sp_header.content
           | Login to 
-          span#sp_header_name  Service
-          #sp_header_description.sub.header
+          span.sp_header_name  Service
+          .sub.header
+            #sp_header_description
+            #sp_header_links.ui.list
+              .item
+                a#sp_header_information_url target="_blank"
+              .item
+                a#sp_header_privacy_statement_url target="_blank"
     #sp_header_links_column.four.wide.column
-      .ui.list
-        .item
-          a#sp_header_information_url target="_blank"
-        .item
-          a#sp_header_privacy_statement_url target="_blank"
+      a#help_link href="#"
+        i.help.circle.icon
+        | Why am I here?
   - if @idps.any?
     form[id="idp_selection_form" action="" method="POST"]
       .ui.form.attached.fluid
@@ -81,3 +85,26 @@ script#sps(type='application/json')== JSON.generate(@sps)
     #status_links_column.four.wide.column
       .item
         a href="#{@environment[:status_url]}" target="_blank" Federation Status
+
+.ui.modal
+  i.close.icon
+  .header Why am I here?
+  .content
+    p
+      | You tried to access&nbsp;
+      strong
+        span.sp_header_name
+      | &nbsp;which requires you to login to your organisation.
+    p
+      | Your organisation could be:
+      ul
+        li Your University
+        li Your Research Organisation
+        li Your Research Support Organisation
+        li The AAF Virtual Home Organisation
+    p
+      | Once you've selected your organisation, you'll be taken to its log in page. When you've logged in, you'll be taken back to view the content or service you originally clicked on.
+    strong What if I don't see my organisation in the list?
+    p
+      | Your organisation may not be a subscriber to the Australian Access Federation. For a complete list of subscribing organisations see the
+      a href="http://www.aaf.edu.au/subscribe/subscribers" target="_blank"  AAF Subscribers list.
