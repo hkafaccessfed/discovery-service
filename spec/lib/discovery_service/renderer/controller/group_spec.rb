@@ -21,8 +21,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       { name: Faker::Address.country, tag: Faker::Address.country_code }
     end
 
-    let(:all_tag_group) { { name: 'International', tag: '*' } }
-    let(:tag_groups) { [tag_group_1, tag_group_2, all_tag_group] }
+    let(:tag_groups) { [tag_group_1, tag_group_2] }
     let(:lang) { Faker::Lorem.characters(2) }
 
     def run
@@ -54,8 +53,15 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
 
       context 'the tag groups' do
         subject { run.tag_groups }
-        it 'contains only the \'all\' tag group' do
-          expect(subject).to eq([all_tag_group])
+        it { is_expected.to eq([]) }
+
+        context 'including a \'*\' tab' do
+          let(:all_tag_group) { { name: 'International', tag: '*' } }
+          let(:tag_groups) { [tag_group_1, tag_group_2, all_tag_group] }
+          subject { run.tag_groups }
+          it 'still includes the \'*\' group' do
+            expect(subject).to eq([all_tag_group])
+          end
         end
       end
     end
@@ -66,8 +72,14 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       let(:entities) { [idp, sp] }
       context 'the tag groups' do
         subject { run.tag_groups }
-        it 'contains only the \'all\' tag group' do
-          expect(subject).to eq([all_tag_group])
+        it { is_expected.to eq([]) }
+        context 'including a \'*\' tab' do
+          let(:all_tag_group) { { name: 'International', tag: '*' } }
+          let(:tag_groups) { [tag_group_1, tag_group_2, all_tag_group] }
+          subject { run.tag_groups }
+          it 'still includes the \'*\' group' do
+            expect(subject).to eq([all_tag_group])
+          end
         end
       end
     end
@@ -79,7 +91,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       context 'the tag groups' do
         subject { run.tag_groups }
         it 'get filtered' do
-          expect(subject).to eq([tag_group_1, all_tag_group])
+          expect(subject).to eq([tag_group_1])
         end
       end
     end
@@ -93,7 +105,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
       context 'the tag groups' do
         subject { run.tag_groups }
         it 'get filtered' do
-          expect(subject).to eq(tag_groups)
+          expect(subject).to eq([tag_group_1, tag_group_2])
         end
       end
     end

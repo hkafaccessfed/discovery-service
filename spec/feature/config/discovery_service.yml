@@ -3,23 +3,35 @@
   :url: http://localhost:8080/entities
 
 :groups:
-  :aaf:
-    - [discovery, aaf]
   :taukiri:
-    - [discovery, taukiri]
+    :filters:
+      - [tuakiri, other]
+    :tag_groups:
+      false
+  :aaf:
+    :filters:
+      - [discovery, aaf]
+      - [sp, aaf]
+      - [idp, aaf]
+      - [tuakiri]
+    :tag_groups:
+      - :name: 'Australia'
+        :tag: 'aaf'
+      - :name: 'New Zealand'
+        :tag: 'tuakiri'
   :edugain:
-    - [discovery, aaf]
-    - [discovery, taukiri]
-    - [discovery, edugain]
+    :filters:
+      - [discovery, aaf]
+      - [discovery, tuakiri]
+      - [discovery, edugain]
+    :tag_groups:
+      - :name: 'Australia'
+        :tag: 'aaf'
+      - :name: 'New Zealand'
+        :tag: 'tuakiri'
+      - :name: 'International'
+        :tag: '*'
 
 :environment:
-  :name: 'test'
+  :name: 'Test Environment'
   :status_url: 'http://status.test.aaf.edu.au'
-
-:tag_groups:
-  - :name: 'Australia'
-    :tag: 'au'
-  - :name: 'New Zealand'
-    :tag: 'nz'
-  - :name: 'International'
-    :tag: '*'

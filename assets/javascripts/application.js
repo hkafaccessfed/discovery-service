@@ -3,6 +3,13 @@
 //= require datatables/jquery.dataTables
 //= require slimscroll/jquery.slimscroll
 
+function enableHelpLink() {
+  $('#help_link').show();
+  $('#help_link').on('click', function () {
+    $('.ui.modal').modal().modal('show');
+  });
+}
+
 function initScroller() {
   $('#scroller').slimScroll({
     height: '250px',
@@ -100,11 +107,22 @@ function clearSearchOnClearButtonClick() {
 function displayMainIdPSelectButton() {
   $('#select_organisation_button').addClass('disabled');
   $('#select_organisation_button').css("display", "inline-block");
-  $('#select_organisation_button').text('Select');
+  $('#select_organisation_button').text('Continue to your organisation');
 }
 
-function showTabs() {
-  $('#tab_menu').css('height', '100%');
+function enableTabs() {
+  $('#tab_content').css('padding-top', '0');
+  if ($('#tab_menu').children().length > 0) {
+    $('#tab_menu').css('height', '100%');
+    setFirstTabAsActive();
+    $.fn.dataTable.ext.search.push(
+        function (settings, data) {
+          var tagsForIdP = data[3];
+          var selectedTab = $('#tab_menu a.active').attr('data-tab');
+          return tagsForIdP.indexOf(selectedTab) != -1 || selectedTab == '*'
+        }
+    );
+  }
 }
 
 function setFirstTabAsActive() {
@@ -141,18 +159,14 @@ function loadInitiatingSPDetails() {
 
   if (initiatingSP) {
     var sp = getSP(spJson, initiatingSP);
-    $('#sp_header_name').text(sp.name);
+    $('.sp_header_name').text(sp.name);
+
     if (sp.description) {
       $('#sp_header_description').text(sp.description);
     }
     if (sp.logo_url) {
       $('#sp_header_logo').attr("src", sp.logo_url);
     }
-
-    if (sp.information_url || sp.privacy_statement_url) {
-      $('#sp_header_links_column').show();
-    }
-
     if (sp.information_url) {
       $('#sp_header_information_url').attr("href", sp.information_url);
       $('#sp_header_information_url').text('Service Information');
@@ -195,14 +209,6 @@ function buildDataset(idPData) {
     return [idP.name, idP.logo_url, idP.entity_id, idP.tags];
   });
 }
-
-$.fn.dataTable.ext.search.push(
-    function (settings, data) {
-      var tagsForIdP = data[3];
-      var selectedTab = $('#tab_menu a.active').attr('data-tab');
-      return tagsForIdP.indexOf(selectedTab) != -1 || selectedTab == '*'
-    }
-);
 
 function loadDataTable() {
   var idpJson = $.parseJSON($('#idps').html());
@@ -270,13 +276,13 @@ function initHandlers() {
 }
 
 function showJSEnabledElements() {
-  showTabs();
-  setFirstTabAsActive();
+  enableTabs();
   showSearchOptions();
   displayMainIdPSelectButton();
   loadInitiatingSPDetails();
   initialiseCheckbox();
   focusSearchField();
+  enableHelpLink();
 }
 
 function initGroupPage() {

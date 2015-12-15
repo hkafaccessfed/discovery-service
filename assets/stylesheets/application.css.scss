@@ -6,13 +6,6 @@ $mobile-max-width: 420px;
 $tablet-max-width: 767px;
 
 @media only screen and (max-width: $mobile-max-width) {
-  #select_organisation_button {
-    width: 100%;
-  }
-
-  #reset_idp_selection_button {
-    width: 100%;
-  }
 
   #sp_header {
     padding-left: 0px;
@@ -130,12 +123,14 @@ $tablet-max-width: 767px;
   white-space: nowrap;
 }
 
-#sp_header_links_column {
-  display: none;
+#sp_header_links {
+  margin-top: 0em;
+  padding-bottom: 0.3em;
 }
 
-#tab_content {
-  padding-top: 0em;
+#help_link {
+  outline: 0;
+  display: none;
 }
 
 .idp_selection_table_name_column {
@@ -156,5 +151,9 @@ $tablet-max-width: 767px;
 
 .select_organisation_input {
   display: none;
+}
+
+.list {
+  margin-top: 0.2em;
 }
 

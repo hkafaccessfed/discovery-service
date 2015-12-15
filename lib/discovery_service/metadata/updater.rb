@@ -29,19 +29,27 @@ module DiscoveryService
       def update
         config = YAML.load_file('config/discovery_service.yml')
         raw_entities = retrieve_entity_data(config[:saml_service][:url])
-        grouped_entities = filter(combine_sp_idp(raw_entities), config[:groups])
-        save_entities(grouped_entities, config[:tag_groups],
+        grouped_entities = filter(combine_sp_idp(raw_entities),
+                                  group_config(config, :filters))
+        save_entities(grouped_entities, group_config(config, :tag_groups),
                       config[:environment])
       end
 
       private
+
+      def group_config(config, key)
+        config[:groups].reduce({}) do |hash, (group, group_cfg)|
+          hash.merge(group => group_cfg[key])
+        end
+      end
 
       def save_entities(grouped_entities, tag_groups, environment)
         grouped_entities.each do |group, entities|
           if !@entity_cache.entities_exist?(group) || changed?(entities, group)
             save_entities_content(group, entities)
           end
-          save_group_page_content(group, entities, tag_groups, environment)
+          save_group_page_content(group, entities, tag_groups[group],
+                                  environment)
           update_expiry(group)
         end
       end
