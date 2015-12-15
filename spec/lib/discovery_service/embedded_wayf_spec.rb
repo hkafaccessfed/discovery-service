@@ -50,7 +50,7 @@ RSpec.describe DiscoveryService::EmbeddedWAYF do
     end
 
     it 'renders a javascript IIFE' do
-      expect(output).to include('(function(').and end_with('})();')
+      expect(output).to match(%r{/\*.+\*/.*\(function\(\) \{.*\}\)\(\)\;$}m)
     end
 
     it 'includes the entities' do

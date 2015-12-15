@@ -5,7 +5,7 @@ module DiscoveryService
   module EmbeddedWAYF
     def embedded_wayf_javascript
       "#{embedded_wayf_disclaimer}\n" \
-        '(function(idp_entities) {' \
+        '(function() {' \
         "#{embedded_wayf_preamble}" \
         "#{EMBEDDED_WAYF_LOGIC}" \
         '})();'
