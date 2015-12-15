@@ -215,7 +215,6 @@ function idPGrouping(entityId, recentOrganisations) {
 }
 
 function getRecentOrganisations() {
-  var recentOrganisationsCookie = $.cookie("recent_organisations");
   if (recentOrganisationsCookie) {
     var pathAsArray = window.location.pathname.split('/');
     var groupName = pathAsArray[pathAsArray.indexOf("discovery") + 1];
@@ -225,8 +224,9 @@ function getRecentOrganisations() {
 }
 
 function buildDataset(idPData) {
+  var recentOrganisations = getRecentOrganisations();
   var groupedIdPs = idPData.map(function (idP) {
-    var group = idPGrouping(idP.entity_id, getRecentOrganisations());
+    var group = idPGrouping(idP.entity_id, recentOrganisations);
     return [idP.name, idP.logo_url, idP.entity_id, idP.tags, group];
   });
 
@@ -242,6 +242,32 @@ function buildDataset(idPData) {
       return groupB.localeCompare(groupA);
     }
   });
+}
+
+$.fn.dataTable.ext.search.push(
+    function (settings, data) {
+      var tagsForIdP = data[3];
+      var selectedTab = $('#tab_menu a.active').attr('data-tab');
+      return tagsForIdP.indexOf(selectedTab) != -1 || selectedTab == '*'
+    }
+);
+
+function appendHeaders(settings) {
+  if (recentOrganisationsCookie) {
+    var api = this.api();
+    var rows = api.rows({page: 'current'}).nodes();
+    var last = null;
+
+    api.column(4, {page: 'current'}).data().each(function (group, i) {
+      if (last !== group) {
+        $(rows).eq(i).before(
+            '<tr class="group"><td colspan="3"><div class="sub header">' +
+            group + '</div></td></tr>'
+        );
+        last = group;
+      }
+    });
+  }
 }
 
 function loadDataTable() {
@@ -270,21 +296,7 @@ function loadDataTable() {
     ],
     bSort: false,
     bAutoWidth: false,
-    drawCallback: function (settings) {
-      var api = this.api();
-      var rows = api.rows({page: 'current'}).nodes();
-      var last = null;
-
-      api.column(4, {page: 'current'}).data().each(function (group, i) {
-        if (last !== group) {
-          $(rows).eq(i).before(
-              '<tr class="group"><td colspan="3"><div class="sub header">' + group + '</div></td></tr>'
-          );
-
-          last = group;
-        }
-      });
-    }
+    drawCallback: appendHeaders
   });
 }
 
@@ -346,5 +358,7 @@ function initGroupPage() {
   initScroller();
   setCursorToPointerOnIdPRows();
 }
+
+var recentOrganisationsCookie = $.cookie("recent_organisations");
 
 
