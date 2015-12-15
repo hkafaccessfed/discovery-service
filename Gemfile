@@ -24,6 +24,7 @@ source 'https://rails-assets.org' do
   gem 'rails-assets-semantic-ui'
   gem 'rails-assets-datatables'
   gem 'rails-assets-slimscroll'
+  gem 'rails-assets-jquery-cookie'
 end
 
 group :development, :test do

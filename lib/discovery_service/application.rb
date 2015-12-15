@@ -140,15 +140,15 @@ module DiscoveryService
     post '/discovery/:group/:unique_id' do |group, unique_id|
       return 400 unless valid_params?
 
-      if params[:remember]
-        save_idp_selection(group, params[:user_idp], request, response)
-      end
+      save_idp_selection(
+        group, params[:user_idp], request, response) if params[:remember]
 
       record_manual_selection(request, params, unique_id)
 
       idp_selection = idp_selections(request)[group]
       params[:user_idp] = idp_selection if idp_selection
 
+      save_recent_idp_selection(group, params[:user_idp], request, response)
       handle_response(params)
     end
   end

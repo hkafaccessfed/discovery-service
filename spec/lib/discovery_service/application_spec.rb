@@ -608,6 +608,12 @@ RSpec.describe DiscoveryService::Application do
   end
 
   describe 'POST /discovery/:group/:unique_id' do
+  
+    def date_in_3_months
+      (DateTime.now + 3.months).in_time_zone('UTC')
+        .strftime('%a, %d %b %Y %H:%M:%S -0000')
+    end
+
     let(:group_name) { Faker::Lorem.word }
     let(:selected_idp) { Faker::Internet.url }
     let(:form_content) { { user_idp: selected_idp } }
@@ -738,15 +744,71 @@ RSpec.describe DiscoveryService::Application do
         end
       end
 
-      context 'with the option to remember organisation on' do
+      context 'recent idp cookies' do
         let(:path) do
           "#{base_path}?entityID=#{requesting_sp}"\
           "&return=#{sp_return_url}"
         end
 
-        def date_in_3_months
-          (DateTime.now + 3.months).in_time_zone('UTC')
-            .strftime('%a, %d %b %Y %H:%M:%S -0000')
+        let(:cookie_as_hash) { { group_name => expected_idps } }
+
+        let(:encoded_cookie) do
+          URI.encode_www_form_component(JSON.generate(cookie_as_hash))
+        end
+
+        def expected_cookie
+          "recent_organisations=#{encoded_cookie};"\
+                " path=/; expires=#{date_in_3_months}"
+        end
+
+        context 'with no previous selection' do
+          let(:expected_idps) { [selected_idp] }
+          it 'sets a cookie for the selected idp' do
+            Timecop.freeze do
+              run
+              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+            end
+          end
+        end
+
+        context 'with one previous selection' do
+          let(:first_selected_idp) { Faker::Internet.url }
+          let(:expected_idps) { [first_selected_idp, selected_idp] }
+          it 'appends the idp selection' do
+            Timecop.freeze do
+              rack_mock_session.cookie_jar['recent_organisations'] =
+                  JSON.generate(group_name => [first_selected_idp])
+              run
+              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+            end
+          end
+        end
+
+        context 'with three previous selections' do
+          let(:first_selected_idp) { Faker::Internet.url }
+          let(:second_selected_idp) { Faker::Internet.url }
+          let(:third_selected_idp) { Faker::Internet.url }
+          let(:expected_idps) do
+            [second_selected_idp, third_selected_idp, selected_idp]
+          end
+
+          it 'appends the idp selection and removes the oldest' do
+            Timecop.freeze do
+              rack_mock_session.cookie_jar['recent_organisations'] =
+                  JSON.generate(group_name => [first_selected_idp,
+                                               second_selected_idp,
+                                               third_selected_idp])
+              run
+              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+            end
+          end
+        end
+      end
+
+      context 'with the option to remember organisation on' do
+        let(:path) do
+          "#{base_path}?entityID=#{requesting_sp}"\
+          "&return=#{sp_return_url}"
         end
 
         def expected_cookie
@@ -775,7 +837,7 @@ RSpec.describe DiscoveryService::Application do
           it 'sets a cookie for the selected idp' do
             Timecop.freeze do
               run
-              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+              expect(last_response['Set-Cookie']).to include(expected_cookie)
             end
           end
         end
@@ -788,7 +850,7 @@ RSpec.describe DiscoveryService::Application do
               rack_mock_session.cookie_jar['selected_organisations'] =
                   JSON.generate(group_name => originally_selected_idp)
               run
-              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+              expect(last_response['Set-Cookie']).to include(expected_cookie)
             end
           end
         end
@@ -814,7 +876,7 @@ RSpec.describe DiscoveryService::Application do
               rack_mock_session.cookie_jar['selected_organisations'] =
                   JSON.generate(other_selected_organisation_hash)
               run
-              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+              expect(last_response['Set-Cookie']).to include(expected_cookie)
             end
           end
         end

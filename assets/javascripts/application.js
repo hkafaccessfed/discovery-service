@@ -2,6 +2,7 @@
 //= require semantic-ui
 //= require datatables/jquery.dataTables
 //= require slimscroll/jquery.slimscroll
+//= require jquery-cookie
 
 function enableHelpLink() {
   $('#help_link').show();
@@ -204,9 +205,42 @@ function renderEntityIdInput(entityID) {
       ' type="submit">';
 }
 
+function idPGrouping(entityId, recentOrganisations) {
+  for (var i = 0; i < recentOrganisations.length; i++) {
+    if (recentOrganisations[i] == entityId) {
+      return 'Recent'
+    }
+  }
+  return 'Others';
+}
+
+function getRecentOrganisations() {
+  var recentOrganisationsCookie = $.cookie("recent_organisations");
+  if (recentOrganisationsCookie) {
+    var pathAsArray = window.location.pathname.split('/');
+    var groupName = pathAsArray[pathAsArray.indexOf("discovery") + 1];
+    return JSON.parse(recentOrganisationsCookie)[groupName];
+  }
+  return [];
+}
+
 function buildDataset(idPData) {
-  return idPData.map(function (idP) {
-    return [idP.name, idP.logo_url, idP.entity_id, idP.tags];
+  var groupedIdPs = idPData.map(function (idP) {
+    var group = idPGrouping(idP.entity_id, getRecentOrganisations());
+    return [idP.name, idP.logo_url, idP.entity_id, idP.tags, group];
+  });
+
+  return groupedIdPs.sort(function (a, b) {
+    var groupA = a[4];
+    var groupB = b[4];
+    var nameA = a[0];
+    var nameB = b[0];
+
+    if (groupA == groupB) {
+      return nameA.localeCompare(nameB);
+    } else {
+      return groupB.localeCompare(groupA);
+    }
   });
 }
 
@@ -219,21 +253,38 @@ function loadDataTable() {
     paging: false,
     sDom: '<"top">rt<"bottom"><"clear">',
     columnDefs: [
-      {sClass: "idp_selection_table_name_column", targets: 0 },
+      {sClass: "idp_selection_table_name_column", targets: 0},
       {render: renderIdPDetails, targets: 0},
-      {sClass: "idp_selection_logo_column", targets: 1 },
+      {sClass: "idp_selection_logo_column", targets: 1},
       {render: renderLogo, targets: 1},
       {render: renderEntityIdInput, targets: 2},
-      {visible: false, targets: 3}
+      {visible: false, targets: 3},
+      {visible: false, targets: 4}
     ],
     aoColumns: [
       {"bSearchable": true},
       {"bSearchable": false},
       {"bSearchable": false},
-      {"bSearchable": true}
+      {"bSearchable": true},
+      {"bSearchable": false},
     ],
-    order: [[0, 'asc']],
-    bAutoWidth: false
+    bSort: false,
+    bAutoWidth: false,
+    drawCallback: function (settings) {
+      var api = this.api();
+      var rows = api.rows({page: 'current'}).nodes();
+      var last = null;
+
+      api.column(4, {page: 'current'}).data().each(function (group, i) {
+        if (last !== group) {
+          $(rows).eq(i).before(
+              '<tr class="group"><td colspan="3"><div class="sub header">' + group + '</div></td></tr>'
+          );
+
+          last = group;
+        }
+      });
+    }
   });
 }
 
