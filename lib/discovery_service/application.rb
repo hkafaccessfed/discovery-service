@@ -4,6 +4,7 @@ require 'discovery_service/response/handler'
 require 'discovery_service/entity/builder'
 require 'discovery_service/validation/request_validations'
 require 'discovery_service/auditing'
+require 'discovery_service/embedded_wayf'
 require 'sinatra/base'
 require 'sinatra/cookies'
 require 'sinatra/asset_pipeline'
@@ -17,6 +18,9 @@ require 'json'
 require 'yaml'
 require 'uri'
 
+# rubocop:disable Metrics/ClassLength
+# TODO: Reenable this cop
+
 module DiscoveryService
   # Web application to allow users to select their IdP
   class Application < Sinatra::Base
@@ -25,6 +29,7 @@ module DiscoveryService
     include DiscoveryService::Response::Handler
     include DiscoveryService::Validation::RequestValidations
     include DiscoveryService::Auditing
+    include DiscoveryService::EmbeddedWAYF
 
     attr_reader :redis
 
@@ -79,6 +84,11 @@ module DiscoveryService
     get '/health' do
       Redis.new.ping
       'ok'
+    end
+
+    get '/embedded_wayf' do
+      content_type 'application/javascript'
+      embedded_wayf_javascript
     end
 
     get '/discovery' do
