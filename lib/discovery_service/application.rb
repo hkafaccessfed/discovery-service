@@ -110,7 +110,7 @@ module DiscoveryService
     end
 
     before %r{\A/discovery/([^/]+)(/.+)?\z} do |group, _|
-      halt 400 unless valid_group_name?(group)
+      halt 400 unless valid_group_name?(group) && uri?(params[:entityID])
       halt 404 unless group_configured?(group)
     end
 

@@ -406,11 +406,25 @@ RSpec.describe DiscoveryService::Application do
         expect(data[:unique_id]).to eq(id)
       end
     end
+
+    context 'without an entityID' do
+      let(:path_for_group) { "/discovery/#{group_name}" }
+
+      before { configure_group }
+
+      it 'returns http status code 400' do
+        run
+        expect(last_response.status).to eq(400)
+      end
+    end
   end
 
   describe 'GET /discovery/:group/:unique_id' do
+    let(:entity_id) { Faker::Internet.url }
     let(:unique_id) { Faker::Lorem.words(2).join('-') }
-    let(:path_for_group) { "/discovery/#{group_name}/#{unique_id}" }
+    let(:path_for_group) do
+      "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"
+    end
 
     def run
       get path_for_group
