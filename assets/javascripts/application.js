@@ -132,7 +132,7 @@ function setFirstTabAsActive() {
 }
 
 function getSP(spJson, initiatingSP) {
-  for (i = 0; i < spJson.length; i++) {
+  for (var i = 0; i < spJson.length; i++) {
     if (spJson[i].entity_id == initiatingSP) {
       return spJson[i];
     }
@@ -145,7 +145,7 @@ function getUrlParameter(sParam) {
       sParameterName,
       i;
 
-  for (i = 0; i < sURLVariables.length; i++) {
+  for (var i = 0; i < sURLVariables.length; i++) {
     sParameterName = sURLVariables[i].split('=');
 
     if (sParameterName[0] === sParam) {
