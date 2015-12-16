@@ -61,6 +61,27 @@ RSpec.describe DiscoveryService::Application do
     end
   end
 
+  describe 'GET /embedded_wayf' do
+    let(:group_name) { 'aaf' }
+
+    before do
+      configure_group
+      redis.set('entities:aaf', '{}')
+    end
+
+    def run
+      get '/embedded_wayf'
+    end
+
+    it 'responds with a javascript document' do
+      run
+      expect(last_response.status).to eq(200)
+      expect(last_response['Content-Type'])
+        .to start_with('application/javascript')
+      expect(last_response.body).to include('AAF Embedded WAYF')
+    end
+  end
+
   describe 'GET /discovery' do
     let(:path) { '/discovery' }
     let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }
