@@ -608,7 +608,6 @@ RSpec.describe DiscoveryService::Application do
   end
 
   describe 'POST /discovery/:group/:unique_id' do
-  
     def date_in_3_months
       (DateTime.now + 3.months).in_time_zone('UTC')
         .strftime('%a, %d %b %Y %H:%M:%S -0000')
