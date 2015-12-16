@@ -270,10 +270,11 @@ function appendHeaders(settings) {
     var last = null;
 
     api.column(4, {page: 'current'}).data().each(function (group, i) {
-      if (last !== group) {
+      if (group == 'Others' && last !== group &&
+          $('#search_input').val().trim() == "") {
         $(rows).eq(i).before(
             '<tr class="group"><td colspan="3"><div class="sub header">' +
-            group + '</div></td></tr>'
+            '</div></td></tr>'
         );
         last = group;
       }
