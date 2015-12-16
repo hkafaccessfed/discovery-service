@@ -205,7 +205,7 @@ function renderEntityIdInput(entityID) {
       ' type="submit">';
 }
 
-function idPGrouping(entityId, recentOrganisations) {
+function idPGrouping(entityId) {
   for (var i = 0; i < recentOrganisations.length; i++) {
     if (recentOrganisations[i] == entityId) {
       return 'Recent'
@@ -214,19 +214,38 @@ function idPGrouping(entityId, recentOrganisations) {
   return 'Others';
 }
 
+function getGroupName() {
+  var pathAsArray = window.location.pathname.split('/');
+  var groupName = pathAsArray[pathAsArray.indexOf("discovery") + 1];
+  return groupName;
+}
+
+function filterActiveIdPs(userOrganisationsForGroup) {
+  var recentOrganisations = [];
+
+  for (var i = 0; i < idpJson.length; i++) {
+    if (userOrganisationsForGroup.indexOf(idpJson[i].entity_id) != -1) {
+      recentOrganisations.push(idpJson[i].entity_id);
+    }
+  }
+  return recentOrganisations;
+}
+
 function getRecentOrganisations() {
+  var recentOrganisationsCookie = $.cookie("recent_organisations");
   if (recentOrganisationsCookie) {
-    var pathAsArray = window.location.pathname.split('/');
-    var groupName = pathAsArray[pathAsArray.indexOf("discovery") + 1];
-    return JSON.parse(recentOrganisationsCookie)[groupName];
+    var groupName = getGroupName();
+    var recentOrganisationsJson = JSON.parse(recentOrganisationsCookie);
+    if (groupName in recentOrganisationsJson) {
+      return filterActiveIdPs(recentOrganisationsJson[groupName]);
+    }
   }
   return [];
 }
 
-function buildDataset(idPData) {
-  var recentOrganisations = getRecentOrganisations();
-  var groupedIdPs = idPData.map(function (idP) {
-    var group = idPGrouping(idP.entity_id, recentOrganisations);
+function buildDataset() {
+  var groupedIdPs = idpJson.map(function (idP) {
+    var group = idPGrouping(idP.entity_id);
     return [idP.name, idP.logo_url, idP.entity_id, idP.tags, group];
   });
 
@@ -245,7 +264,7 @@ function buildDataset(idPData) {
 }
 
 function appendHeaders(settings) {
-  if (recentOrganisationsCookie) {
+  if (recentOrganisations.length > 0) {
     var api = this.api();
     var rows = api.rows({page: 'current'}).nodes();
     var last = null;
@@ -263,10 +282,8 @@ function appendHeaders(settings) {
 }
 
 function loadDataTable() {
-  var idpJson = $.parseJSON($('#idps').html());
-
   $('#idp_selection_table').DataTable({
-    data: buildDataset(idpJson),
+    data: buildDataset(),
     scrollCollapse: true,
     paging: false,
     sDom: '<"top">rt<"bottom"><"clear">',
@@ -327,7 +344,6 @@ function initHandlers() {
   clearSearchOnClearButtonClick();
   performSearchOnIdPSearchKeyup();
   makeMessagesClosable();
-
 }
 
 function showJSEnabledElements() {
@@ -341,6 +357,9 @@ function showJSEnabledElements() {
 }
 
 function initGroupPage() {
+  idpJson = $.parseJSON($('#idps').html());
+  recentOrganisations = getRecentOrganisations();
+
   showJSEnabledElements();
 
   initHandlers();
@@ -350,7 +369,4 @@ function initGroupPage() {
   initScroller();
   setCursorToPointerOnIdPRows();
 }
-
-var recentOrganisationsCookie = $.cookie("recent_organisations");
-
 
