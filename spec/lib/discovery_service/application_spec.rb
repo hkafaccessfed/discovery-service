@@ -264,7 +264,7 @@ RSpec.describe DiscoveryService::Application do
     let(:originally_selected_idp) { Faker::Internet.url }
 
     let(:reset_cookie) do
-      'selected_organisations=; max-age=0; '\
+      'selected_organisations=; path=/; max-age=0; '\
       'expires=Thu, 01 Jan 1970 00:00:00 -0000'
     end
 
@@ -506,7 +506,7 @@ RSpec.describe DiscoveryService::Application do
 
         context 'with cookie set for one group only' do
           let(:reset_cookie) do
-            'selected_organisations=; max-age=0; '\
+            'selected_organisations=; path=/; max-age=0; '\
             'expires=Thu, 01 Jan 1970 00:00:00 -0000'
           end
 

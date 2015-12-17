@@ -23,7 +23,7 @@ module DiscoveryService
       end
 
       def delete_idp_selection(response)
-        response.delete_cookie(SELECTED_ORGANISATIONS_KEY)
+        response.delete_cookie(SELECTED_ORGANISATIONS_KEY, path: '/')
       end
 
       def idp_selections(request)
