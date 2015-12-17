@@ -657,7 +657,9 @@ RSpec.describe DiscoveryService::Application do
 
   describe 'POST /discovery/:group/:unique_id' do
     let(:group_name) { Faker::Lorem.word }
-    let(:selected_idp) { Faker::Internet.url }
+    let(:existing_idp) { build_idp_data(['idp', group_name]) }
+    let(:existing_sp) { build_sp_data(['sp', group_name]) }
+    let(:selected_idp) { existing_idp[:entity_id] }
     let(:form_content) { { user_idp: selected_idp } }
     let(:requesting_sp) { Faker::Internet.url }
     let(:sp_return_url) { Faker::Internet.url }
@@ -739,7 +741,10 @@ RSpec.describe DiscoveryService::Application do
               ' discovery response stored' do
         let(:path) { "#{base_path}?entityID=#{requesting_sp}" }
 
-        before { run }
+        before do
+          redis.set("entities:#{group_name}", to_hash([existing_idp]).to_json)
+          run
+        end
 
         it 'returns http status code 404' do
           expect(last_response.status).to eq(404)
@@ -748,14 +753,13 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with an entity id parameter, no return parameter but discovery'\
               ' response stored' do
-        let(:existing_entity) { build_sp_data(['sp', group_name]) }
-        let(:requesting_sp) { existing_entity[:entity_id] }
+        let(:requesting_sp) { existing_sp[:entity_id] }
 
         let(:path) { "#{base_path}?entityID=#{requesting_sp}" }
 
         before do
           redis.set("entities:#{group_name}",
-                    to_hash([existing_entity]).to_json)
+                    to_hash([existing_sp, existing_idp]).to_json)
           run
         end
 
@@ -764,7 +768,7 @@ RSpec.describe DiscoveryService::Application do
         end
 
         it 'redirects back to sp using discovery response value' do
-          expect_matching_response(existing_entity[:discovery_response],
+          expect_matching_response(existing_sp[:discovery_response],
                                    'entityID' => selected_idp)
         end
       end
@@ -775,7 +779,11 @@ RSpec.describe DiscoveryService::Application do
           "&return=#{sp_return_url}"
         end
 
-        before { run }
+        before do
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_sp, existing_idp]).to_json)
+          run
+        end
 
         it 'returns http status code 302' do
           expect(last_response.status).to eq(302)
@@ -810,19 +818,21 @@ RSpec.describe DiscoveryService::Application do
         end
 
         context 'no idp selection previously' do
-          it 'returns http status code 302' do
+          before do
+            redis.set("entities:#{group_name}",
+                      to_hash([existing_sp, existing_idp]).to_json)
             run
+          end
+          it 'returns http status code 302' do
             expect(last_response.status).to eq(302)
           end
 
           it 'redirects back to sp using return url value' do
-            run
             expect_matching_response(sp_return_url, 'entityID' => selected_idp)
           end
 
           it 'sets a cookie for the selected idp' do
             Timecop.freeze do
-              run
               expect(last_response['Set-Cookie']).to eq(expected_cookie)
             end
           end
@@ -833,6 +843,8 @@ RSpec.describe DiscoveryService::Application do
 
           it 'overwrites the cookie for the selected idp' do
             Timecop.freeze do
+              redis.set("entities:#{group_name}",
+                        to_hash([existing_sp, existing_idp]).to_json)
               rack_mock_session.cookie_jar['selected_organisations'] =
                   JSON.generate(group_name => originally_selected_idp)
               run
@@ -859,6 +871,8 @@ RSpec.describe DiscoveryService::Application do
 
           it 'maintains the idp for the other group' do
             Timecop.freeze do
+              redis.set("entities:#{group_name}",
+                        to_hash([existing_sp, existing_idp]).to_json)
               rack_mock_session.cookie_jar['selected_organisations'] =
                   JSON.generate(other_selected_organisation_hash)
               run
@@ -876,7 +890,11 @@ RSpec.describe DiscoveryService::Application do
           "&return=#{sp_return_url_with_query}"
         end
 
-        before { run }
+        before do
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_sp, existing_idp]).to_json)
+          run
+        end
 
         it 'returns http status code 302' do
           expect(last_response.status).to eq(302)
@@ -903,7 +921,11 @@ RSpec.describe DiscoveryService::Application do
           "&return=#{sp_return_url}&returnIDParam=myCustomEntityID"
         end
 
-        before { run }
+        before do
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_sp, existing_idp]).to_json)
+          run
+        end
 
         it 'returns http status code 302' do
           expect(last_response.status).to eq(302)
@@ -921,7 +943,11 @@ RSpec.describe DiscoveryService::Application do
           "&return=#{sp_return_url}&policy=#{policy}"
         end
 
-        before { run }
+        before do
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_sp, existing_idp]).to_json)
+          run
+        end
 
         context 'with unsupported policy' do
           let(:policy) { 'unsupported_policy ' }
@@ -947,15 +973,13 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with entity id parameter, return parameter and also a'\
               ' discovery response' do
-        let(:existing_entity) { build_sp_data(['sp', group_name]) }
-
         let(:path) do
           "#{base_path}?entityID=#{requesting_sp}&return=#{sp_return_url}"
         end
 
         before do
           redis.set("entities:#{group_name}",
-                    to_hash([existing_entity]).to_json)
+                    to_hash([existing_sp, existing_idp]).to_json)
           run
         end
 
@@ -965,6 +989,23 @@ RSpec.describe DiscoveryService::Application do
 
         it 'ignores stored discovery response value and uses return param' do
           expect_matching_response(sp_return_url, 'entityID' => selected_idp)
+        end
+      end
+
+      context 'with a missing idp' do
+        let(:path) do
+          "#{base_path}?entityID=#{requesting_sp}&return=#{sp_return_url}"
+        end
+
+        before { run }
+
+        it 'returns http status code 302 as idp is not found' do
+          expect(last_response.status).to eq(302)
+        end
+
+        it 'redirects to /error/missing_idp as idp is not found' do
+          expect(last_response.location)
+            .to eq('http://example.org/error/missing_idp')
         end
       end
     end

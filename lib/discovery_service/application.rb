@@ -77,6 +77,10 @@ module DiscoveryService
       group_configured?(group) && @entity_cache.group_page_exists?(group)
     end
 
+    def missing_idp_redirect
+      redirect to('/error/missing_idp')
+    end
+
     get '/' do
       redirect to('/discovery')
     end
@@ -132,13 +136,10 @@ module DiscoveryService
     get '/discovery/:group/:unique_id' do |group, unique_id|
       saved_user_idp = idp_selections(request)[group]
       if uri?(saved_user_idp) && uri?(params[:entityID])
-        if entity_expired?(group, saved_user_idp)
-          redirect to('/error/missing_idp')
-        else
-          params[:user_idp] = saved_user_idp
-          record_cookie_selection(request, params, unique_id, saved_user_idp)
-          handle_response(params)
-        end
+        return missing_idp_redirect if entity_expired?(group, saved_user_idp)
+        params[:user_idp] = saved_user_idp
+        record_cookie_selection(request, params, unique_id, saved_user_idp)
+        handle_response(params)
       elsif passive?(params) && params[:return]
         redirect to(params[:return])
       elsif group_exists?(group)
@@ -150,6 +151,7 @@ module DiscoveryService
 
     post '/discovery/:group/:unique_id' do |group, unique_id|
       return 400 unless valid_params?
+      return missing_idp_redirect if entity_expired?(group, params[:user_idp])
 
       if params[:remember]
         save_idp_selection(group, params[:user_idp], request, response)
