@@ -5,6 +5,7 @@ RSpec.shared_context 'build_entity_data' do
     entity_data = build_entity_data(tags, lang)
     entity_data[:geolocations] = [{ longitude: Faker::Address.longitude,
                                     latitude: Faker::Address.latitude }]
+    entity_data[:single_sign_on_endpoints] = { soap: [Faker::Internet.url] }
     entity_data
   end
 

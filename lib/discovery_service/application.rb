@@ -137,6 +137,21 @@ module DiscoveryService
       end
     end
 
+    get '/api/discovery/:group' do |group|
+      content_type 'application/json;charset=utf-8'
+      return 400 unless valid_group_name?(group) && group_configured?(group)
+      entities = @entity_cache.entities_as_hash(group)
+      return 204 if entities == {}
+      result = {}
+      result[:identity_providers] = []
+      entities.each do |entity_id, entity|
+        next unless entity[:tags].include?('idp')
+        fields = entity.slice(:names, :logos, :tags, :single_sign_on_endpoints)
+        result[:identity_providers] << { entity_id: entity_id }.merge(fields)
+      end
+      JSON.generate(result)
+    end
+
     post '/discovery/:group/:unique_id' do |group, unique_id|
       return 400 unless valid_params?
 
