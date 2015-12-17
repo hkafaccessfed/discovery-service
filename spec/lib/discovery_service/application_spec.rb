@@ -652,8 +652,13 @@ RSpec.describe DiscoveryService::Application do
         run
       end
 
-      it 'returns http status code 204 (no content)' do
-        expect(last_response.status).to eq(204)
+      it 'returns http status code 200' do
+        expect(last_response.status).to eq(200)
+      end
+
+      it 'returns an empty list' do
+        expect(last_response.body)
+          .to eq(JSON.generate(identity_providers: []))
       end
     end
 
@@ -666,7 +671,7 @@ RSpec.describe DiscoveryService::Application do
         run
       end
 
-      it 'returns http status code 200 (ok)' do
+      it 'returns http status code 200' do
         expect(last_response.status).to eq(200)
       end
 
