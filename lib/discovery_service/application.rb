@@ -156,10 +156,6 @@ module DiscoveryService
       end
 
       record_manual_selection(request, params, unique_id)
-
-      idp_selection = idp_selections(request)[group]
-      params[:user_idp] = idp_selection if idp_selection
-
       handle_response(params)
     end
   end
