@@ -96,7 +96,9 @@ module DiscoveryService
       idp_selections(request).each do |group, entity_id|
         next unless valid_group_name?(group) && group_configured?(group) &&
                     uri?(entity_id) && @entity_cache.entities_exist?(group)
-        entity = @entity_cache.entities_as_hash(group)[entity_id]
+        entities = @entity_cache.entities_as_hash(group)
+        next unless entities.key?(entity_id)
+        entity = entities[entity_id]
         entity[:entity_id] = entity_id
         entry = build_entry(entity, 'en', :idp)
         @idps << entry

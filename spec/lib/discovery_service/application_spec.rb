@@ -122,9 +122,12 @@ RSpec.describe DiscoveryService::Application do
       end
 
       context 'and the idp does not exist anymore' do
+        let(:existing_entity) { build_idp_data(['idp', group_name], 'en') }
         let(:entity_id) { Faker::Internet.url }
         it 'shows that there are no organisations selected' do
           configure_group
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_entity]).to_json)
           rack_mock_session.cookie_jar['selected_organisations'] =
               JSON.generate(group_name => entity_id)
           run
