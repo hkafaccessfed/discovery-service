@@ -1,6 +1,7 @@
 require 'discovery_service/persistence/entity_cache'
 require 'discovery_service/cookie/store'
 require 'discovery_service/response/handler'
+require 'discovery_service/response/api_response_builder'
 require 'discovery_service/entity/builder'
 require 'discovery_service/validation/request_validations'
 require 'discovery_service/auditing'
@@ -27,6 +28,7 @@ module DiscoveryService
     include DiscoveryService::Cookie::Store
     include DiscoveryService::Entity::Builder
     include DiscoveryService::Response::Handler
+    include DiscoveryService::Response::APIResponseBuilder
     include DiscoveryService::Validation::RequestValidations
     include DiscoveryService::Auditing
     include DiscoveryService::EmbeddedWAYF
@@ -135,6 +137,13 @@ module DiscoveryService
       else
         status 404
       end
+    end
+
+    get '/api/discovery/:group' do |group|
+      content_type 'application/json;charset=utf-8'
+      return 400 unless valid_group_name?(group) && group_configured?(group)
+      entities = @entity_cache.entities_as_hash(group)
+      JSON.generate(build_api_response(entities))
     end
 
     post '/discovery/:group/:unique_id' do |group, unique_id|

@@ -607,6 +607,139 @@ RSpec.describe DiscoveryService::Application do
     end
   end
 
+  describe 'GET /api/discovery/:group' do
+    let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }
+
+    def expected_idp(idp)
+      { entity_id: idp[:entity_id],
+        names: idp[:names],
+        logos: idp[:logos],
+        tags: idp[:tags],
+        single_sign_on_endpoints: idp[:single_sign_on_endpoints]
+      }
+    end
+
+    def run
+      get "/api/discovery/#{group_name}"
+    end
+
+    context 'with group name invalid' do
+      let(:group_name) { '*' }
+
+      before do
+        run
+      end
+
+      it 'returns http status code 400 (bad request)' do
+        expect(last_response.status).to eq(400)
+      end
+    end
+
+    context 'with group not existing' do
+      before do
+        run
+      end
+
+      it 'returns http status code 400 (bad request)' do
+        expect(last_response.status).to eq(400)
+      end
+    end
+
+    context 'with no entities existing for group' do
+      before do
+        configure_group
+        redis.set("entities:#{group_name}", to_hash([]).to_json)
+        run
+      end
+
+      it 'returns http status code 200' do
+        expect(last_response.status).to eq(200)
+      end
+
+      it 'returns an empty list' do
+        expect(last_response.body)
+          .to eq(JSON.generate(identity_providers: []))
+      end
+    end
+
+    context 'with one idp existing for group' do
+      let(:idp) { build_idp_data(['idp', group_name]) }
+      before do
+        configure_group
+        redis.set("entities:#{group_name}",
+                  to_hash([idp]).to_json)
+        run
+      end
+
+      it 'returns http status code 200' do
+        expect(last_response.status).to eq(200)
+      end
+
+      it 'sets the content type to application/json' do
+        expect(last_response.content_type)
+          .to eq('application/json;charset=utf-8')
+      end
+
+      it 'returns the entity as expected' do
+        expect(last_response.body)
+          .to eq(JSON.generate(identity_providers: [expected_idp(idp)]))
+      end
+    end
+
+    context 'with idp containing only mandatory fields' do
+      let(:idp) { { entity_id: Faker::Internet.url, tags: ['idp'] } }
+
+      before do
+        configure_group
+        redis.set("entities:#{group_name}",
+                  to_hash([idp]).to_json)
+        run
+      end
+
+      it 'returns the idp with no keys for empty fields' do
+        expect(last_response.body)
+          .to eq(JSON.generate(identity_providers: [
+            { entity_id: idp[:entity_id],
+              tags: [idp[:tags].first] }]))
+      end
+    end
+
+    context 'with idp and sp existing for group' do
+      let(:idp) { build_idp_data(['idp', group_name]) }
+      let(:sp) { build_sp_data(['sp', group_name]) }
+      before do
+        configure_group
+        redis.set("entities:#{group_name}",
+                  to_hash([idp, sp]).to_json)
+        run
+      end
+
+      it 'returns the idp as expected' do
+        expect(last_response.body)
+          .to eq(JSON.generate(identity_providers: [expected_idp(idp)]))
+      end
+    end
+
+    context 'with many idps and sps existing for group' do
+      let(:idp1) { build_idp_data(['idp', group_name]) }
+      let(:idp2) { build_idp_data(['idp', group_name]) }
+      let(:sp1) { build_sp_data(['sp', group_name]) }
+      let(:sp2) { build_sp_data(['sp', group_name]) }
+      before do
+        configure_group
+        redis.set("entities:#{group_name}",
+                  to_hash([idp1, idp2, sp1, sp2]).to_json)
+        run
+      end
+
+      it 'returns the idps as expected' do
+        expect(last_response.body)
+          .to eq(JSON.generate(identity_providers: [expected_idp(idp1),
+                                                    expected_idp(idp2)]))
+      end
+    end
+  end
+
   describe 'POST /discovery/:group/:unique_id' do
     let(:group_name) { Faker::Lorem.word }
     let(:selected_idp) { Faker::Internet.url }
