@@ -136,7 +136,10 @@ module DiscoveryService
     get '/discovery/:group/:unique_id' do |group, unique_id|
       saved_user_idp = idp_selections(request)[group]
       if uri?(saved_user_idp) && uri?(params[:entityID])
-        return missing_idp_redirect if entity_expired?(group, saved_user_idp)
+        if entity_expired?(group, saved_user_idp)
+          remove_idp_selection(group, request, response)
+          return missing_idp_redirect
+        end
         params[:user_idp] = saved_user_idp
         record_cookie_selection(request, params, unique_id, saved_user_idp)
         handle_response(params)

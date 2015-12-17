@@ -17,6 +17,11 @@ RSpec.describe DiscoveryService::Application do
     expect(actual_params).to eq(expected_params)
   end
 
+  def date_in_3_months
+    (DateTime.now + 3.months).in_time_zone('UTC')
+      .strftime('%a, %d %b %Y %H:%M:%S -0000')
+  end
+
   let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
   let(:app) { DiscoveryService::Application.new }
   let(:environment_name) { Faker::Lorem.word }
@@ -495,23 +500,88 @@ RSpec.describe DiscoveryService::Application do
           "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"
         end
 
-        before do
-          configure_group
-          redis.set("entities:#{group_name}", to_hash([]).to_json)
-          allow_any_instance_of(DiscoveryService::Application)
-            .to receive(:handle_response).and_return('stubbed')
-          rack_mock_session.cookie_jar['selected_organisations'] =
-              JSON.generate(group_name => entity_id)
-          run
+        let(:encoded_cookie) do
+          URI.encode_www_form_component(JSON.generate(reset_cookie))
         end
 
-        it 'returns http status code 302 as idp is not found' do
-          expect(last_response.status).to eq(302)
+        context 'with cookie set for one group only' do
+          let(:reset_cookie) do
+            'selected_organisations=; max-age=0; '\
+            'expires=Thu, 01 Jan 1970 00:00:00 -0000'
+          end
+
+          before do
+            configure_group
+            redis.set("entities:#{group_name}", '{}')
+            allow_any_instance_of(DiscoveryService::Application)
+              .to receive(:handle_response).and_return('stubbed')
+            rack_mock_session.cookie_jar['selected_organisations'] =
+                JSON.generate(group_name => entity_id)
+            run
+          end
+
+          it 'returns http status code 302 as idp is not found' do
+            expect(last_response.status).to eq(302)
+          end
+
+          it 'redirects to /error/missing_idp as idp is not found' do
+            expect(last_response.location)
+              .to eq('http://example.org/error/missing_idp')
+          end
+
+          it 'resets the idp selection' do
+            expect(last_response['Set-Cookie']).to eq(reset_cookie)
+          end
         end
 
-        it 'redirects to /error/missing_idp as idp is not found' do
-          expect(last_response.location)
-            .to eq('http://example.org/error/missing_idp')
+        context 'with cookie set for multiple groups' do
+          let(:other_idp) { Faker::Internet.url }
+          let(:other_group) do
+            "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-"
+          end
+
+          let(:multiple_idp_selections) do
+            { other_group => other_idp }.merge(
+              group_name => entity_id)
+          end
+
+          let(:expected_encoded_cookie) do
+            URI.encode_www_form_component(
+              JSON.generate(other_group => other_idp))
+          end
+
+          def expected_cookie
+            "selected_organisations=#{expected_encoded_cookie};"\
+                " path=/; expires=#{date_in_3_months}"
+          end
+
+          def setup_and_run
+            configure_group
+            redis.set("entities:#{group_name}", '{}')
+            allow_any_instance_of(DiscoveryService::Application)
+              .to receive(:handle_response).and_return('stubbed')
+            rack_mock_session.cookie_jar['selected_organisations'] =
+                JSON.generate(multiple_idp_selections)
+            run
+          end
+
+          it 'returns http status code 302 as idp is not found' do
+            setup_and_run
+            expect(last_response.status).to eq(302)
+          end
+
+          it 'redirects to /error/missing_idp as idp is not found' do
+            setup_and_run
+            expect(last_response.location)
+              .to eq('http://example.org/error/missing_idp')
+          end
+
+          it 'resets the idp selection for the current group only' do
+            Timecop.freeze do
+              setup_and_run
+              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+            end
+          end
         end
       end
 
@@ -798,11 +868,6 @@ RSpec.describe DiscoveryService::Application do
         let(:path) do
           "#{base_path}?entityID=#{requesting_sp}"\
           "&return=#{sp_return_url}"
-        end
-
-        def date_in_3_months
-          (DateTime.now + 3.months).in_time_zone('UTC')
-            .strftime('%a, %d %b %Y %H:%M:%S -0000')
         end
 
         def expected_cookie
