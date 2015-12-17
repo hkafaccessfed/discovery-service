@@ -488,9 +488,8 @@ RSpec.describe DiscoveryService::Application do
         end
       end
 
-      context 'with the idp selection set and entity id passed' do
+      context 'with the idp selection set but idp no longer exists' do
         let(:entity_id) { Faker::Internet.url }
-        let(:originally_selected_idp) { Faker::Internet.url }
 
         let(:path_for_group) do
           "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"
@@ -498,14 +497,42 @@ RSpec.describe DiscoveryService::Application do
 
         before do
           configure_group
+          redis.set("entities:#{group_name}", to_hash([]).to_json)
           allow_any_instance_of(DiscoveryService::Application)
             .to receive(:handle_response).and_return('stubbed')
           rack_mock_session.cookie_jar['selected_organisations'] =
-              JSON.generate(group_name => originally_selected_idp)
+              JSON.generate(group_name => entity_id)
+          run
+        end
+
+        it 'returns http status code 302 as idp is not found' do
+          expect(last_response.status).to eq(302)
+        end
+
+        it 'redirects to /error/missing_idp as idp is not found' do
+          expect(last_response.location)
+            .to eq('http://example.org/error/missing_idp')
+        end
+      end
+
+      context 'with the idp selection set' do
+        let(:entity) { build_idp_data(['idp', group_name]) }
+
+        let(:path_for_group) do
+          "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"
+        end
+
+        before do
+          configure_group
+          redis.set("entities:#{group_name}", to_hash([entity]).to_json)
+          allow_any_instance_of(DiscoveryService::Application)
+            .to receive(:handle_response).and_return('stubbed')
+          rack_mock_session.cookie_jar['selected_organisations'] =
+              JSON.generate(group_name => entity[:entity_id])
+          run
         end
 
         it 'handles the response' do
-          run
           expect(last_response.body).to eq('stubbed')
         end
 
@@ -519,9 +546,10 @@ RSpec.describe DiscoveryService::Application do
       end
 
       context 'with passive and return parameters' do
+        let(:selected_idp) { build_idp_data(['idp', group_name]) }
         let(:entity_id) { Faker::Internet.url }
         let(:sp_return_url) { Faker::Internet.url }
-        let(:selected_idp) { Faker::Internet.url }
+        let(:selected_idp_entity_id) { selected_idp[:entity_id] }
         let(:passive) { 'true' }
 
         let(:path_for_group) do
@@ -547,8 +575,9 @@ RSpec.describe DiscoveryService::Application do
         context 'with cookies' do
           before do
             configure_group
+            redis.set("entities:#{group_name}", to_hash([selected_idp]).to_json)
             rack_mock_session.cookie_jar['selected_organisations'] =
-                JSON.generate(group_name => selected_idp)
+                JSON.generate(group_name => selected_idp_entity_id)
             run
           end
 
@@ -559,15 +588,16 @@ RSpec.describe DiscoveryService::Application do
           it 'redirects back to sp with entity id because'\
              ' idp is resolved from cookies' do
             expect_matching_response(sp_return_url,
-                                     'entityID' => selected_idp)
+                                     'entityID' => selected_idp_entity_id)
           end
         end
       end
 
       context 'with passive parameter but no return' do
+        let(:selected_idp) { build_idp_data(['idp', group_name]) }
         let(:entity_id) { Faker::Internet.url }
         let(:sp_return_url) { Faker::Internet.url }
-        let(:selected_idp) { Faker::Internet.url }
+        let(:selected_idp_entity_id) { selected_idp[:entity_id] }
         let(:passive) { 'true' }
 
         let(:path_for_group) do
@@ -589,8 +619,9 @@ RSpec.describe DiscoveryService::Application do
         context 'with cookies' do
           before do
             configure_group
+            redis.set("entities:#{group_name}", to_hash([selected_idp]).to_json)
             rack_mock_session.cookie_jar['selected_organisations'] =
-                JSON.generate(group_name => selected_idp)
+                JSON.generate(group_name => selected_idp_entity_id)
             run
           end
 
