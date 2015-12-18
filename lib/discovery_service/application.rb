@@ -163,5 +163,17 @@ module DiscoveryService
       record_manual_selection(request, params, unique_id)
       handle_response(params)
     end
+
+    get '/error/missing_idp' do
+      slim :missing_idp
+    end
+
+    error 400 do
+      slim :bad_request
+    end
+
+    error 404 do
+      slim :not_found
+    end
   end
 end

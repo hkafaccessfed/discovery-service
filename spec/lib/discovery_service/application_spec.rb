@@ -478,8 +478,11 @@ RSpec.describe DiscoveryService::Application do
       end
 
       context 'when group exists in config but not redis' do
-        let(:config) { { groups: {} } }
-        before { configure_group }
+        before do
+          config[:groups] = {}
+          configure_group
+        end
+
         it 'returns http status code 404' do
           run
           expect(last_response.status).to eq(404)
@@ -1073,6 +1076,23 @@ RSpec.describe DiscoveryService::Application do
             .to eq('http://example.org/error/missing_idp')
         end
       end
+    end
+  end
+
+  describe 'GET /error/missing_idp' do
+    def run
+      get '/error/missing_idp'
+    end
+
+    before { run }
+
+    it 'responds with status code 200' do
+      expect(last_response.status).to eq(200)
+    end
+
+    it 'display missing idp message' do
+      expect(last_response.body)
+        .to include('This organisation does not exist')
     end
   end
 end
