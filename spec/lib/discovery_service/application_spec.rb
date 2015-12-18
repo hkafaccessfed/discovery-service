@@ -17,6 +17,11 @@ RSpec.describe DiscoveryService::Application do
     expect(actual_params).to eq(expected_params)
   end
 
+  def date_in_3_months
+    (DateTime.now + 3.months).in_time_zone('UTC')
+      .strftime('%a, %d %b %Y %H:%M:%S -0000')
+  end
+
   let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
   let(:app) { DiscoveryService::Application.new }
   let(:environment_name) { Faker::Lorem.word }
@@ -122,9 +127,12 @@ RSpec.describe DiscoveryService::Application do
       end
 
       context 'and the idp does not exist anymore' do
+        let(:existing_entity) { build_idp_data(['idp', group_name], 'en') }
         let(:entity_id) { Faker::Internet.url }
         it 'shows that there are no organisations selected' do
           configure_group
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_entity]).to_json)
           rack_mock_session.cookie_jar['selected_organisations'] =
               JSON.generate(group_name => entity_id)
           run
@@ -256,7 +264,7 @@ RSpec.describe DiscoveryService::Application do
     let(:originally_selected_idp) { Faker::Internet.url }
 
     let(:reset_cookie) do
-      'selected_organisations=; max-age=0; '\
+      'selected_organisations=; path=/; max-age=0; '\
       'expires=Thu, 01 Jan 1970 00:00:00 -0000'
     end
 
@@ -406,11 +414,25 @@ RSpec.describe DiscoveryService::Application do
         expect(data[:unique_id]).to eq(id)
       end
     end
+
+    context 'without an entityID' do
+      let(:path_for_group) { "/discovery/#{group_name}" }
+
+      before { configure_group }
+
+      it 'returns http status code 400' do
+        run
+        expect(last_response.status).to eq(400)
+      end
+    end
   end
 
   describe 'GET /discovery/:group/:unique_id' do
+    let(:entity_id) { Faker::Internet.url }
     let(:unique_id) { Faker::Lorem.words(2).join('-') }
-    let(:path_for_group) { "/discovery/#{group_name}/#{unique_id}" }
+    let(:path_for_group) do
+      "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"
+    end
 
     def run
       get path_for_group
@@ -456,8 +478,11 @@ RSpec.describe DiscoveryService::Application do
       end
 
       context 'when group exists in config but not redis' do
-        let(:config) { { groups: {} } }
-        before { configure_group }
+        before do
+          config[:groups] = {}
+          configure_group
+        end
+
         it 'returns http status code 404' do
           run
           expect(last_response.status).to eq(404)
@@ -471,9 +496,99 @@ RSpec.describe DiscoveryService::Application do
         end
       end
 
-      context 'with the idp selection set and entity id passed' do
+      context 'with the idp selection set but idp no longer exists' do
         let(:entity_id) { Faker::Internet.url }
-        let(:originally_selected_idp) { Faker::Internet.url }
+        let(:page_content) { 'Page content here' }
+
+        let(:path_for_group) do
+          "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"
+        end
+
+        let(:encoded_cookie) do
+          URI.encode_www_form_component(JSON.generate(reset_cookie))
+        end
+
+        context 'with cookie set for one group only' do
+          let(:reset_cookie) do
+            'selected_organisations=; path=/; max-age=0; '\
+            'expires=Thu, 01 Jan 1970 00:00:00 -0000'
+          end
+
+          before do
+            configure_group
+            redis.set("entities:#{group_name}", '{}')
+            redis.set("pages:group:#{group_name}", page_content)
+            rack_mock_session.cookie_jar['selected_organisations'] =
+                JSON.generate(group_name => entity_id)
+            run
+          end
+
+          it 'returns http status code 200' do
+            run
+            expect(last_response.status).to eq(200)
+          end
+
+          it 'shows content' do
+            run
+            expect(last_response.body).to eq(page_content)
+          end
+
+          it 'resets the idp selection' do
+            expect(last_response['Set-Cookie']).to eq(reset_cookie)
+          end
+        end
+
+        context 'with cookie set for multiple groups' do
+          let(:other_idp) { Faker::Internet.url }
+          let(:other_group) do
+            "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-"
+          end
+
+          let(:multiple_idp_selections) do
+            { other_group => other_idp }.merge(
+              group_name => entity_id)
+          end
+
+          let(:expected_encoded_cookie) do
+            URI.encode_www_form_component(
+              JSON.generate(other_group => other_idp))
+          end
+
+          def expected_cookie
+            "selected_organisations=#{expected_encoded_cookie};"\
+                " path=/; expires=#{date_in_3_months}"
+          end
+
+          def setup_and_run
+            configure_group
+            redis.set("entities:#{group_name}", '{}')
+            redis.set("pages:group:#{group_name}", page_content)
+            rack_mock_session.cookie_jar['selected_organisations'] =
+                JSON.generate(multiple_idp_selections)
+            run
+          end
+
+          it 'returns http status code 200' do
+            setup_and_run
+            expect(last_response.status).to eq(200)
+          end
+
+          it 'shows content' do
+            setup_and_run
+            expect(last_response.body).to eq(page_content)
+          end
+
+          it 'resets the idp selection for the current group only' do
+            Timecop.freeze do
+              setup_and_run
+              expect(last_response['Set-Cookie']).to eq(expected_cookie)
+            end
+          end
+        end
+      end
+
+      context 'with the idp selection set' do
+        let(:entity) { build_idp_data(['idp', group_name]) }
 
         let(:path_for_group) do
           "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"
@@ -481,14 +596,15 @@ RSpec.describe DiscoveryService::Application do
 
         before do
           configure_group
+          redis.set("entities:#{group_name}", to_hash([entity]).to_json)
           allow_any_instance_of(DiscoveryService::Application)
             .to receive(:handle_response).and_return('stubbed')
           rack_mock_session.cookie_jar['selected_organisations'] =
-              JSON.generate(group_name => originally_selected_idp)
+              JSON.generate(group_name => entity[:entity_id])
+          run
         end
 
         it 'handles the response' do
-          run
           expect(last_response.body).to eq('stubbed')
         end
 
@@ -502,9 +618,10 @@ RSpec.describe DiscoveryService::Application do
       end
 
       context 'with passive and return parameters' do
+        let(:selected_idp) { build_idp_data(['idp', group_name]) }
         let(:entity_id) { Faker::Internet.url }
         let(:sp_return_url) { Faker::Internet.url }
-        let(:selected_idp) { Faker::Internet.url }
+        let(:selected_idp_entity_id) { selected_idp[:entity_id] }
         let(:passive) { 'true' }
 
         let(:path_for_group) do
@@ -530,8 +647,9 @@ RSpec.describe DiscoveryService::Application do
         context 'with cookies' do
           before do
             configure_group
+            redis.set("entities:#{group_name}", to_hash([selected_idp]).to_json)
             rack_mock_session.cookie_jar['selected_organisations'] =
-                JSON.generate(group_name => selected_idp)
+                JSON.generate(group_name => selected_idp_entity_id)
             run
           end
 
@@ -542,15 +660,16 @@ RSpec.describe DiscoveryService::Application do
           it 'redirects back to sp with entity id because'\
              ' idp is resolved from cookies' do
             expect_matching_response(sp_return_url,
-                                     'entityID' => selected_idp)
+                                     'entityID' => selected_idp_entity_id)
           end
         end
       end
 
       context 'with passive parameter but no return' do
+        let(:selected_idp) { build_idp_data(['idp', group_name]) }
         let(:entity_id) { Faker::Internet.url }
         let(:sp_return_url) { Faker::Internet.url }
-        let(:selected_idp) { Faker::Internet.url }
+        let(:selected_idp_entity_id) { selected_idp[:entity_id] }
         let(:passive) { 'true' }
 
         let(:path_for_group) do
@@ -572,8 +691,9 @@ RSpec.describe DiscoveryService::Application do
         context 'with cookies' do
           before do
             configure_group
+            redis.set("entities:#{group_name}", to_hash([selected_idp]).to_json)
             rack_mock_session.cookie_jar['selected_organisations'] =
-                JSON.generate(group_name => selected_idp)
+                JSON.generate(group_name => selected_idp_entity_id)
             run
           end
 
@@ -742,7 +862,9 @@ RSpec.describe DiscoveryService::Application do
 
   describe 'POST /discovery/:group/:unique_id' do
     let(:group_name) { Faker::Lorem.word }
-    let(:selected_idp) { Faker::Internet.url }
+    let(:existing_idp) { build_idp_data(['idp', group_name]) }
+    let(:existing_sp) { build_sp_data(['sp', group_name]) }
+    let(:selected_idp) { existing_idp[:entity_id] }
     let(:form_content) { { user_idp: selected_idp } }
     let(:requesting_sp) { Faker::Internet.url }
     let(:sp_return_url) { Faker::Internet.url }
@@ -824,7 +946,10 @@ RSpec.describe DiscoveryService::Application do
               ' discovery response stored' do
         let(:path) { "#{base_path}?entityID=#{requesting_sp}" }
 
-        before { run }
+        before do
+          redis.set("entities:#{group_name}", to_hash([existing_idp]).to_json)
+          run
+        end
 
         it 'returns http status code 404' do
           expect(last_response.status).to eq(404)
@@ -833,14 +958,13 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with an entity id parameter, no return parameter but discovery'\
               ' response stored' do
-        let(:existing_entity) { build_sp_data(['sp', group_name]) }
-        let(:requesting_sp) { existing_entity[:entity_id] }
+        let(:requesting_sp) { existing_sp[:entity_id] }
 
         let(:path) { "#{base_path}?entityID=#{requesting_sp}" }
 
         before do
           redis.set("entities:#{group_name}",
-                    to_hash([existing_entity]).to_json)
+                    to_hash([existing_sp, existing_idp]).to_json)
           run
         end
 
@@ -849,7 +973,7 @@ RSpec.describe DiscoveryService::Application do
         end
 
         it 'redirects back to sp using discovery response value' do
-          expect_matching_response(existing_entity[:discovery_response],
+          expect_matching_response(existing_sp[:discovery_response],
                                    'entityID' => selected_idp)
         end
       end
@@ -860,7 +984,11 @@ RSpec.describe DiscoveryService::Application do
           "&return=#{sp_return_url}"
         end
 
-        before { run }
+        before do
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_sp, existing_idp]).to_json)
+          run
+        end
 
         it 'returns http status code 302' do
           expect(last_response.status).to eq(302)
@@ -877,11 +1005,6 @@ RSpec.describe DiscoveryService::Application do
           "&return=#{sp_return_url}"
         end
 
-        def date_in_3_months
-          (DateTime.now + 3.months).in_time_zone('UTC')
-            .strftime('%a, %d %b %Y %H:%M:%S -0000')
-        end
-
         def expected_cookie
           "selected_organisations=#{encoded_cookie};"\
                 " path=/; expires=#{date_in_3_months}"
@@ -895,19 +1018,21 @@ RSpec.describe DiscoveryService::Application do
         end
 
         context 'no idp selection previously' do
-          it 'returns http status code 302' do
+          before do
+            redis.set("entities:#{group_name}",
+                      to_hash([existing_sp, existing_idp]).to_json)
             run
+          end
+          it 'returns http status code 302' do
             expect(last_response.status).to eq(302)
           end
 
           it 'redirects back to sp using return url value' do
-            run
             expect_matching_response(sp_return_url, 'entityID' => selected_idp)
           end
 
           it 'sets a cookie for the selected idp' do
             Timecop.freeze do
-              run
               expect(last_response['Set-Cookie']).to eq(expected_cookie)
             end
           end
@@ -918,6 +1043,8 @@ RSpec.describe DiscoveryService::Application do
 
           it 'overwrites the cookie for the selected idp' do
             Timecop.freeze do
+              redis.set("entities:#{group_name}",
+                        to_hash([existing_sp, existing_idp]).to_json)
               rack_mock_session.cookie_jar['selected_organisations'] =
                   JSON.generate(group_name => originally_selected_idp)
               run
@@ -944,6 +1071,8 @@ RSpec.describe DiscoveryService::Application do
 
           it 'maintains the idp for the other group' do
             Timecop.freeze do
+              redis.set("entities:#{group_name}",
+                        to_hash([existing_sp, existing_idp]).to_json)
               rack_mock_session.cookie_jar['selected_organisations'] =
                   JSON.generate(other_selected_organisation_hash)
               run
@@ -961,7 +1090,11 @@ RSpec.describe DiscoveryService::Application do
           "&return=#{sp_return_url_with_query}"
         end
 
-        before { run }
+        before do
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_sp, existing_idp]).to_json)
+          run
+        end
 
         it 'returns http status code 302' do
           expect(last_response.status).to eq(302)
@@ -988,7 +1121,11 @@ RSpec.describe DiscoveryService::Application do
           "&return=#{sp_return_url}&returnIDParam=myCustomEntityID"
         end
 
-        before { run }
+        before do
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_sp, existing_idp]).to_json)
+          run
+        end
 
         it 'returns http status code 302' do
           expect(last_response.status).to eq(302)
@@ -1006,7 +1143,11 @@ RSpec.describe DiscoveryService::Application do
           "&return=#{sp_return_url}&policy=#{policy}"
         end
 
-        before { run }
+        before do
+          redis.set("entities:#{group_name}",
+                    to_hash([existing_sp, existing_idp]).to_json)
+          run
+        end
 
         context 'with unsupported policy' do
           let(:policy) { 'unsupported_policy ' }
@@ -1032,15 +1173,13 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with entity id parameter, return parameter and also a'\
               ' discovery response' do
-        let(:existing_entity) { build_sp_data(['sp', group_name]) }
-
         let(:path) do
           "#{base_path}?entityID=#{requesting_sp}&return=#{sp_return_url}"
         end
 
         before do
           redis.set("entities:#{group_name}",
-                    to_hash([existing_entity]).to_json)
+                    to_hash([existing_sp, existing_idp]).to_json)
           run
         end
 
@@ -1052,6 +1191,41 @@ RSpec.describe DiscoveryService::Application do
           expect_matching_response(sp_return_url, 'entityID' => selected_idp)
         end
       end
+
+      context 'with a missing idp' do
+        let(:path) do
+          "#{base_path}?entityID=#{requesting_sp}&return=#{sp_return_url}"
+        end
+
+        before { run }
+
+        it 'returns http status code 302 as idp is not found' do
+          expect(last_response.status).to eq(302)
+        end
+
+        it 'redirects to /error/missing_idp as idp is not found' do
+          expect(last_response.location)
+            .to eq('http://example.org/error/missing_idp')
+        end
+      end
+    end
+  end
+
+  describe 'GET /error/missing_idp' do
+    def run
+      get '/error/missing_idp'
+    end
+
+    before { run }
+
+    it 'responds with status code 200' do
+      expect(last_response.status).to eq(200)
+    end
+
+    it 'display missing idp message' do
+      expect(last_response.body)
+        .to include('Oops! The organisation you selected isn\'t '\
+                    'available anymore.')
     end
   end
 end

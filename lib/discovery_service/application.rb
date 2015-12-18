@@ -98,7 +98,9 @@ module DiscoveryService
       idp_selections(request).each do |group, entity_id|
         next unless valid_group_name?(group) && group_configured?(group) &&
                     uri?(entity_id) && @entity_cache.entities_exist?(group)
-        entity = @entity_cache.entities_as_hash(group)[entity_id]
+        entities = @entity_cache.entities_as_hash(group)
+        next unless entities.key?(entity_id)
+        entity = entities[entity_id]
         entity[:entity_id] = entity_id
         entry = build_entry(entity, 'en', :idp)
         @idps << entry
@@ -112,7 +114,7 @@ module DiscoveryService
     end
 
     before %r{\A/discovery/([^/]+)(/.+)?\z} do |group, _|
-      halt 400 unless valid_group_name?(group)
+      halt 400 unless valid_group_name?(group) && uri?(params[:entityID])
       halt 404 unless group_configured?(group)
     end
 
@@ -124,8 +126,18 @@ module DiscoveryService
       redirect to(path)
     end
 
+    def entity_exists?(group, entity_id)
+      entities = @entity_cache.entities_as_hash(group)
+      entities && entities.key?(entity_id)
+    end
+
     get '/discovery/:group/:unique_id' do |group, unique_id|
       saved_user_idp = idp_selections(request)[group]
+      if saved_user_idp && !entity_exists?(group, saved_user_idp)
+        remove_idp_selection(group, request, response)
+        saved_user_idp = nil
+      end
+
       if uri?(saved_user_idp) && uri?(params[:entityID])
         params[:user_idp] = saved_user_idp
         record_cookie_selection(request, params, unique_id, saved_user_idp)
@@ -148,17 +160,28 @@ module DiscoveryService
 
     post '/discovery/:group/:unique_id' do |group, unique_id|
       return 400 unless valid_params?
+      unless entity_exists?(group, params[:user_idp])
+        return redirect to('/error/missing_idp')
+      end
 
       if params[:remember]
         save_idp_selection(group, params[:user_idp], request, response)
       end
 
       record_manual_selection(request, params, unique_id)
-
-      idp_selection = idp_selections(request)[group]
-      params[:user_idp] = idp_selection if idp_selection
-
       handle_response(params)
+    end
+
+    get '/error/missing_idp' do
+      slim :missing_idp
+    end
+
+    error 400 do
+      slim :bad_request
+    end
+
+    error 404 do
+      slim :not_found
     end
   end
 end

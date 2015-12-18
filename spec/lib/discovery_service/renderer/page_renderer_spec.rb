@@ -2,7 +2,7 @@ require 'discovery_service/renderer/page_renderer'
 require 'discovery_service/renderer/model/group'
 
 RSpec.describe DiscoveryService::Renderer::PageRenderer do
-  describe '#render(page, model)' do
+  describe '#render(page, model, environment)' do
     let(:klass) do
       Class.new { include DiscoveryService::Renderer::PageRenderer }
     end
@@ -23,7 +23,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
     subject do
       klass.new.render(:group,
                        DiscoveryService::Renderer::Model::Group.new(
-                         idps, sps, tag_groups, environment))
+                         idps, sps, tag_groups), environment)
     end
 
     it 'includes the layout' do

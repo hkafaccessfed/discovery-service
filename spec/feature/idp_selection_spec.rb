@@ -1,8 +1,9 @@
 require 'spec_helper'
 
 RSpec.feature 'selecting an idp', type: :feature do
+  given(:entity_id) { Faker::Internet.url }
   given(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
-  given(:path_for_group) { "/discovery/#{group_name}" }
+  given(:path_for_group) { "/discovery/#{group_name}?entityID=#{entity_id}" }
 
   context 'when the group does not exist' do
     given(:group_name) { 'xyz' }

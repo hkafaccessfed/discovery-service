@@ -78,7 +78,8 @@ module DiscoveryService
 
       def save_group_page_content(group, entities, tag_groups, environment)
         page = render(:group, generate_group_model(entities, 'en',
-                                                   tag_groups, environment))
+                                                   tag_groups),
+                      environment)
         logger.debug("Storing page for group '#{group}': '#{page}'")
         @entity_cache.save_group_page(group, page)
       end

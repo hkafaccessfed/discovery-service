@@ -9,7 +9,7 @@ module DiscoveryService
       module Group
         include DiscoveryService::Entity::Builder
 
-        def generate_group_model(entities, lang, tag_groups, environment)
+        def generate_group_model(entities, lang, tag_groups)
           result = { idps: [], sps: [] }
           tag_set = Set.new
           entities.nil? || entities.each_with_object(result) do |e, hash|
@@ -19,7 +19,7 @@ module DiscoveryService
             hash[entity_type] << entry
             tag_set.merge(entry[:tags])
           end
-          build_model(environment, result, tag_groups, tag_set)
+          build_model(result, tag_groups, tag_set)
         end
 
         private
@@ -29,12 +29,11 @@ module DiscoveryService
           return :idps if entity[:tags].include?('idp')
         end
 
-        def build_model(environment, result, tag_groups, tag_set)
+        def build_model(result, tag_groups, tag_set)
           filtered_tag_groups = filter_tag_groups(tag_groups, tag_set)
           DiscoveryService::Renderer::Model::Group.new(result[:idps],
                                                        result[:sps],
-                                                       filtered_tag_groups,
-                                                       environment)
+                                                       filtered_tag_groups)
         end
 
         def filter_tag_groups(tag_groups, tag_set)
