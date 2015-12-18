@@ -1,8 +1,8 @@
 .ui.mobile.stackable.padded.grid
   .sixteen.wide.column
     == Slim::Template.new('views/_header.slim').render
-  .ui.warning.message
-    .header
-      | Bad Request
-    | blah blah.
-  br /
+.ui.negative.message
+  .header
+    | Bad request
+  | The requested resource is invalid.
+br /

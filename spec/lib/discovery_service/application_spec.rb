@@ -1092,7 +1092,7 @@ RSpec.describe DiscoveryService::Application do
 
     it 'display missing idp message' do
       expect(last_response.body)
-        .to include('This organisation does not exist')
+        .to include('Your selected organisation no longer exists!')
     end
   end
 end
