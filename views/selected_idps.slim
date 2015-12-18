@@ -1,10 +1,6 @@
 .ui.mobile.stackable.padded.grid
   .sixteen.wide.column
-    h2.ui.header
-      img.ui.image src="/aaf_logo.png" /
-      .content
-        | Discovery Service
-        .sub.header
+    == Slim::Template.new('views/_header.slim').render
 - if @idps && @idps.any?
   .ui.attached.message
     .header
