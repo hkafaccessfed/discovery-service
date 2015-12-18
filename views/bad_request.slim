@@ -4,5 +4,7 @@
 .ui.negative.message
   .header
     | Bad request
-  | The requested resource is invalid.
-br /
+  | Oops, we received a request from your browser that didn't make sense. Sorry about that, this was probably caused by an internal problem on our end.
+  br /
+  == Slim::Template.new('views/_support.slim').render
+
