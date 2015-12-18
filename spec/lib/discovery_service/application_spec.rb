@@ -498,6 +498,7 @@ RSpec.describe DiscoveryService::Application do
 
       context 'with the idp selection set but idp no longer exists' do
         let(:entity_id) { Faker::Internet.url }
+        let(:page_content) { 'Page content here' }
 
         let(:path_for_group) do
           "/discovery/#{group_name}/#{unique_id}?entityID=#{entity_id}"
@@ -516,20 +517,20 @@ RSpec.describe DiscoveryService::Application do
           before do
             configure_group
             redis.set("entities:#{group_name}", '{}')
-            allow_any_instance_of(DiscoveryService::Application)
-              .to receive(:handle_response).and_return('stubbed')
+            redis.set("pages:group:#{group_name}", page_content)
             rack_mock_session.cookie_jar['selected_organisations'] =
                 JSON.generate(group_name => entity_id)
             run
           end
 
-          it 'returns http status code 302 as idp is not found' do
-            expect(last_response.status).to eq(302)
+          it 'returns http status code 200' do
+            run
+            expect(last_response.status).to eq(200)
           end
 
-          it 'redirects to /error/missing_idp as idp is not found' do
-            expect(last_response.location)
-              .to eq('http://example.org/error/missing_idp')
+          it 'shows content' do
+            run
+            expect(last_response.body).to eq(page_content)
           end
 
           it 'resets the idp selection' do
@@ -561,22 +562,20 @@ RSpec.describe DiscoveryService::Application do
           def setup_and_run
             configure_group
             redis.set("entities:#{group_name}", '{}')
-            allow_any_instance_of(DiscoveryService::Application)
-              .to receive(:handle_response).and_return('stubbed')
+            redis.set("pages:group:#{group_name}", page_content)
             rack_mock_session.cookie_jar['selected_organisations'] =
                 JSON.generate(multiple_idp_selections)
             run
           end
 
-          it 'returns http status code 302 as idp is not found' do
+          it 'returns http status code 200' do
             setup_and_run
-            expect(last_response.status).to eq(302)
+            expect(last_response.status).to eq(200)
           end
 
-          it 'redirects to /error/missing_idp as idp is not found' do
+          it 'shows content' do
             setup_and_run
-            expect(last_response.location)
-              .to eq('http://example.org/error/missing_idp')
+            expect(last_response.body).to eq(page_content)
           end
 
           it 'resets the idp selection for the current group only' do
