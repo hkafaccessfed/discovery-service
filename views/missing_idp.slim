@@ -3,6 +3,7 @@
     == Slim::Template.new('views/_header.slim').render
 .ui.negative.message
   .header
-    | This organisation no longer exists!
-  | Please press the back button and try again.
+    | Oops! The organisation you selected isn't available anymore.
+  | This was probably caused by an internal problem on our end.
   br /
+  == Slim::Template.new('views/_support.slim').render

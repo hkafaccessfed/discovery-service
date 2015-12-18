@@ -1091,7 +1091,8 @@ RSpec.describe DiscoveryService::Application do
 
     it 'display missing idp message' do
       expect(last_response.body)
-        .to include('This organisation no longer exists!')
+        .to include('Oops! The organisation you selected isn\'t '\
+                    'available anymore.')
     end
   end
 end
