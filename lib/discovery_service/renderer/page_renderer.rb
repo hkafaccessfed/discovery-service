@@ -12,7 +12,10 @@ module DiscoveryService
     module PageRenderer
       include Sprockets::Helpers
 
-      def render(page, model)
+      attr_accessor :environment
+
+      def render(page, model, environment)
+        @environment = environment
         layout = Slim::Template.new('views/layout.slim')
         content = Slim::Template.new("views/#{page}.slim")
                   .render(model)

@@ -8,15 +8,13 @@ module DiscoveryService
         attr_accessor :idps
         attr_accessor :sps
         attr_accessor :tag_groups
-        attr_accessor :environment
 
         include DiscoveryService::Renderer::Helpers::Group
 
-        def initialize(idps, sps, tag_groups, environment)
+        def initialize(idps, sps, tag_groups)
           @idps = idps
           @sps = sps
           @tag_groups = tag_groups
-          @environment = environment
         end
       end
     end

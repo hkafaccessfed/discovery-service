@@ -8,4 +8,18 @@ html lang='en'
     == stylesheet_tag 'application.css'
     == javascript_tag 'application.js'
   body
-    == yield
+    .ui.text.container
+      == yield
+      .ui.divider
+      .ui.mobile.stackable.grid
+        .twelve.wide.column
+          .ui.horizontal.list
+            .item
+              a[href="http://www.aaf.edu.au" target="_blank" id="aaf_logo"]
+                img.ui.mini.circular.image src="/aaf_logo.png" /
+              .content[id="aaf_logo_content"]
+                .ui.sub.header Australian Access Federation
+                | #{@environment[:name]}
+        #status_links_column.four.wide.column
+          .item
+            a href="#{@environment[:status_url]}" target="_blank" Federation Status
