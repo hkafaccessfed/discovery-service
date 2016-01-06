@@ -10,11 +10,11 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     let(:tag_group_1) do
-      { name: Faker::Address.country, tag: Faker::Address.country_code }
+      { name: Faker::Address.country, tag: Faker::Lorem.characters(10) }
     end
 
     let(:tag_group_2) do
-      { name: Faker::Address.country, tag: Faker::Address.country_code }
+      { name: Faker::Address.country, tag: Faker::Lorem.characters(10) }
     end
 
     let(:tag_groups) { [tag_group_1, tag_group_2] }

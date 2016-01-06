@@ -55,7 +55,8 @@ script#sps(type='application/json')== JSON.generate(@sps)
                   - @idps.each do |idp|
                     tr
                       td
-                        strong #{idp[:name]}
+                        strong
+                          == idp[:name]
                       td
                         - if idp[:logo_url]
                           img.ui.image.tiny.bordered src="#{idp[:logo_url]}" /

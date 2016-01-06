@@ -12,7 +12,8 @@
         - @idps.each do |idp|
           tr
             td.idp_selection_table_name_column
-              strong #{idp[:name]}
+              strong
+                == idp[:name]
             td.idp_selection_logo_column
               - if idp[:logo_url]
                 img.ui.image.tiny.bordered src="#{idp[:logo_url]}" /

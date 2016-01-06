@@ -28,7 +28,8 @@ RSpec.describe DiscoveryService::Auditing do
   let(:headers) do
     {
       'HTTP_USER_AGENT' => data[:user_agent],
-      'HTTP_X_FORWARDED_FOR' => data[:ip]
+      'HTTP_X_FORWARDED_FOR' => data[:ip],
+      'REMOTE_ADDR' => data[:ip]
     }
   end
 
