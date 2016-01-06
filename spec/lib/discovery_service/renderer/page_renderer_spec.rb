@@ -57,10 +57,12 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       end
 
       let(:idp_1) do
-        { name: Faker::University.name, entity_id: Faker::Internet.url }
+        { name: CGI.escapeHTML(Faker::University.name),
+          entity_id: Faker::Internet.url }
       end
       let(:idp_2) do
-        { name: Faker::University.name, entity_id: Faker::Internet.url }
+        { name: CGI.escapeHTML(Faker::University.name),
+          entity_id: Faker::Internet.url }
       end
 
       let(:idps) { [idp_1, idp_2] }
@@ -78,8 +80,8 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       end
 
       it 'includes the organisations to select' do
-        expect(subject).to include(CGI.escapeHTML(idp_1[:name]))
-        expect(subject).to include(CGI.escapeHTML(idp_2[:name]))
+        expect(subject).to include(idp_1[:name])
+        expect(subject).to include(idp_2[:name])
       end
 
       it 'includes a submit button for each idp' do
@@ -98,8 +100,20 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       end
 
       it 'includes the organisations to select' do
-        expect(subject).to include(CGI.escapeHTML(idp_1[:name]))
-        expect(subject).to include(CGI.escapeHTML(idp_2[:name]))
+        expect(subject).to include(idp_1[:name])
+        expect(subject).to include(idp_2[:name])
+      end
+
+      context 'containing a name that has already been escaped' do
+        let(:lang) { 'en' }
+
+        let(:idp_1) do
+          { name: 'James&#39;s IdP', entity_id: Faker::Internet.url }
+        end
+
+        it 'does not get escaped again' do
+          expect(subject).to include(idp_1[:name])
+        end
       end
 
       it 'includes the first tab' do

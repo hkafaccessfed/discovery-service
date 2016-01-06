@@ -182,6 +182,21 @@ RSpec.describe DiscoveryService::Application do
         it 'shows the reset button' do
           expect(last_response.body).to include('Reset')
         end
+
+        context 'with a name that requires escaping' do
+          let(:lang) { 'en' }
+          let(:existing_entity) do
+            build_idp_data(['idp', group_name], lang).merge(
+              names: [{ value: 'James\'s IdP', lang: lang }]
+            )
+          end
+
+          it 'gets escaped' do
+            expect(last_response.body)
+              .to include(CGI.escapeHTML(
+                            existing_entity[:names].first[:value]))
+          end
+        end
       end
 
       context 'and multiple idp selections exist' do
