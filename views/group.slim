@@ -29,6 +29,10 @@ script#sps(type='application/json')== JSON.generate(@sps)
       i.help.circle.icon
       | Why am I here?
 - if @idps.any?
+  #basic_mode_warning_message.ui.warning.message
+    .header
+      | Discovery Service is running in basic mode
+    | To address this please upgrade your browser and ensure Javascript is enabled.
   form[id="idp_selection_form" action="" method="POST"]
     .ui.form.attached.fluid
       #loader.ui.inverted.dimmer

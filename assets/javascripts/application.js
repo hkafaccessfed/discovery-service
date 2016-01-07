@@ -254,6 +254,10 @@ function performSearchOnIdPSearchKeyup() {
   })
 }
 
+function hideBasicModeWarningMessage() {
+  $('#basic_mode_warning_message').hide();
+}
+
 function hideTabMenu() {
   $('#tab_menu').hide();
 }
@@ -290,6 +294,7 @@ function showJSEnabledElements() {
 }
 
 function initGroupPage() {
+  hideBasicModeWarningMessage();
   showJSEnabledElements();
 
   initHandlers();
