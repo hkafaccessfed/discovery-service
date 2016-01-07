@@ -296,4 +296,7 @@ function initGroupPage() {
   setCursorToPointerOnIdPRows();
 }
 
+function ie9OrEarlier() {
+  return document.documentMode && document.documentMode <= 9;
+}
 

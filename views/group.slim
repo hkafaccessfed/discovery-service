@@ -1,6 +1,8 @@
 javascript:
   $(document).ready(function () {
-    initGroupPage();
+    if (!ie9OrEarlier()) {
+      initGroupPage();
+    }
   });
 
 script#idps(type='application/json')== JSON.generate(@idps)
