@@ -293,7 +293,7 @@ function showJSEnabledElements() {
   enableHelpLink();
 }
 
-function initGroupPage() {
+function initRichClient() {
   hideBasicModeWarningMessage();
   showJSEnabledElements();
 
@@ -303,6 +303,18 @@ function initGroupPage() {
   hideButtonsAlongsideEachIdP();
   initScroller();
   setCursorToPointerOnIdPRows();
+}
+
+function initBasicClient() {
+  hideTabMenu();
+}
+
+function initGroupPage() {
+  if (ie9OrEarlier()) {
+    initBasicClient();
+  } else {
+    initRichClient();
+  }
 }
 
 function ie9OrEarlier() {

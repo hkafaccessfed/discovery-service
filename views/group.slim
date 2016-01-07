@@ -1,10 +1,6 @@
 javascript:
   $(document).ready(function () {
-    if (ie9OrEarlier()) {
-      hideTabMenu();
-    } else {
-      initGroupPage();
-    }
+    initGroupPage();
   });
 
 script#idps(type='application/json')== JSON.generate(@idps)
