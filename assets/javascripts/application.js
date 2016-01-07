@@ -254,6 +254,10 @@ function performSearchOnIdPSearchKeyup() {
   })
 }
 
+function hideTabMenu() {
+  $('#tab_menu').hide();
+}
+
 function preventEnterKey() {
   $(window).keydown(function (event) {
     if (event.keyCode == 13) {

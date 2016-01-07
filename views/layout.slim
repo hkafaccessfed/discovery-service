@@ -6,6 +6,9 @@ html lang='en'
     meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no'
     title AAF Discovery Service
     == stylesheet_tag 'application.css'
+    /! [if gt IE 9]><!
+    == stylesheet_tag 'application-rich.css'
+    /! <![endif]
     == javascript_tag 'application.js'
   body
     .ui.text.container

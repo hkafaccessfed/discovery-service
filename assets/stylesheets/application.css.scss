@@ -1,41 +1,10 @@
-//= require semantic-ui/dist/semantic
+//= require semantic-ui/dist/components/header
+//= require semantic-ui/dist/components/site
+//= require semantic-ui/dist/components/divider
 
-$form_left_padding: 0px !important;
-$form_right_padding: 0px !important;
-$mobile-max-width: 420px;
-$tablet-max-width: 767px;
 
-@media only screen and (max-width: $mobile-max-width) {
-
-  #sp_header {
-    padding-left: 0px;
-  }
-
-  #sp_header_logo {
-    padding-right: 0.5em;
-  }
-
-  #tab_menu a.can_hide {
-    display: none;
-  }
-
-  #sp_header_links_column {
-    padding-top: 0px !important;
-  }
-
-  #status_links_column {
-    padding-top: 0px !important;
-  }
-}
-
-@media only screen and (max-width: $tablet-max-width) {
-  #sp_header_links_column {
-    padding-top: 0px !important;
-  }
-
-  #status_links_column {
-    padding-top: 0px !important;
-  }
+img {
+  border-style: none;
 }
 
 #search_options {
@@ -51,69 +20,6 @@ $tablet-max-width: 767px;
   height: 0;
 }
 
-#search_column {
-  padding-left: $form_left_padding;
-  padding-right: $form_right_padding;
-}
-
-#idp_selection_table {
-  border: 0px !important;
-}
-
-#idp_selection_table thead {
-  white-space: nowrap;
-  display: none;
-}
-
-#idp_selection_table thead tr {
-  white-space: nowrap;
-  display: none;
-}
-
-#idp_selection_table thead th {
-  white-space: nowrap;
-  display: none;
-}
-
-#idp_selection_table tbody tr {
-  border-right: 0 !important;
-  border-left: 0 !important;
-}
-
-#idp_selection_table tbody tr.active {
-  background-color: #F0F0F0 !important;
-}
-
-#idp_selection_table tbody td {
-  border-right: 0 !important;
-  border-left: 0 !important;
-}
-
-#idp_reset_selection_table tbody tr {
-  border-right: 0 !important;
-  border-left: 0 !important;
-}
-
-#idp_reset_selection_table tbody td {
-  border-right: 0 !important;
-  border-left: 0 !important;
-  padding-left: 1em;
-  padding-right: 1em;
-}
-
-#scroller {
-  padding-top: 0px;
-}
-
-#sp_header_description {
-  max-width: 26em;
-  padding-bottom: 0.5em;
-}
-
-#sp_header_logo {
-  vertical-align: top;
-}
-
 #aaf_logo {
   float: left;
   padding-right: 0.5em;
@@ -121,11 +27,6 @@ $tablet-max-width: 767px;
 
 #aaf_logo_content {
   white-space: nowrap;
-}
-
-#sp_header_links {
-  margin-top: 0em;
-  padding-bottom: 0.3em;
 }
 
 #help_link {
@@ -141,19 +42,20 @@ $tablet-max-width: 767px;
   width: 20%;
 }
 
-.ui.table:not(.unstackable) td:first-child em {
-  font-weight: initial;
-}
-
-.distance {
-  display: none;
-}
-
-.select_organisation_input {
-  display: none;
-}
-
 .list {
   margin-top: 0.2em;
 }
 
+.ui.modal {
+  display: none;
+}
+
+.header {
+  font-weight: bold;
+}
+
+.ui.text.container {
+  width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
