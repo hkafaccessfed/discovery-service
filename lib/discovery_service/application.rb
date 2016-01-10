@@ -39,7 +39,7 @@ module DiscoveryService
     CONFIG = 'config/discovery_service.yml'
 
     set :assets_precompile,
-        %w(application.js application.css style-rich.css style-basic.css
+        %w(application.js style-rich.css style-basic.css
            *.eot *.woff *.woff2 *.ttf)
     set :assets_css_compressor, :sass
     set :assets_js_compressor, :uglifier
