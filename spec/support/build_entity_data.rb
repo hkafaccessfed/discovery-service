@@ -1,8 +1,8 @@
 require 'active_support/core_ext/hash'
 
 RSpec.shared_context 'build_entity_data' do
-  def build_idp_data(tags = nil, lang = nil)
-    entity_data = build_entity_data(tags, lang)
+  def build_idp_data(tags = nil, lang = nil, name = nil)
+    entity_data = build_entity_data(tags, lang, name)
     entity_data[:geolocations] = [{ longitude: Faker::Address.longitude,
                                     latitude: Faker::Address.latitude }]
     entity_data[:single_sign_on_endpoints] = { soap: [Faker::Internet.url] }
@@ -23,11 +23,11 @@ RSpec.shared_context 'build_entity_data' do
     Hash[entities.map { |e| [e[:entity_id], e.except(:entity_id)] }]
   end
 
-  def build_entity_data(tags = nil, specified_lang = nil)
+  def build_entity_data(tags = nil, specified_lang = nil, name = nil)
     lang = specified_lang ? specified_lang : Faker::Lorem.characters(2)
     {
       entity_id: Faker::Internet.url,
-      names: [{ value: Faker::University.name, lang: lang }],
+      names: [{ value: name ? name : Faker::University.name, lang: lang }],
       tags: tags.nil? ? [Faker::Lorem.word, Faker::Lorem.word] : tags,
       logos: [{ url: Faker::Company.logo, lang: lang }],
       domains: [Faker::Internet.domain_name]

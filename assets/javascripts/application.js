@@ -257,6 +257,14 @@ function performSearchOnIdPSearchKeyup() {
   })
 }
 
+function hideBasicModeWarningMessage() {
+  $('#basic_mode_warning_message').hide();
+}
+
+function hideTabMenu() {
+  $('#tab_menu').hide();
+}
+
 function preventEnterKey() {
   $(window).keydown(function (event) {
     if (event.keyCode == 13) {
@@ -288,7 +296,8 @@ function showJSEnabledElements() {
   enableHelpLink();
 }
 
-function initGroupPage() {
+function initRichClient() {
+  hideBasicModeWarningMessage();
   showJSEnabledElements();
 
   initHandlers();
@@ -299,4 +308,19 @@ function initGroupPage() {
   setCursorToPointerOnIdPRows();
 }
 
+function initBasicClient() {
+  hideTabMenu();
+}
+
+function initGroupPage() {
+  if (ie9OrEarlier()) {
+    initBasicClient();
+  } else {
+    initRichClient();
+  }
+}
+
+function ie9OrEarlier() {
+  return document.documentMode && document.documentMode <= 9;
+}
 
