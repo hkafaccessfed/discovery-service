@@ -206,8 +206,8 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     end
 
     context 'multiple idps and sps' do
-      let(:idp1) { build_idp_data(['idp'], lang) }
-      let(:idp2) { build_idp_data(['idp'], lang) }
+      let(:idp1) { build_idp_data(['idp'], lang, 'AAA University') }
+      let(:idp2) { build_idp_data(['idp'], lang, 'BBB University') }
       let(:sp1) { build_sp_data(['sp'], lang) }
       let(:sp2) { build_sp_data(['sp'], lang) }
 
@@ -217,7 +217,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
 
       context 'generated idps' do
         subject { run.idps }
-        it 'builds idps as expected' do
+        it 'builds and sorts idps as expected' do
           expect(subject)
             .to eq([{ entity_id: idp1[:entity_id],
                       tags: idp1[:tags],
@@ -261,7 +261,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
     context 'with multiple idps of different languages' do
       let(:lang) { Faker::Lorem.characters(4) }
       let(:idp) { build_idp_data(['idp']) }
-      let(:idp_with_matching_lang) { build_idp_data(['idp'], lang) }
+      let(:idp_with_matching_lang) { build_idp_data(['idp'], lang, 'ZZZ Uni') }
 
       let(:entities) { [idp, idp_with_matching_lang] }
 
@@ -269,7 +269,7 @@ RSpec.describe DiscoveryService::Renderer::Controller::Group do
 
       context 'generated idps' do
         subject { run.idps }
-        it 'builds idps as expected' do
+        it 'builds and sorts idps as expected' do
           expect(subject)
             .to eq([{ entity_id: idp[:entity_id],
                       tags: idp[:tags],

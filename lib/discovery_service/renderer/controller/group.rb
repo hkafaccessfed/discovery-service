@@ -31,7 +31,8 @@ module DiscoveryService
 
         def build_model(result, tag_groups, tag_set)
           filtered_tag_groups = filter_tag_groups(tag_groups, tag_set)
-          DiscoveryService::Renderer::Model::Group.new(result[:idps],
+          sorted_idps = result[:idps].sort_by { |idp| idp[:name].downcase }
+          DiscoveryService::Renderer::Model::Group.new(sorted_idps,
                                                        result[:sps],
                                                        filtered_tag_groups)
         end
