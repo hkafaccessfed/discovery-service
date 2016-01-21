@@ -5,6 +5,8 @@ gem 'unicorn', require: false
 gem 'unicorn-prewarm', require: false
 gem 'god', require: false
 
+gem 'aws-sdk', require: false
+
 gem 'slim'
 gem 'redis'
 gem 'redis-namespace'
