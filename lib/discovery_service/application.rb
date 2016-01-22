@@ -1,11 +1,3 @@
-require 'discovery_service/persistence/entity_cache'
-require 'discovery_service/cookie/store'
-require 'discovery_service/response/handler'
-require 'discovery_service/response/api_response_builder'
-require 'discovery_service/entity/builder'
-require 'discovery_service/validation/request_validations'
-require 'discovery_service/auditing'
-require 'discovery_service/embedded_wayf'
 require 'sinatra/base'
 require 'sinatra/cookies'
 require 'sinatra/asset_pipeline'
@@ -16,7 +8,6 @@ require 'rails-assets-slimscroll'
 require 'sprockets'
 require 'sprockets-helpers'
 require 'json'
-require 'yaml'
 require 'uri'
 
 # rubocop:disable Metrics/ClassLength
@@ -35,9 +26,6 @@ module DiscoveryService
 
     attr_reader :redis
 
-    TEST_CONFIG = 'spec/feature/config/discovery_service.yml'
-    CONFIG = 'config/discovery_service.yml'
-
     set :assets_precompile,
         %w(application.js style-rich.css style-basic.css
            *.eot *.woff *.woff2 *.ttf)
@@ -53,20 +41,14 @@ module DiscoveryService
     helpers Sprockets::Helpers
 
     set :root, File.expand_path('../..', File.dirname(__FILE__))
-    set :group_config, CONFIG
     set :public_folder, 'public'
-
-    configure :test do
-      set :group_config, TEST_CONFIG
-    end
 
     def initialize
       super
       @logger = Logger.new("log/#{settings.environment}.log")
       @entity_cache = DiscoveryService::Persistence::EntityCache.new
-      cfg = YAML.load_file(settings.group_config)
-      @groups = cfg[:groups]
-      @environment = cfg[:environment]
+      @groups = DiscoveryService.configuration[:groups]
+      @environment = DiscoveryService.configuration[:environment]
       @logger.info('Initialised with group configuration: '\
         "#{JSON.pretty_generate(@groups)}")
       @redis = Redis::Namespace.new(:discovery_service, redis: Redis.new)

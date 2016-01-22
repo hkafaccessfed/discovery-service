@@ -4,6 +4,6 @@ require 'bundler/setup'
 Bundler.require(:default)
 
 require_relative './init.rb'
-require 'discovery_service/application'
+require 'discovery_service'
 
 run DiscoveryService::Application
