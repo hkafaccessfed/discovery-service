@@ -1,5 +1,3 @@
-require 'discovery_service/auditing'
-
 RSpec.describe DiscoveryService::Auditing do
   let(:klass) do
     Class.new do

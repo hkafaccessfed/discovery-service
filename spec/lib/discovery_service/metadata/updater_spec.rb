@@ -1,5 +1,3 @@
-require 'discovery_service/metadata/updater'
-
 RSpec.describe DiscoveryService::Metadata::Updater do
   describe '#update' do
     let(:logger) { spy }

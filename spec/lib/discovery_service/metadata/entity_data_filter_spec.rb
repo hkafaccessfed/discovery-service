@@ -1,5 +1,3 @@
-require 'discovery_service/metadata/entity_data_filter'
-
 RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
   describe '#filter(entity_data, tag_config)' do
     include_context 'build_entity_data'

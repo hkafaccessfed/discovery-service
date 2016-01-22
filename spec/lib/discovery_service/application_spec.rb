@@ -1,5 +1,3 @@
-require 'discovery_service'
-
 RSpec.describe DiscoveryService::Application do
   include Rack::Test::Methods
   include_context 'build_entity_data'

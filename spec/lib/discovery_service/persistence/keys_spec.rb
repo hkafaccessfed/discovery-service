@@ -1,5 +1,3 @@
-require 'discovery_service/persistence/keys'
-
 RSpec.describe DiscoveryService::Persistence::Keys do
   let(:klass) { Class.new { include DiscoveryService::Persistence::Keys } }
   let(:group_name) { "#{Faker::Lorem.word}_#{Faker::Number.number(2)}-" }

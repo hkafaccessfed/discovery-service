@@ -1,4 +1,3 @@
-require 'discovery_service/entity/builder'
 require 'active_support/core_ext/hash'
 require 'active_support/core_ext/object/deep_dup'
 

@@ -1,5 +1,3 @@
-require 'discovery_service/renderer/helpers/group'
-
 module DiscoveryService
   module Renderer
     module Model

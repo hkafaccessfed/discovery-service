@@ -1,5 +1,3 @@
-require 'discovery_service/renderer/helpers/group'
-
 RSpec.describe DiscoveryService::Renderer::Helpers::Group do
   let(:klass) do
     Class.new { include DiscoveryService::Renderer::Helpers::Group }

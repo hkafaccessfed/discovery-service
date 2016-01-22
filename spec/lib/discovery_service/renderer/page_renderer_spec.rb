@@ -1,6 +1,3 @@
-require 'discovery_service/renderer/page_renderer'
-require 'discovery_service/renderer/model/group'
-
 RSpec.describe DiscoveryService::Renderer::PageRenderer do
   describe '#render(page, model, environment)' do
     let(:klass) do

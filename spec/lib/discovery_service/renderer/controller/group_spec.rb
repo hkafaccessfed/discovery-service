@@ -1,6 +1,3 @@
-require 'discovery_service/renderer/page_renderer'
-require 'discovery_service/renderer/controller/group'
-
 RSpec.describe DiscoveryService::Renderer::Controller::Group do
   describe '#generate_group_model(entities, lang)' do
     include_context 'build_entity_data'
