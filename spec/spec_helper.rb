@@ -23,7 +23,7 @@ DiscoveryService.instance_eval do
       url: 'http://localhost:8080/entities'
     },
     groups: {
-      taukiri: {
+      tuakiri: {
         filters: [
           %w(tuakiri other)
         ],

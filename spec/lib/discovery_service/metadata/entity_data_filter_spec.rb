@@ -67,7 +67,7 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
       context 'and multiple matching entities' do
         let(:first_match)  { build_idp_data(%w(discovery idp aaf vho)) }
         let(:second_match) { build_idp_data(%w(discovery idp aaf vho)) }
-        let(:other_entity) { build_idp_data(%w(discovery idp taukiri vho)) }
+        let(:other_entity) { build_idp_data(%w(discovery idp tuakiri vho)) }
         let(:entity_data) do
           [first_match, second_match, other_entity]
         end
@@ -120,7 +120,7 @@ RSpec.describe DiscoveryService::Metadata::EntityDataFilter do
         let(:first_match) { build_idp_data(%w(discovery idp aaf vho)) }
         let(:second_match) { build_idp_data(%w(discovery idp aaf vho)) }
         let(:third_match) { build_idp_data(%w(discovery idp edugain vho)) }
-        let(:other_entity) { build_idp_data(%w(discovery idp taukiri vho)) }
+        let(:other_entity) { build_idp_data(%w(discovery idp tuakiri vho)) }
         let(:entity_data) do
           [first_match, second_match, third_match, other_entity]
         end
