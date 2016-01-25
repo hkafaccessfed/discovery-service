@@ -64,7 +64,7 @@ module DiscoveryService
 
     def create_queue
       queue_name = queue_url.split('/').last
-      sqs_client.create_queue(queue_name)
+      sqs_client.create_queue(queue_name: queue_name)
     end
   end
 end

@@ -42,7 +42,7 @@ RSpec.describe DiscoveryService::EventConsignment do
       let(:app_config) { base_app_config.deep_merge(sqs: { fake: true }) }
 
       it 'creates the queue' do
-        expect(client).to receive(:create_queue).with(queue_name)
+        expect(client).to receive(:create_queue).with(queue_name: queue_name)
         run
       end
     end
