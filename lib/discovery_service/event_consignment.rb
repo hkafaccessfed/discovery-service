@@ -25,10 +25,10 @@ module DiscoveryService
     private
 
     def in_progress
-      redis.sadd('audit:in_progress', @identifier)
+      redis.sadd(in_progress_key, @identifier)
       yield
       redis.del(temporary_queue_key)
-      redis.srem('audit:in_progress', @identifier)
+      redis.srem(in_progress_key, @identifier)
     end
 
     def each_message_slice
@@ -44,6 +44,7 @@ module DiscoveryService
 
     def requeue_messages
       nil while redis.rpoplpush(temporary_queue_key, queue_key)
+      redis.srem(in_progress_key, @identifier)
     end
 
     def queued_messages
@@ -83,6 +84,10 @@ module DiscoveryService
 
     def temporary_queue_key
       "audit:#{@identifier}"
+    end
+
+    def in_progress_key
+      'audit:in_progress'
     end
   end
 end

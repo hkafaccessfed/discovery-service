@@ -104,13 +104,21 @@ RSpec.describe DiscoveryService::EventConsignment do
       end
 
       context 'when SQS fails' do
-        it 'leaves the queue intact' do
+        before do
           expect(client).to receive(:send_message).with(any_args) do
             fail('Nope')
           end
+        end
 
+        it 'leaves the queue intact' do
           expect { run }.to raise_error('Nope')
             .and not_change { redis.llen('audit') }
+        end
+
+        it 'removes the identifier from the in progress list' do
+          expect { run }.to raise_error('Nope')
+
+          expect(redis.smembers('audit:in_progress')).to be_empty
         end
       end
     end
@@ -145,13 +153,21 @@ RSpec.describe DiscoveryService::EventConsignment do
       end
 
       context 'when SQS fails' do
-        it 'leaves the queue intact' do
+        before do
           expect(client).to receive(:send_message).with(any_args) do
             fail('Nope')
           end
+        end
 
+        it 'leaves the queue intact' do
           expect { run }.to raise_error('Nope')
             .and not_change { redis.llen('audit') }
+        end
+
+        it 'removes the identifier from the in progress list' do
+          expect { run }.to raise_error('Nope')
+
+          expect(redis.smembers('audit:in_progress')).to be_empty
         end
       end
     end
