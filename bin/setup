@@ -14,6 +14,14 @@ include Gumboot::Strap
 puts "\n== Installing configuration files =="
 update_local_configuration %w(discovery_service.yml)
 
+unless File.exist?('config/encryption_key.pem')
+  puts "\n== Creating default RSA key =="
+  key = OpenSSL::PKey::RSA.new(2048)
+  File.open('config/encryption_key.pem', 'w') do |f|
+    f.puts(key.to_pem)
+  end
+end
+
 puts "\n== Creating log directory =="
 Dir.mkdir 'log' unless File.exist?('log')
 
