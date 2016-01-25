@@ -18,6 +18,7 @@ module DiscoveryService
           claims = { 'iss' => 'discovery-service', 'messages' => messages }
           jwe = JSON::JWT.new(claims).encrypt(key)
           sqs_client.send_message(queue_url: queue_url, message_body: jwe.to_s)
+          redis.del(temporary_queue_key)
         end
       end
     end
@@ -27,7 +28,6 @@ module DiscoveryService
     def in_progress
       redis.sadd(in_progress_key, @identifier)
       yield
-      redis.del(temporary_queue_key)
       redis.srem(in_progress_key, @identifier)
     end
 

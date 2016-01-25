@@ -170,6 +170,27 @@ RSpec.describe DiscoveryService::EventConsignment do
           expect(redis.smembers('audit:in_progress')).to be_empty
         end
       end
+
+      context 'when the second batch fails' do
+        before do
+          called = false
+          expect(client).to receive(:send_message).with(any_args).twice do
+            fail('Nope') if called
+            called = true
+          end
+        end
+
+        it 'leaves the rest of the queue intact' do
+          expect { run }.to raise_error('Nope')
+            .and change { redis.llen('audit') }.by(-10)
+        end
+
+        it 'removes the identifier from the in progress list' do
+          expect { run }.to raise_error('Nope')
+
+          expect(redis.smembers('audit:in_progress')).to be_empty
+        end
+      end
     end
   end
 end
