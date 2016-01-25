@@ -10,6 +10,7 @@ require 'discovery_service/embedded_wayf'
 require 'discovery_service/application'
 require 'discovery_service/renderer'
 require 'discovery_service/metadata'
+require 'discovery_service/event_consignment'
 
 # Top-level module for the Discovery Service project.
 module DiscoveryService
