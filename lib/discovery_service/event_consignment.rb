@@ -9,8 +9,7 @@ module DiscoveryService
       @sqs_config = DiscoveryService.configuration[:sqs]
       @identifier = SecureRandom.urlsafe_base64
 
-      return unless @sqs_config[:fake]
-      create_queue
+      configure_fake_sqs if @sqs_config[:fake]
     end
 
     def perform
@@ -62,7 +61,9 @@ module DiscoveryService
       @key ||= OpenSSL::PKey::RSA.new(File.read(@sqs_config[:encryption_key]))
     end
 
-    def create_queue
+    def configure_fake_sqs
+      Aws::SQS::Client.remove_plugin(Aws::Plugins::SQSQueueUrls)
+
       queue_name = queue_url.split('/').last
       sqs_client.create_queue(queue_name: queue_name)
     end
