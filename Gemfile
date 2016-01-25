@@ -14,6 +14,7 @@ gem 'redis-namespace'
 gem 'activesupport'
 gem 'hashdiff'
 gem 'sinatra-contrib'
+gem 'json-jwt'
 
 gem 'sinatra-asset-pipeline'
 gem 'sprockets-helpers'
