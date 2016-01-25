@@ -5,7 +5,7 @@ RSpec.describe DiscoveryService::EventConsignment do
     let(:client) { double }
     let(:sqs_hostname) { "sqs.#{Faker::Internet.domain_name}" }
     let(:queue_name) { Faker::Lorem.words.join('-') }
-    let(:client_opts) { { endpoint: app_config[:sqs][:endpoint] } }
+    let(:client_opts) { app_config[:sqs].slice(:endpoint, :region) }
     let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
     let(:app_config) { base_app_config }
     let(:rsa_key_file) { 'spec/encryption_key.pem' }
@@ -15,6 +15,7 @@ RSpec.describe DiscoveryService::EventConsignment do
       {
         sqs: {
           queue_url: queue_url,
+          region: 'localhost',
           endpoint: Faker::Internet.url,
           encryption_key: rsa_key_file
         }

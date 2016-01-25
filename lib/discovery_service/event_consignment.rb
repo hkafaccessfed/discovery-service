@@ -60,7 +60,8 @@ module DiscoveryService
     end
 
     def sqs_client
-      @sqs_client ||= Aws::SQS::Client.new(endpoint: @sqs_config[:endpoint])
+      @sqs_client ||= Aws::SQS::Client.new(endpoint: @sqs_config[:endpoint],
+                                           region: @sqs_config[:region])
     end
 
     def redis
