@@ -35,7 +35,7 @@ RSpec.describe DiscoveryService::EventConsignment do
     end
 
     def run
-      described_class.new.perform
+      subject.perform
     end
 
     context 'when using a stand-in SQS' do
@@ -50,6 +50,32 @@ RSpec.describe DiscoveryService::EventConsignment do
     context 'with no waiting items' do
       it 'sends no messages' do
         run
+      end
+    end
+
+    context 'when the run is aborted prematurely' do
+      let(:messages) do
+        Array.new(20) { { Faker::Lorem.word => Faker::Lorem.sentence } }
+      end
+
+      before { messages.each { |m| redis.lpush('audit', JSON.generate(m)) } }
+
+      it 'leaves the in-progress messages in a queue' do
+        expect(client).to receive(:send_message) { throw(:abort) }
+        catch(:abort) { run }
+
+        pending_messages = redis.lrange('audit', 0, -1)
+        in_progress = redis.smembers('audit:in_progress')
+
+        expect(pending_messages.length).to eq(10)
+        expect(in_progress).to contain_exactly(an_instance_of(String))
+
+        in_progress_messages = redis.lrange("audit:#{in_progress[0]}", 0, -1)
+        expect(in_progress_messages.length).to eq(10)
+
+        expect((pending_messages + in_progress_messages)
+               .map { |s| JSON.parse(s) })
+          .to contain_exactly(*messages)
       end
     end
 

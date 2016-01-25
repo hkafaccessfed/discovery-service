@@ -13,14 +13,23 @@ module DiscoveryService
     end
 
     def perform
-      each_message_slice do |messages|
-        claims = { 'iss' => 'discovery-service', 'messages' => messages }
-        jwe = JSON::JWT.new(claims).encrypt(key)
-        sqs_client.send_message(queue_url: queue_url, message_body: jwe.to_s)
+      in_progress do
+        each_message_slice do |messages|
+          claims = { 'iss' => 'discovery-service', 'messages' => messages }
+          jwe = JSON::JWT.new(claims).encrypt(key)
+          sqs_client.send_message(queue_url: queue_url, message_body: jwe.to_s)
+        end
       end
     end
 
     private
+
+    def in_progress
+      redis.sadd('audit:in_progress', @identifier)
+      yield
+      redis.del(temporary_queue_key)
+      redis.srem('audit:in_progress', @identifier)
+    end
 
     def each_message_slice
       queued_messages.each_slice(10) do |messages|
