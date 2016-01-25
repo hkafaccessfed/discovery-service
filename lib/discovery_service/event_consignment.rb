@@ -34,12 +34,12 @@ module DiscoveryService
     end
 
     def requeue_messages
-      nil while redis.rpoplpush("audit:#{@identifier}", 'audit')
+      nil while redis.rpoplpush(temporary_queue_key, queue_key)
     end
 
     def queued_messages
       Enumerator.new do |y|
-        while (event = redis.rpoplpush('audit', "audit:#{@identifier}"))
+        while (event = redis.rpoplpush(queue_key, temporary_queue_key))
           y << JSON.parse(event)
         end
       end
@@ -66,6 +66,14 @@ module DiscoveryService
 
       queue_name = queue_url.split('/').last
       sqs_client.create_queue(queue_name: queue_name)
+    end
+
+    def queue_key
+      'audit'
+    end
+
+    def temporary_queue_key
+      "audit:#{@identifier}"
     end
   end
 end
