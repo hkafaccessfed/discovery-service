@@ -14,8 +14,8 @@ module DiscoveryService
 
     def perform
       in_progress do
-        each_message_slice do |messages|
-          claims = { 'iss' => 'discovery-service', 'messages' => messages }
+        each_event_slice do |events|
+          claims = { 'iss' => 'discovery-service', 'events' => events }
           jwe = JSON::JWT.new(claims).encrypt(key)
           sqs_client.send_message(queue_url: queue_url, message_body: jwe.to_s)
           redis.del(temporary_queue_key)
@@ -31,23 +31,23 @@ module DiscoveryService
       redis.srem(in_progress_key, @identifier)
     end
 
-    def each_message_slice
-      queued_messages.each_slice(10) do |messages|
+    def each_event_slice
+      queued_events.each_slice(10) do |events|
         begin
-          yield messages
+          yield events
         rescue
-          requeue_messages
+          requeue_events
           raise
         end
       end
     end
 
-    def requeue_messages
+    def requeue_events
       nil while redis.rpoplpush(temporary_queue_key, queue_key)
       redis.srem(in_progress_key, @identifier)
     end
 
-    def queued_messages
+    def queued_events
       Enumerator.new do |y|
         while (event = redis.rpoplpush(queue_key, temporary_queue_key))
           y << JSON.parse(event)

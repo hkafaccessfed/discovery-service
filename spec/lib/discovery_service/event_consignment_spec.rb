@@ -49,34 +49,34 @@ RSpec.describe DiscoveryService::EventConsignment do
     end
 
     context 'with no waiting items' do
-      it 'sends no messages' do
+      it 'sends no events' do
         run
       end
     end
 
     context 'when the run is aborted prematurely' do
-      let(:messages) do
+      let(:events) do
         Array.new(20) { { Faker::Lorem.word => Faker::Lorem.sentence } }
       end
 
-      before { messages.each { |m| redis.lpush('audit', JSON.generate(m)) } }
+      before { events.each { |m| redis.lpush('audit', JSON.generate(m)) } }
 
-      it 'leaves the in-progress messages in a queue' do
+      it 'leaves the in-progress events in a queue' do
         expect(client).to receive(:send_message) { throw(:abort) }
         catch(:abort) { run }
 
-        pending_messages = redis.lrange('audit', 0, -1)
+        pending_events = redis.lrange('audit', 0, -1)
         in_progress = redis.smembers('audit:in_progress')
 
-        expect(pending_messages.length).to eq(10)
+        expect(pending_events.length).to eq(10)
         expect(in_progress).to contain_exactly(an_instance_of(String))
 
-        in_progress_messages = redis.lrange("audit:#{in_progress[0]}", 0, -1)
-        expect(in_progress_messages.length).to eq(10)
+        in_progress_events = redis.lrange("audit:#{in_progress[0]}", 0, -1)
+        expect(in_progress_events.length).to eq(10)
 
-        expect((pending_messages + in_progress_messages)
+        expect((pending_events + in_progress_events)
                .map { |s| JSON.parse(s) })
-          .to contain_exactly(*messages)
+          .to contain_exactly(*events)
       end
     end
 
@@ -91,7 +91,7 @@ RSpec.describe DiscoveryService::EventConsignment do
         args = { queue_url: queue_url, message_body: anything }
         expect(client).to receive(:send_message).with(args) do |opts|
           data = JSON::JWT.decode(opts[:message_body], rsa_key)
-          expect(data['messages']).to contain_exactly(message)
+          expect(data['events']).to contain_exactly(message)
         end
 
         run
@@ -125,25 +125,25 @@ RSpec.describe DiscoveryService::EventConsignment do
     end
 
     context 'with many waiting items' do
-      let(:messages) do
+      let(:events) do
         Array.new(20) { { Faker::Lorem.word => Faker::Lorem.sentence } }
       end
 
-      before { messages.each { |m| redis.lpush('audit', JSON.generate(m)) } }
+      before { events.each { |m| redis.lpush('audit', JSON.generate(m)) } }
 
-      it 'pushes the messages in batches of 10' do
+      it 'pushes the events in batches of 10' do
         received = []
 
         args = { queue_url: queue_url, message_body: anything }
         expect(client).to receive(:send_message).with(args).twice do |opts|
           data = JSON::JWT.decode(opts[:message_body], rsa_key)
-          expect(data['messages'].length).to eq(10)
-          received += data['messages']
+          expect(data['events'].length).to eq(10)
+          received += data['events']
         end
 
         run
 
-        expect(received).to contain_exactly(*messages)
+        expect(received).to contain_exactly(*events)
       end
 
       it 'removes the items from the queue' do
