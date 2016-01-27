@@ -13,6 +13,6 @@ rescue LoadError
   task default: []
 end
 
-require 'discovery_service/application'
+require 'discovery_service'
 
 Sinatra::AssetPipeline::Task.define! DiscoveryService::Application

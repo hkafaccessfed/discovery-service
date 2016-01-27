@@ -3,7 +3,7 @@
   :url: http://localhost:8080/entities
 
 :groups:
-  :taukiri:
+  :tuakiri:
     :filters:
       - [tuakiri, other]
     :tag_groups:

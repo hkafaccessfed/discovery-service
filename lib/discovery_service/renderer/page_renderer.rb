@@ -4,7 +4,6 @@ require 'rails-assets-datatables'
 require 'rails-assets-slimscroll'
 require 'sprockets'
 require 'sprockets-helpers'
-require 'discovery_service/application'
 
 module DiscoveryService
   module Renderer

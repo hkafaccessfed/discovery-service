@@ -1,6 +1,5 @@
 require 'json'
 require 'active_support/core_ext/hash'
-require 'discovery_service/persistence/keys'
 
 module DiscoveryService
   module Persistence

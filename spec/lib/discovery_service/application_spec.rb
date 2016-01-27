@@ -1,5 +1,3 @@
-require 'discovery_service/application'
-
 RSpec.describe DiscoveryService::Application do
   include Rack::Test::Methods
   include_context 'build_entity_data'
@@ -32,7 +30,9 @@ RSpec.describe DiscoveryService::Application do
         { name: environment_name, status_url: environment_status_url } }
   end
 
-  before { allow(YAML).to receive(:load_file).and_return(config) }
+  before do
+    allow(DiscoveryService).to receive(:configuration).and_return(config)
+  end
 
   def configure_group
     config[:groups][group_name.to_sym] = []
