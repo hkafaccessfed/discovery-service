@@ -13,8 +13,13 @@ module DiscoveryService
 
     private
 
+    def idp_entities
+      @entity_cache.entities_as_hash('aaf')
+        .select { |_, v| v[:tags].include?('idp') }
+    end
+
     def embedded_wayf_preamble
-      entities = @entity_cache.entities_as_hash('aaf').map do |(k, v)|
+      entities = idp_entities.map do |(k, v)|
         names = v[:names].select { |n| n[:lang] == 'en' }
         name = names.first[:value] if names.any?
         { entity_id: k, name: name || k }
