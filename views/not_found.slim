@@ -1,0 +1,9 @@
+.ui.mobile.stackable.padded.grid
+  .sixteen.wide.column
+    == Slim::Template.new('views/_header.slim').render
+.ui.negative.message
+  .header
+    | Page not found!
+  | The page you were looking for isn't here. If you typed in the URL, check that it's correct.
+  br /
+  == Slim::Template.new('views/_support.slim').render
