@@ -16,7 +16,7 @@ module DiscoveryService
       in_progress do
         each_event_slice do |events|
           claims = { 'iss' => 'discovery-service', 'events' => events }
-          jwe = JSON::JWT.new(claims).encrypt(key)
+          jwe = JSON::JWT.new(claims).sign(key, :RS256).encrypt(key)
           sqs_client.send_message(queue_url: queue_url, message_body: jwe.to_s)
           redis.del(temporary_queue_key)
         end

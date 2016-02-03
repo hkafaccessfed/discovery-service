@@ -90,7 +90,8 @@ RSpec.describe DiscoveryService::EventConsignment do
       it 'sends the item to SQS' do
         args = { queue_url: queue_url, message_body: anything }
         expect(client).to receive(:send_message).with(args) do |opts|
-          data = JSON::JWT.decode(opts[:message_body], rsa_key)
+          jwe = JSON::JWT.decode(opts[:message_body], rsa_key)
+          data = JSON::JWT.decode(jwe.plain_text, rsa_key)
           expect(data['events']).to contain_exactly(message)
         end
 
@@ -136,7 +137,8 @@ RSpec.describe DiscoveryService::EventConsignment do
 
         args = { queue_url: queue_url, message_body: anything }
         expect(client).to receive(:send_message).with(args).twice do |opts|
-          data = JSON::JWT.decode(opts[:message_body], rsa_key)
+          jwe = JSON::JWT.decode(opts[:message_body], rsa_key)
+          data = JSON::JWT.decode(jwe.plain_text, rsa_key)
           expect(data['events'].length).to eq(10)
           received += data['events']
         end
