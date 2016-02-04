@@ -4,5 +4,5 @@ public/assets
 tmp
 config/discovery_service.yml
 config/deploy.yml
-config/encryption_key.pem
+config/event_encryption_key.pem
 .sass-cache
