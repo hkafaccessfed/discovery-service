@@ -5,6 +5,8 @@ gem 'unicorn', require: false
 gem 'unicorn-prewarm', require: false
 gem 'god', require: false
 
+gem 'aws-sdk', require: false
+
 gem 'slim'
 gem 'redis'
 gem 'redis-namespace'
@@ -12,6 +14,7 @@ gem 'redis-namespace'
 gem 'activesupport'
 gem 'hashdiff'
 gem 'sinatra-contrib'
+gem 'json-jwt'
 
 gem 'sinatra-asset-pipeline'
 gem 'sprockets-helpers'
