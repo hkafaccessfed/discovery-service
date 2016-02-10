@@ -221,8 +221,6 @@ GEM
       kgio (~> 2.6)
       rack
       raindrops (~> 0.7)
-    unicorn-prewarm (0.1.0)
-      unicorn (~> 4.8.0)
     url_safe_base64 (0.2.2)
     webmock (1.22.3)
       addressable (>= 2.3.6)
@@ -275,7 +273,6 @@ DEPENDENCIES
   timecop
   uglifier
   unicorn
-  unicorn-prewarm
   webmock
 
 BUNDLED WITH

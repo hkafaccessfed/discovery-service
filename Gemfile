@@ -2,7 +2,6 @@ source 'https://rubygems.org'
 
 gem 'sinatra', require: false
 gem 'unicorn', require: false
-gem 'unicorn-prewarm', require: false
 gem 'god', require: false
 
 gem 'aws-sdk', require: false
