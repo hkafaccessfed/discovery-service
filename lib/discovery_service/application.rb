@@ -38,6 +38,12 @@ module DiscoveryService
     settings.sprockets.append_path('assets/javascripts')
     settings.sprockets.append_path('assets/stylesheets')
 
+    configure :production do
+      Sprockets::Helpers.configure do |config|
+        config.manifest = Sprockets::Manifest.new('public/assets')
+      end
+    end
+
     helpers Sprockets::Helpers
 
     set :root, File.expand_path('../..', File.dirname(__FILE__))
