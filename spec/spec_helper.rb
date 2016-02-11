@@ -2,6 +2,7 @@ require 'bundler/setup'
 require 'simplecov'
 require 'capybara/rspec'
 require 'webmock/rspec'
+require 'aws-sdk'
 
 ENV['RACK_ENV'] = 'test'
 Bundler.require(:test)
@@ -16,6 +17,8 @@ Capybara.app = DiscoveryService::Application
 
 I18n.config.enforce_available_locales = true
 I18n.config.default_locale = :en
+
+Aws.config.update(stub_responses: true)
 
 DiscoveryService.instance_eval do
   @configuration = {
@@ -71,4 +74,6 @@ RSpec.configure do |config|
   end
 
   config.disable_monkey_patching!
+
+  RSpec::Matchers.define_negated_matcher :not_change, :change
 end
