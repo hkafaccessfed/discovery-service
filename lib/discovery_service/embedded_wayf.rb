@@ -15,7 +15,7 @@ module DiscoveryService
 
     def idp_entities
       @entity_cache.entities_as_hash('aaf')
-        .select { |_, v| v[:tags].include?('idp') }
+                   .select { |_, v| v[:tags].include?('idp') }
     end
 
     def embedded_wayf_preamble
