@@ -17,7 +17,7 @@ module DiscoveryService
         @environment = environment
         layout = Slim::Template.new('views/layout.slim')
         content = Slim::Template.new("views/#{page}.slim")
-                  .render(model)
+                                .render(model)
         layout.render(self) { content }
       end
     end

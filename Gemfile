@@ -44,6 +44,7 @@ group :development, :test do
   gem 'i18n', '~> 0.7.0'
 
   gem 'simplecov', require: false
+  gem 'codeclimate-test-reporter', require: false
 
   gem 'guard', require: false
   gem 'guard-rubocop', require: false

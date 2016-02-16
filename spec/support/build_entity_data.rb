@@ -15,7 +15,7 @@ RSpec.shared_context 'build_entity_data' do
     entity_data[:information_urls] = [{ url: Faker::Internet.url, lang: lang }]
     entity_data[:descriptions] = [{ value: Faker::Lorem.sentence, lang: lang }]
     entity_data[:privacy_statement_urls] =
-        [{ url: Faker::Internet.url, lang: lang }]
+      [{ url: Faker::Internet.url, lang: lang }]
     entity_data
   end
 
