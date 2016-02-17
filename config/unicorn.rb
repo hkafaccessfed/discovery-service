@@ -1,6 +1,6 @@
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 
-worker_processes 8
+worker_processes 20
 preload_app true
 pid File.join(ROOT, 'tmp', 'pids', 'unicorn.pid')
 stdout_path '/var/log/aaf/discovery/unicorn/stdout.log'
