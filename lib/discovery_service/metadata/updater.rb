@@ -21,12 +21,14 @@ module DiscoveryService
       end
 
       def update
+        logger.info 'Update start'
         config = YAML.load_file('config/discovery_service.yml')
         raw_entities = retrieve_entity_data(config[:saml_service][:url])
         grouped_entities = filter(combine_sp_idp(raw_entities),
                                   group_config(config, :filters))
         save_entities(grouped_entities, group_config(config, :tag_groups),
                       config[:environment])
+        logger.info 'Update complete'
       end
 
       private
