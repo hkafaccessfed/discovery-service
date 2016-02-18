@@ -11,17 +11,11 @@ module DiscoveryService
         with_saml_service_client(url) do |http|
           response = http.request(req)
           response.value # Raise exception on HTTP error
-          parse_response(response)
+          JSON.parse(response.body, symbolize_names: true)
         end
       rescue Net::HTTPServerException => e
         log_error(e, saml_service_url)
         raise e
-      end
-
-      def parse_response(response)
-        json_response = JSON.parse(response.body, symbolize_names: true)
-        logger.debug "Built response: #{JSON.pretty_generate(json_response)}"
-        json_response
       end
 
       def with_saml_service_client(url)
