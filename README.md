@@ -5,7 +5,7 @@
 [![Code Climate][CC img]][Code Climate]
 [![Coverage Status][CS img]][Code Climate]
 
-[Build Status]: https://travis-ci.org/ausaccessfed/discovery-service
+[Build Status]: https://codeship.com/projects/101408
 [Dependency Status]: https://gemnasium.com/ausaccessfed/discovery-service
 [Code Climate]: https://codeclimate.com/github/ausaccessfed/discovery-service
 
