@@ -45,7 +45,7 @@ script#sps(type='application/json')== JSON.generate(@sps)
             #search_column.sixteen.wide.column
               .ui.left.icon.right.action.input.fluid
                 i.search.icon
-                input#search_input placeholder=("Search for your organisation") type="text" /
+                input#search_input placeholder=("Search for your organisation") type="text" autocomplete="off" /
                 #search_clear_button.ui.basic.floating.icon.button
                   i.remove.icon
           #message
