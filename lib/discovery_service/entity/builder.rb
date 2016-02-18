@@ -55,7 +55,7 @@ module DiscoveryService
         privacy_statement_url = value(:privacy_statement_urls, :url,
                                       entity, lang)
         entry[:privacy_statement_url] =
-            privacy_statement_url if privacy_statement_url
+          privacy_statement_url if privacy_statement_url
       end
 
       def set_information_url(entity, entry, lang)

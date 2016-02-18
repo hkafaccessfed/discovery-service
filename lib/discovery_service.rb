@@ -14,7 +14,7 @@ require 'discovery_service/event_consignment'
 
 # Top-level module for the Discovery Service project.
 module DiscoveryService
-  CONFIG_FILE = 'config/discovery_service.yml'
+  CONFIG_FILE = 'config/discovery_service.yml'.freeze
 
   class <<self
     attr_reader :configuration

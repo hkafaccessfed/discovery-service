@@ -108,7 +108,7 @@ RSpec.describe DiscoveryService::EventConsignment do
       context 'when SQS fails' do
         before do
           expect(client).to receive(:send_message).with(any_args) do
-            fail('Nope')
+            raise('Nope')
           end
         end
 
@@ -158,7 +158,7 @@ RSpec.describe DiscoveryService::EventConsignment do
       context 'when SQS fails' do
         before do
           expect(client).to receive(:send_message).with(any_args) do
-            fail('Nope')
+            raise('Nope')
           end
         end
 
@@ -178,7 +178,7 @@ RSpec.describe DiscoveryService::EventConsignment do
         before do
           called = false
           expect(client).to receive(:send_message).with(any_args).twice do
-            fail('Nope') if called
+            raise('Nope') if called
             called = true
           end
         end

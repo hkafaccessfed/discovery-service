@@ -21,12 +21,14 @@ module DiscoveryService
       end
 
       def update
+        logger.info 'Update start'
         config = YAML.load_file('config/discovery_service.yml')
         raw_entities = retrieve_entity_data(config[:saml_service][:url])
         grouped_entities = filter(combine_sp_idp(raw_entities),
                                   group_config(config, :filters))
         save_entities(grouped_entities, group_config(config, :tag_groups),
                       config[:environment])
+        logger.info 'Update complete'
       end
 
       private
@@ -74,7 +76,7 @@ module DiscoveryService
         page = render(:group, generate_group_model(entities, 'en',
                                                    tag_groups),
                       environment)
-        logger.debug("Storing page for group '#{group}': '#{page}'")
+        logger.info("Rebuilt page for group '#{group}'")
         @entity_cache.save_group_page(group, page)
       end
 

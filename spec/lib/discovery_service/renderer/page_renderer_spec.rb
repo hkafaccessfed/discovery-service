@@ -39,11 +39,11 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
     it 'includes the link to status' do
       expect(subject)
         .to include("<a href=\"#{environment[:status_url]}\""\
-                           " target=\"_blank\">Federation Status</a>")
+                           ' target="_blank">Federation Status</a>')
     end
 
     it 'includes the environment name' do
-      expect(subject).to include("#{environment[:name]}")
+      expect(subject).to include(environment[:name].to_s)
     end
 
     context 'with idps' do
@@ -92,8 +92,8 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
       it 'includes the main (javascript enabled) idp selection button' do
         expect(subject)
-          .to include("<div class=\"ui fluid button large primary\""\
-            " id=\"select_organisation_button\">")
+          .to include('<div class="ui fluid button large primary"'\
+            ' id="select_organisation_button">')
       end
 
       it 'includes the organisations to select' do
@@ -114,7 +114,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       end
 
       it 'includes the first tab' do
-        expect(subject).to include("<a class=\"item\" "\
+        expect(subject).to include('<a class="item" '\
           "data-tab=\"#{tag_groups.first[:tag]}\">"\
           "#{CGI.escapeHTML(tag_groups.first[:name])}")
       end
@@ -122,7 +122,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       it 'includes the middle tabs (allowed to be hidden)' do
         ts = tag_groups - [tag_groups.first, tag_groups.last]
         ts.each do |t|
-          expect(subject).to include("<a class=\"item can_hide\" "\
+          expect(subject).to include('<a class="item can_hide" '\
           "data-tab=\"#{t[:tag]}\">#{CGI.escapeHTML(t[:name])}")
         end
       end

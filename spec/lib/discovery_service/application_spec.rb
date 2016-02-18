@@ -17,7 +17,7 @@ RSpec.describe DiscoveryService::Application do
 
   def date_in_3_months
     (DateTime.now + 3.months).in_time_zone('UTC')
-      .strftime('%a, %d %b %Y %H:%M:%S -0000')
+                             .strftime('%a, %d %b %Y %H:%M:%S -0000')
   end
 
   let(:redis) { Redis::Namespace.new(:discovery_service, redis: Redis.new) }
@@ -119,7 +119,7 @@ RSpec.describe DiscoveryService::Application do
         it 'shows that there are no organisations selected' do
           configure_group
           rack_mock_session.cookie_jar['selected_organisations'] =
-              JSON.generate('other_group' => entity_id)
+            JSON.generate('other_group' => entity_id)
           run
           expect(last_response.body)
             .to include('You have no saved organisations.')
@@ -134,7 +134,7 @@ RSpec.describe DiscoveryService::Application do
           redis.set("entities:#{group_name}",
                     to_hash([existing_entity]).to_json)
           rack_mock_session.cookie_jar['selected_organisations'] =
-              JSON.generate(group_name => entity_id)
+            JSON.generate(group_name => entity_id)
           run
           expect(last_response.body)
             .to include('You have no saved organisations.')
@@ -149,7 +149,7 @@ RSpec.describe DiscoveryService::Application do
           redis.set("entities:#{group_name}",
                     to_hash([existing_entity]).to_json)
           rack_mock_session.cookie_jar['selected_organisations'] =
-              JSON.generate(group_name => existing_entity[:entity_id])
+            JSON.generate(group_name => existing_entity[:entity_id])
           run
         end
 
@@ -164,8 +164,8 @@ RSpec.describe DiscoveryService::Application do
         end
 
         it 'contains a form to reset idps' do
-          expect(last_response.body).to include("<form action=\"\" "\
-            "method=\"POST\">")
+          expect(last_response.body).to include('<form action="" '\
+            'method="POST">')
         end
 
         it 'shows the help text header (singular)' do
@@ -217,8 +217,8 @@ RSpec.describe DiscoveryService::Application do
           redis.set("entities:#{other_group_name}",
                     to_hash([other_entity]).to_json)
           rack_mock_session.cookie_jar['selected_organisations'] =
-              JSON.generate(group_name => existing_entity[:entity_id],
-                            other_group_name => other_entity[:entity_id])
+            JSON.generate(group_name => existing_entity[:entity_id],
+                          other_group_name => other_entity[:entity_id])
           run
         end
 
@@ -257,7 +257,7 @@ RSpec.describe DiscoveryService::Application do
           redis.set("entities:#{group_name}",
                     to_hash([existing_entity]).to_json)
           rack_mock_session.cookie_jar['selected_organisations'] =
-              JSON.generate(group_name => existing_entity[:entity_id])
+            JSON.generate(group_name => existing_entity[:entity_id])
           run
         end
 
@@ -318,7 +318,7 @@ RSpec.describe DiscoveryService::Application do
     context 'when one idp selection is already set' do
       def set_cookie
         rack_mock_session.cookie_jar['selected_organisations'] =
-            JSON.generate(group_name => originally_selected_idp)
+          JSON.generate(group_name => originally_selected_idp)
       end
 
       it 'returns a status 200' do
@@ -343,8 +343,8 @@ RSpec.describe DiscoveryService::Application do
     context 'when multiple idp selections are already set' do
       def set_cookie
         rack_mock_session.cookie_jar['selected_organisations'] =
-            JSON.generate(group_name => originally_selected_idp,
-                          other_group_name => other_selected_idp)
+          JSON.generate(group_name => originally_selected_idp,
+                        other_group_name => other_selected_idp)
       end
 
       let(:other_group_name) do
@@ -534,7 +534,7 @@ RSpec.describe DiscoveryService::Application do
             redis.set("entities:#{group_name}", '{}')
             redis.set("pages:group:#{group_name}", page_content)
             rack_mock_session.cookie_jar['selected_organisations'] =
-                JSON.generate(group_name => entity_id)
+              JSON.generate(group_name => entity_id)
             run
           end
 
@@ -579,7 +579,7 @@ RSpec.describe DiscoveryService::Application do
             redis.set("entities:#{group_name}", '{}')
             redis.set("pages:group:#{group_name}", page_content)
             rack_mock_session.cookie_jar['selected_organisations'] =
-                JSON.generate(multiple_idp_selections)
+              JSON.generate(multiple_idp_selections)
             run
           end
 
@@ -615,7 +615,7 @@ RSpec.describe DiscoveryService::Application do
           allow_any_instance_of(DiscoveryService::Application)
             .to receive(:handle_response).and_return('stubbed')
           rack_mock_session.cookie_jar['selected_organisations'] =
-              JSON.generate(group_name => entity[:entity_id])
+            JSON.generate(group_name => entity[:entity_id])
           run
         end
 
@@ -664,7 +664,7 @@ RSpec.describe DiscoveryService::Application do
             configure_group
             redis.set("entities:#{group_name}", to_hash([selected_idp]).to_json)
             rack_mock_session.cookie_jar['selected_organisations'] =
-                JSON.generate(group_name => selected_idp_entity_id)
+              JSON.generate(group_name => selected_idp_entity_id)
             run
           end
 
@@ -708,7 +708,7 @@ RSpec.describe DiscoveryService::Application do
             configure_group
             redis.set("entities:#{group_name}", to_hash([selected_idp]).to_json)
             rack_mock_session.cookie_jar['selected_organisations'] =
-                JSON.generate(group_name => selected_idp_entity_id)
+              JSON.generate(group_name => selected_idp_entity_id)
             run
           end
 
@@ -725,7 +725,7 @@ RSpec.describe DiscoveryService::Application do
             redis.set("entities:#{group_name}",
                       to_hash([existing_entity]).to_json)
             rack_mock_session.cookie_jar['selected_organisations'] =
-                JSON.generate(group_name => existing_entity[:entity_id])
+              JSON.generate(group_name => existing_entity[:entity_id])
             run
           end
 
@@ -834,8 +834,8 @@ RSpec.describe DiscoveryService::Application do
       it 'returns the idp with no keys for empty fields' do
         expect(last_response.body)
           .to eq(JSON.generate(identity_providers: [
-            { entity_id: idp[:entity_id],
-              tags: [idp[:tags].first] }]))
+                                 { entity_id: idp[:entity_id],
+                                   tags: [idp[:tags].first] }]))
       end
     end
 
@@ -903,7 +903,7 @@ RSpec.describe DiscoveryService::Application do
       before { configure_group }
 
       context 'without mandatory entity id parameter' do
-        let(:path) { "#{base_path}" }
+        let(:path) { base_path.to_s }
 
         before { run }
 
@@ -1061,7 +1061,7 @@ RSpec.describe DiscoveryService::Application do
               redis.set("entities:#{group_name}",
                         to_hash([existing_sp, existing_idp]).to_json)
               rack_mock_session.cookie_jar['selected_organisations'] =
-                  JSON.generate(group_name => originally_selected_idp)
+                JSON.generate(group_name => originally_selected_idp)
               run
               expect(last_response['Set-Cookie']).to eq(expected_cookie)
             end
@@ -1089,7 +1089,7 @@ RSpec.describe DiscoveryService::Application do
               redis.set("entities:#{group_name}",
                         to_hash([existing_sp, existing_idp]).to_json)
               rack_mock_session.cookie_jar['selected_organisations'] =
-                  JSON.generate(other_selected_organisation_hash)
+                JSON.generate(other_selected_organisation_hash)
               run
               expect(last_response['Set-Cookie']).to eq(expected_cookie)
             end
