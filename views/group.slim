@@ -29,7 +29,7 @@ script#sps(type='application/json')== JSON.generate(@sps)
     .header
       | Discovery Service is running in basic mode
     ' For a better experience, please upgrade to a
-    a>(href="http://browsehappy.com/") modern browser
+    a>(href="http://browsehappy.com/" tabindex="1") modern browser
     | and ensure Javascript is enabled.
   form[id="idp_selection_form" action="" method="POST"]
     .ui.form.attached.fluid
@@ -67,12 +67,12 @@ script#sps(type='application/json')== JSON.generate(@sps)
                         - if idp[:logo_url]
                           img.ui.image.tiny.bordered src="#{idp[:logo_url]}" /
                       td
-                        button[type="submit" name="user_idp" value="#{idp[:entity_id]}" class="button ui floated right button small primary select_organisation_input"] Select
+                        button[type="submit" name="user_idp" value="#{idp[:entity_id]}" tabindex="#{@idps.index(idp) + 2}" class="button ui floated right button small select_organisation_input"] Select
       .field
         #select_organisation_button.ui.fluid.button.large.primary
       .field
         .ui.checkbox
-          input name="remember" type="checkbox" /
+          input name="remember" type="checkbox" tabindex="#{@idps.count + 2}" /
           label Remember this selection permanently
 - else
   .ui.negative.message
