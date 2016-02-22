@@ -250,6 +250,7 @@ function makeTabsClickable() {
     $('#tab_menu .item').removeClass('active');
     $(this).addClass('active');
     $('#idp_selection_table').DataTable().draw();
+    hideButtonsAlongsideEachIdP();
     clearSearch();
     unselectIdP();
     setCursorToPointerOnIdPRows();
