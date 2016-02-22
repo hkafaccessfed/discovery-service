@@ -44,20 +44,25 @@ function unselectIdP() {
   $('#idp_selection_table tbody tr').removeClass('active');
 }
 
+function selectIdPRow(tr) {
+  if (tr.attr('role') == 'row') {
+    if (tr.hasClass('active')) {
+      tr.removeClass('active');
+      disableSelectOrganisationButton();
+    }
+    else {
+      unselectIdP();
+      tr.addClass('active');
+      enableSelectOrganisationButton();
+      return true;
+    }
+  }
+  return false;
+}
 function makeIdPRowsSelectable() {
   $('#idp_selection_table tbody').on('click', 'tr', function () {
     var tr = $(this);
-    if (tr.attr('role') == 'row') {
-      if (tr.hasClass('active')) {
-        tr.removeClass('active');
-        disableSelectOrganisationButton();
-      }
-      else {
-        unselectIdP();
-        tr.addClass('active');
-        enableSelectOrganisationButton();
-      }
-    }
+    selectIdPRow(tr);
   });
 }
 
@@ -268,9 +273,21 @@ function hideTabMenu() {
 function preventEnterKey() {
   $(window).keydown(function (event) {
     if (event.keyCode == 13) {
+      var focusedIdPRow = $('#idp_selection_table tr:focus');
+      if (focusedIdPRow && selectIdPRow(focusedIdPRow)) {
+        $("#idp_selection_form").submit();
+        return true;
+      }
       event.preventDefault();
       return false;
     }
+  });
+}
+
+function setTabIndexOnRows() {
+  $('#select_organisation_button').attr('tabindex', 0);
+  $('#idp_selection_table tr:not(:first)').each(function () {
+    $(this).attr('tabindex', 0);
   });
 }
 
@@ -306,6 +323,7 @@ function initRichClient() {
   hideButtonsAlongsideEachIdP();
   initScroller();
   setCursorToPointerOnIdPRows();
+  setTabIndexOnRows();
 }
 
 function initBasicClient() {

@@ -49,7 +49,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
     context 'with idps' do
       let(:group_name) { Faker::Lorem.word }
       let(:select_button_class) do
-        'button ui floated right button small primary'\
+        'button ui floated right button small'\
         ' select_organisation_input'
       end
 
@@ -83,11 +83,11 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
       it 'includes a submit button for each idp' do
         expect(subject).to include("<button class=\"#{select_button_class}\""\
-          " name=\"user_idp\" type=\"submit\" value=\"#{idp_1[:entity_id]}\">"\
-          'Select</button>')
+          ' name="user_idp" tabindex="2" type="submit"'\
+          " value=\"#{idp_1[:entity_id]}\">Select</button>")
         expect(subject).to include("<button class=\"#{select_button_class}\""\
-          " name=\"user_idp\" type=\"submit\" value=\"#{idp_2[:entity_id]}\">"\
-          'Select</button>')
+          ' name="user_idp" tabindex="3" type="submit"'\
+          " value=\"#{idp_2[:entity_id]}\">Select</button>")
       end
 
       it 'includes the main (javascript enabled) idp selection button' do
