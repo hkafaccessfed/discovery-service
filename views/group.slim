@@ -45,6 +45,7 @@ script#sps(type='application/json')== JSON.generate(@sps)
             #search_column.sixteen.wide.column
               .ui.left.icon.right.action.input.fluid
                 i.search.icon
+                label[for="search_input" class="hide"] Organisation:
                 input#search_input placeholder=("Search for your organisation") type="text" autocomplete="off" /
                 #search_clear_button.ui.basic.floating.icon.button
                   i.remove.icon
@@ -72,8 +73,8 @@ script#sps(type='application/json')== JSON.generate(@sps)
         #select_organisation_button.ui.fluid.button.btn-accessible.large.primary
       .field
         .ui.checkbox
-          input name="remember" type="checkbox" /
-          label Remember this selection permanently
+          input id="remember" name="remember" type="checkbox" /
+          label[for="remember"] Remember this selection permanently
 - else
   .ui.negative.message
     .header Error
