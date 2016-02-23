@@ -1,8 +1,7 @@
 doctype html
 html lang='en'
-  head profile='http://www.w3.org/2005/10/profile'
+  head
     meta charset='utf-8'
-    meta http-equiv='X-UA-Compatible' content='IE=Edge,chrome=1'
     meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no'
     title AAF Discovery Service
     /[if IE]
@@ -20,7 +19,7 @@ html lang='en'
           .ui.horizontal.list
             .item
               a[href="http://www.aaf.edu.au" target="_blank" id="aaf_logo"]
-                img.ui.mini.circular.image src="/aaf_logo.png" /
+                img.ui.mini.circular.image src="/aaf_logo.png" alt="The Australian Access Federation" /
               .content[id="aaf_logo_content"]
                 .ui.sub.header Australian Access Federation
                 | #{@environment[:name]}

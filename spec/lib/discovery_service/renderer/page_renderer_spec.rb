@@ -65,7 +65,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       let(:idps) { [idp_1, idp_2] }
 
       let(:expected_open_form_tag) do
-        '<form action="" id="idp_selection_form" method="POST">'
+        '<form id="idp_selection_form" method="POST">'
       end
 
       it 'includes the selection string' do
@@ -92,8 +92,8 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
 
       it 'includes the main (javascript enabled) idp selection button' do
         expect(subject)
-          .to include('<div class="ui fluid button large primary"'\
-            ' id="select_organisation_button">')
+          .to include('<div class="ui fluid button btn-accessible large'\
+            ' primary" id="select_organisation_button">')
       end
 
       it 'includes the organisations to select' do

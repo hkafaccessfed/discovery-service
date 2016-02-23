@@ -3,10 +3,6 @@ $form_right_padding: 0px !important;
 $mobile-max-width: 420px;
 $tablet-max-width: 767px;
 
-img {
-  border-style: none;
-}
-
 @media only screen and (max-width: $mobile-max-width) {
 
   #sp_header {
@@ -38,6 +34,14 @@ img {
   #status_links_column {
     padding-top: 0px !important;
   }
+}
+
+img {
+  border-style: none;
+}
+
+a {
+  color: #297abf;
 }
 
 #search_column {
@@ -137,6 +141,11 @@ img {
   display: none;
 }
 
+.btn-accessible {
+  color: #ffffff !important;
+  background-color: #007bc5 !important;
+}
+
 .idp_selection_table_name_column {
   width: 80%;
 }
@@ -153,6 +162,14 @@ img {
   display: none;
 }
 
+.title {
+  font-size: 1.714rem !important;
+
+  .sub.header {
+    font-size: 1.14285714rem !important;
+  }
+}
+
 .header {
   font-weight: bold;
 }
@@ -163,3 +180,8 @@ img {
   margin-right: auto;
 }
 
+.accessible {
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+}

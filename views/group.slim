@@ -8,8 +8,8 @@ script#sps(type='application/json')== JSON.generate(@sps)
 
 .ui.mobile.stackable.padded.grid
   .twelve.wide.column
-    h2.ui.header
-      img#sp_header_logo.ui.image src="/aaf_logo.png" /
+    .ui.header.title
+      img#sp_header_logo.ui.image src="/aaf_logo.png" alt="The Australian Access Federation" /
       #sp_header.content
         ' Login to
         span.sp_header_name  Service
@@ -31,7 +31,7 @@ script#sps(type='application/json')== JSON.generate(@sps)
     ' For a better experience, please upgrade to a
     a>(href="http://browsehappy.com/" tabindex="1") modern browser
     | and ensure Javascript is enabled.
-  form[id="idp_selection_form" action="" method="POST"]
+  form[id="idp_selection_form" method="POST"]
     .ui.form.attached.fluid
       #loader.ui.inverted.dimmer
         .ui.text.loader
@@ -45,6 +45,7 @@ script#sps(type='application/json')== JSON.generate(@sps)
             #search_column.sixteen.wide.column
               .ui.left.icon.right.action.input.fluid
                 i.search.icon
+                label[for="search_input" class="accessible"] Organisation:
                 input#search_input placeholder=("Search for your organisation") type="text" autocomplete="off" /
                 #search_clear_button.ui.basic.floating.icon.button
                   i.remove.icon
@@ -69,11 +70,11 @@ script#sps(type='application/json')== JSON.generate(@sps)
                       td
                         button[type="submit" name="user_idp" value="#{idp[:entity_id]}" tabindex="#{@idps.index(idp) + 2}" class="button ui floated right button small select_organisation_input"] Select
       .field
-        #select_organisation_button.ui.fluid.button.large.primary
+        #select_organisation_button.ui.fluid.button.btn-accessible.large.primary
       .field
         .ui.checkbox
-          input name="remember" type="checkbox" /
-          label Remember this selection permanently
+          input id="remember" name="remember" type="checkbox" /
+          label[for="remember"] Remember this selection permanently
 - else
   .ui.negative.message
     .header Error
