@@ -44,10 +44,6 @@ a {
   color: #297abf;
 }
 
-h1.ui.header {
-  font-size: 1.714rem;
-}
-
 #search_column {
   padding-left: $form_left_padding;
   padding-right: $form_right_padding;
@@ -164,6 +160,14 @@ h1.ui.header {
 
 .ui.modal {
   display: none;
+}
+
+.title {
+  font-size: 1.714rem !important;
+
+  .sub.header {
+    font-size: 1.14285714rem !important;
+  }
 }
 
 .header {
