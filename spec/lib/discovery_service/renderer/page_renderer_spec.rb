@@ -65,7 +65,7 @@ RSpec.describe DiscoveryService::Renderer::PageRenderer do
       let(:idps) { [idp_1, idp_2] }
 
       let(:expected_open_form_tag) do
-        '<form action="" id="idp_selection_form" method="POST">'
+        '<form id="idp_selection_form" method="POST">'
       end
 
       it 'includes the selection string' do
