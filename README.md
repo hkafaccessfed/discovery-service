@@ -39,3 +39,10 @@ TBD
 ## Setting up a development environment
 
 Please see [Developer Notes](developer_notes.md).
+
+## Browser Support
+
+Tested in all mainstream browsers using [BrowserStack][browserstack], which
+provides instant access to all real mobile and desktop browsers.
+
+[browserstack]: http://browserstack.com/
