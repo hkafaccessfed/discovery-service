@@ -1,0 +1,2 @@
+---
+unicorn_socket: unix://tmp/unicorn.sock

@@ -1,0 +1,44 @@
+---
+:saml_service:
+  :url: http://localhost:8080/entities
+
+:groups:
+  :tuakiri:
+    :filters:
+      - [tuakiri, other]
+    :tag_groups:
+      false
+  :aaf:
+    :filters:
+      - [discovery, aaf]
+      - [sp, aaf]
+      - [idp, aaf]
+      - [tuakiri]
+    :tag_groups:
+      - :name: 'Australia'
+        :tag: 'aaf'
+      - :name: 'New Zealand'
+        :tag: 'tuakiri'
+  :edugain:
+    :filters:
+      - [discovery, aaf]
+      - [discovery, tuakiri]
+      - [discovery, edugain]
+    :tag_groups:
+      - :name: 'Australia'
+        :tag: 'aaf'
+      - :name: 'New Zealand'
+        :tag: 'tuakiri'
+      - :name: 'International'
+        :tag: '*'
+
+:environment:
+  :name: 'Test Environment'
+  :status_url: 'http://status.test.aaf.edu.au'
+
+:sqs:
+  :fake: true
+  :region: localhost
+  :endpoint: http://localhost:9324
+  :queue_url: http://localhost:9324/queue/discovery-service-development
+  :encryption_key: config/event_encryption_key.pem
