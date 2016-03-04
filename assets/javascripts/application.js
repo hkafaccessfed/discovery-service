@@ -123,7 +123,7 @@ function enableTabs() {
     $.fn.dataTable.ext.search.push(
         function (settings, data) {
           var tagsForIdPAsString = data[3];
-          var tagsForIdP = tagsForIdPAsString.slice(1, -1).split(',');
+          var tagsForIdP = tagsForIdPAsString.split(',');
           var selectedTab = $('#tab_menu a.active').attr('data-tab');
           return tagsForIdP.indexOf(selectedTab) != -1 || selectedTab == '*'
         }
