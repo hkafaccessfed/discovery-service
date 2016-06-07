@@ -19,10 +19,11 @@ html lang='en'
           .ui.horizontal.list
             .item
               a[href="http://www.hkaf.edu.hk" target="_blank" id="aaf_logo"]
-                img.ui.mini.circular.image src="/hkaf_logo.png" alt="The Hong Kong Access Federation" /
+                img.ui.mini.circular.image src="/hkaf_logo.jpg" alt="The Hong Kong Access Federation" /
               .content[id="aaf_logo_content"]
                 .ui.sub.header Hong Kong Access Federation
                 | #{@environment[:name]}
         #status_links_column.four.wide.column
           .item
-            a href="#{@environment[:status_url]}" target="_blank" Federation Status
+            a[href="http://www.jucc.edu.hk/" target="_blank" id="jucc_logo"]
+              img.ui.image src="/jucc_logo.png" alt="Joint Universities Computer Center Ltd."
